@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(Deer_Invaders
         Main.cpp
-        Main.h)
+        Main.h
+        assets/State.cpp
+        assets/State.h)
 
 target_link_libraries(Deer_Invaders PRIVATE SDL3 SDL3_image SDL3_ttf)
 

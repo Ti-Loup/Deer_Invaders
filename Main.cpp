@@ -49,6 +49,9 @@ class GameApp {
 
 	//creation des boutons pour le menu
 		SDL_FRect BoutonPlay = { 50, 450, 250, 100 };
+		bool bClickedOnPlay = false;
+		bool bClickedOnQuit = false;
+		bool bClickedOnTBD = false;
 		SDL_FRect BoutonTBD = { 120, 600, 250, 100 };
 		SDL_FRect BoutonQuit = { 180, 750, 250, 100 };
 		TTF_Text *TextStart = nullptr;
@@ -174,6 +177,7 @@ class GameApp {
 			TTF_DestroyText(MenuTitle);
 			TTF_DestroyRendererTextEngine(textEngine);
 			TTF_CloseFont(font);
+			TTF_CloseFont(BoutonFont);
 			TTF_DestroyText(TextStart);
 			TTF_DestroyText(TextQuit);
 			TTF_DestroyText(TextTBD);
@@ -271,7 +275,13 @@ class GameApp {
 			}
 
 		}
-
+//Les differents etats
+	enum Gamestate {
+			Menu,
+			Game,
+			HighScore,
+			Quit,
+		};
 
 
 	//Menu du jeu qui run
@@ -287,6 +297,16 @@ class GameApp {
 						{
 							if (MenuEvents.type == SDL_EVENT_QUIT)
 								running = false;
+
+							if (MenuEvents.type == SDL_EVENT_MOUSE_BUTTON_DOWN && MenuEvents.button.button == SDL_BUTTON_LEFT) {
+								SDL_FPoint MousePT = {MenuEvents.button.x, MenuEvents.button.y};
+								//Si on appuie sur Play alors on va vers fonction -> Game
+								if (!bClickedOnPlay && SDL_PointInRectFloat(&MousePT, &BoutonPlay)) {
+									bClickedOnPlay = true;
+
+									running = false;
+								}
+							}
 						}
 
 					const uint64_t currentTime = SDL_GetTicks();
@@ -315,6 +335,9 @@ class GameApp {
 		bool bRunning = true;
 			while (bRunning) {
 				SDL_Event GameEvent;
+				while (SDL_PollEvent(&GameEvent)) {
+
+				}
 			}
 		}
 };
