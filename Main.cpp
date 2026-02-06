@@ -1,0 +1,330 @@
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <numeric>
+#include <string>
+#include <vector>
+#include "Main.h"
+
+static constexpr Sint32 TILE_SIZE = 32;
+static constexpr Sint32 ANIM_ROW_BEGIN = 0;
+static constexpr Sint32 ANIM_ROW_END = 0;
+static constexpr Sint32 ANIM_COL_BEGIN = 0;
+static constexpr Sint32 ANIM_COL_END = 6;
+static constexpr Sint32 PRESENT_SIZE = 8;
+
+static Uint32 TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval)
+{
+	bool *updateFlag = static_cast<bool *>(userdata);
+	*updateFlag = true;
+	return interval;
+}
+
+class GameApp {
+
+		SDL_Window *window = nullptr;
+		SDL_Renderer *renderer = nullptr;
+		SDL_Texture *spritesheet = nullptr;
+
+		float animTimer = 0.0f;
+		int currentCol = ANIM_COL_BEGIN;
+		int currentRow = ANIM_ROW_BEGIN;
+		const float frameDuration = 0.15f;
+
+		float colorTime = 0.0f;
+		Uint8 r = 0, g = 0, b = 0;
+
+		TTF_Font *font = nullptr;
+		TTF_Font *MenuFont = nullptr;
+		TTF_TextEngine *textEngine = nullptr;
+		TTF_Text *fpsText = nullptr;
+		TTF_Text *MenuTitle = nullptr;//Pour rajouter un Titre
+
+	//Texte special
+		TTF_Font *MenuSpecialFont = nullptr;
+		TTF_Text *MenuSpecialDraw = nullptr;
+
+	//creation des boutons pour le menu
+		SDL_FRect BoutonPlay = { 50, 450, 250, 100 };
+		SDL_FRect BoutonTBD = { 120, 600, 250, 100 };
+		SDL_FRect BoutonQuit = { 180, 750, 250, 100 };
+		TTF_Text *TextStart = nullptr;
+		TTF_Text *TextQuit = nullptr;
+		TTF_Text *TextTBD = nullptr;//Pour les boutons Start Quit et TBh
+		TTF_Font *BoutonFont = nullptr;
+
+
+		std::vector<float> frameTimes;
+		const size_t MAX_SAMPLES = 100;
+		bool shouldUpdateText = false;
+		SDL_TimerID fpsTimerID;
+		float currentFPS = 0.0f;
+
+	public:
+		GameApp()//Constructeur
+		{
+			if (SDL_Init(SDL_INIT_VIDEO) == false)
+				{
+					SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
+					abort();
+				}
+			window = SDL_CreateWindow("Deer Invaders", 1600, 1200, 0);
+			if (window == nullptr)
+				{
+					SDL_LogCritical(1, "SDL failed to create window! %s", SDL_GetError());
+					abort();
+				}
+			renderer = SDL_CreateRenderer(window, nullptr);
+			if (renderer == nullptr)
+				{
+					SDL_LogCritical(1, "SDL failed to create renderer! %s", SDL_GetError());
+					abort();
+				}
+			spritesheet = IMG_LoadTexture(renderer, "assets/spritesheet.png");
+			if (spritesheet == nullptr)
+				{
+					SDL_LogWarn(0, "SDL_image failed to load texture '%s'! %s", "assets/spritesheet.png",
+								SDL_GetError());
+				}
+			SDL_SetTextureScaleMode(spritesheet, SDL_SCALEMODE_NEAREST);
+			if (TTF_Init() == false)
+				{
+					SDL_LogCritical(1, "SDL_ttf failed to initialize! %s", SDL_GetError());
+					abort();
+				}
+			textEngine = TTF_CreateRendererTextEngine(renderer);
+			if (textEngine == nullptr)
+				{
+					SDL_LogCritical(1, "SDL_ttf failed to create text engine!! %s", SDL_GetError());
+					abort();
+				}
+			font = TTF_OpenFont("assets/font.ttf", 24);
+			if (font == nullptr)
+				{
+					SDL_LogWarn(0, "SDL_ttf failed to load font '%s'! %s", "assets/font.ttf", SDL_GetError());
+				}
+			fpsText = TTF_CreateText(textEngine, font, "FPS: 0", 20);
+			if (fpsText == nullptr)
+				{
+					SDL_LogWarn(0, "SDL_ttf failed to create text '%s'! %s", "FPS: 0", SDL_GetError());
+				}
+			if (TTF_SetTextColor(fpsText, 255, 255, 255, 255) == false)
+				{
+					SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+				}
+			//Le font du Titre
+			MenuFont = TTF_OpenFont("assets/New Space.ttf", 72);
+			if (MenuFont == nullptr)
+			{
+				SDL_LogWarn(0, "SDL_ttf failed to load font '%s'! %s", "assets/New Space.ttf", SDL_GetError());
+			}
+			//Rajoue du menu
+			MenuTitle = TTF_CreateText(textEngine, MenuFont, "         Deer \nInvaders", 25);
+
+			if (MenuTitle == nullptr) {
+				SDL_LogWarn(0,"Le menu n'a pas chargé : TTF",SDL_GetError());
+			}
+			if (TTF_SetTextColor(MenuTitle, 255, 255, 255, 255) == false)
+			{
+				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+			}
+			//special font
+			MenuSpecialFont = TTF_OpenFont("assets/Space.ttf", 120)  ;
+			if (MenuSpecialFont == nullptr) {
+				SDL_LogWarn(0, "SDL_ttf failed to put the font", SDL_GetError());
+			}
+			MenuSpecialDraw = TTF_CreateText(textEngine, MenuSpecialFont, "abcdefghigklmnop", 20);
+
+			BoutonFont = TTF_OpenFont("assets/New Space.ttf", 48);
+
+			TextStart = TTF_CreateText(textEngine, BoutonFont, "Start",25);
+			if (MenuSpecialDraw == nullptr) {
+				SDL_LogWarn(0,"Les boutons du menu n'a pas chargé : TTF",SDL_GetError());
+			}
+			TextQuit = TTF_CreateText(textEngine, BoutonFont, "Quit",25);
+			if (TextQuit == nullptr) {
+				SDL_LogWarn(0,"Les boutons du menu n'a pas chargé : TTF",SDL_GetError());
+			}
+			TextTBD = TTF_CreateText(textEngine, BoutonFont, "TBD",25);
+			if (TextTBD == nullptr) {
+				SDL_LogWarn(0,"Les boutons du menu n'a pas chargé : TTF",SDL_GetError());
+			}
+			if (TTF_SetTextColor(TextStart, 0, 0, 0, 255) == false)
+			{
+				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+			}
+			if (TTF_SetTextColor(TextQuit, 0, 0, 0, 255) == false)
+			{
+				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+			}
+			if (TTF_SetTextColor(TextTBD, 0, 0, 0, 255) == false)
+			{
+				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+			}
+			fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
+		}
+		//Libere memoire
+		~GameApp()
+		{
+			SDL_RemoveTimer(fpsTimerID);
+			TTF_DestroyText(fpsText);
+			TTF_DestroyText(MenuTitle);
+			TTF_DestroyRendererTextEngine(textEngine);
+			TTF_CloseFont(font);
+			TTF_DestroyText(TextStart);
+			TTF_DestroyText(TextQuit);
+			TTF_DestroyText(TextTBD);
+			TTF_CloseFont(MenuSpecialFont);
+			SDL_DestroyTexture(spritesheet);
+			SDL_DestroyRenderer(renderer);
+			SDL_DestroyWindow(window);
+			TTF_Quit();
+			SDL_Quit();
+		}
+
+		void CalculateFPS(const float deltaTime)
+		{
+			frameTimes.push_back(deltaTime);
+			if (frameTimes.size() > MAX_SAMPLES)
+				{
+					frameTimes.erase(frameTimes.begin());
+				}
+			const float sum = std::accumulate(frameTimes.begin(), frameTimes.end(), 0.0f);
+			const float avgDelta = sum / static_cast<float>(frameTimes.size());
+			currentFPS = (avgDelta > 0) ? 1.0f / avgDelta : 0;
+
+			if (shouldUpdateText)
+				{
+					std::string fpsStr = "FPS: " + std::to_string(static_cast<int>(currentFPS));
+					TTF_SetTextString(fpsText, fpsStr.c_str(), 0);
+					shouldUpdateText = false; // Reset the flag
+				}
+		}
+
+		void AdvanceAnimation(const float deltaTime)
+		{
+			animTimer += deltaTime;
+			if (animTimer >= frameDuration)
+				{
+					animTimer = 0.0f;
+					currentCol++;
+
+					if (currentCol > ANIM_COL_END)
+						{
+							currentCol = ANIM_COL_BEGIN;
+							currentRow++;
+						}
+
+					if (currentRow > ANIM_ROW_END)
+						{
+							currentRow = ANIM_ROW_BEGIN;
+						}
+				}
+		}
+
+
+
+		void RenderAnimation() const
+		{
+			if (spritesheet != nullptr)
+				{
+					const SDL_FRect src = {
+							static_cast<float>(currentCol * TILE_SIZE),
+							static_cast<float>(currentRow * TILE_SIZE),
+							static_cast<float>(TILE_SIZE),
+							static_cast<float>(TILE_SIZE),
+					};
+
+					constexpr SDL_FRect dst = {
+							(2400.0f / 2.0f) - ((TILE_SIZE * PRESENT_SIZE) / 2.0f),
+							(2000.0f / 2.0f) - ((TILE_SIZE * PRESENT_SIZE) / 2.0f),
+							static_cast<float>((TILE_SIZE * PRESENT_SIZE)),
+							static_cast<float>((TILE_SIZE * PRESENT_SIZE)),
+					};
+
+					SDL_RenderTexture(renderer, spritesheet, &src, &dst);
+				}
+		}
+		//Petite fonction pour mettre un titre
+		void RenderTitle() {
+
+			TTF_DrawRendererText(MenuTitle, 0, 200);
+			TTF_DrawRendererText(MenuSpecialDraw, 000, 1095);
+		}
+		//Boutons
+		void RenderBoutons(const SDL_FRect& rect, TTF_Text* buttonText, Uint8 buttonr, Uint8 buttong, Uint8 buttonb) {
+			SDL_SetRenderDrawColor(renderer, buttonr, buttong, buttong, 255);
+			SDL_RenderFillRect(renderer, &rect);
+			//Dessiner Texte au centre du boutton
+			if (buttonText != nullptr) {
+				int textW, textH;//Longeur/Largeur
+				TTF_GetTextSize(buttonText, &textW, &textH);
+
+
+				float textX = rect.x + (rect.w - textW) / 2.0f;
+				float textY = rect.y + (rect.h - textH) / 2.0f;
+
+				TTF_DrawRendererText(buttonText, textX, textY);
+			}
+
+		}
+
+
+
+	//Menu du jeu qui run
+		void Menu()
+		{
+			bool running = true;
+			uint64_t lastTime = SDL_GetTicks();
+
+			while (running)
+				{
+					SDL_Event MenuEvents;
+					while (SDL_PollEvent(&MenuEvents))
+						{
+							if (MenuEvents.type == SDL_EVENT_QUIT)
+								running = false;
+						}
+
+					const uint64_t currentTime = SDL_GetTicks();
+					const float deltaTime = static_cast<float>(currentTime - lastTime) / 1000.0f;
+					lastTime = currentTime;
+					CalculateFPS(deltaTime);
+
+					AdvanceAnimation(deltaTime);
+
+					//Rendering
+					SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+					SDL_RenderClear(renderer);
+					RenderTitle();
+					RenderAnimation();
+					RenderBoutons(BoutonPlay, TextStart, 250,255,255);
+					RenderBoutons(BoutonQuit, TextQuit, 250,255,255);
+					RenderBoutons(BoutonTBD, TextTBD, 250,255,255);
+
+					TTF_DrawRendererText(fpsText, 1500, 10);
+
+					SDL_RenderPresent(renderer);
+				}
+		}
+
+		void Game() {
+		bool bRunning = true;
+			while (bRunning) {
+				SDL_Event GameEvent;
+			}
+		}
+};
+
+int main(int argc, char *argv[])
+{
+
+	GameApp app;
+
+	app.Menu();
+
+	return 0;
+}
