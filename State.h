@@ -5,9 +5,12 @@
 #ifndef DEER_INVADERS_STATE_H
 #define DEER_INVADERS_STATE_H
 
-
-class State {
-
+//state machine
+enum class State {
+Menu,
+Game,
+ScoreBoard,
+Quit,
 };
 
 
