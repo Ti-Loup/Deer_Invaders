@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "Main.h"
+#include "State.h"
 
 static constexpr Sint32 TILE_SIZE = 32;
 static constexpr Sint32 ANIM_ROW_BEGIN = 0;
@@ -28,6 +29,8 @@ class GameApp {
 		SDL_Window *window = nullptr;
 		SDL_Renderer *renderer = nullptr;
 		SDL_Texture *spritesheet = nullptr;
+	//Ajout du state
+		State StateActuel = State::Menu;
 
 		float animTimer = 0.0f;
 		int currentCol = ANIM_COL_BEGIN;
@@ -37,27 +40,34 @@ class GameApp {
 		float colorTime = 0.0f;
 		Uint8 r = 0, g = 0, b = 0;
 
+		//-> MENU <- Font et Texts
 		TTF_Font *font = nullptr;
 		TTF_Font *MenuFont = nullptr;
 		TTF_TextEngine *textEngine = nullptr;
 		TTF_Text *fpsText = nullptr;
 		TTF_Text *MenuTitle = nullptr;//Pour rajouter un Titre
-
 	//Texte special
 		TTF_Font *MenuSpecialFont = nullptr;
 		TTF_Text *MenuSpecialDraw = nullptr;
-
 	//creation des boutons pour le menu
 		SDL_FRect BoutonPlay = { 50, 450, 250, 100 };
 		bool bClickedOnPlay = false;
 		bool bClickedOnQuit = false;
-		bool bClickedOnTBD = false;
-		SDL_FRect BoutonTBD = { 120, 600, 250, 100 };
+		bool bClickedOnScore = false;
+		SDL_FRect BoutonScore = { 120, 600, 250, 100 };
 		SDL_FRect BoutonQuit = { 180, 750, 250, 100 };
+
 		TTF_Text *TextStart = nullptr;
 		TTF_Text *TextQuit = nullptr;
-		TTF_Text *TextTBD = nullptr;//Pour les boutons Start Quit et TBh
+		TTF_Text *TextScore = nullptr;//Pour les boutons Start Quit et TBh
+		TTF_Text *TextQuitScore = nullptr;
 		TTF_Font *BoutonFont = nullptr;
+
+		// -> GAME <- Text et Fonts
+
+		// -> Score <- Text et Fonts
+		TTF_Font *ReturnBoutonFont = nullptr;
+		SDL_FRect BoutonQuitScore = { 1250, 900, 250, 100 };
 
 
 		std::vector<float> frameTimes;
@@ -74,7 +84,7 @@ class GameApp {
 					SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
 					abort();
 				}
-			window = SDL_CreateWindow("Deer Invaders", 1600, 1200, 0);
+			window = SDL_CreateWindow("Deer Invaders", 1600, 1080, 0);
 			if (window == nullptr)
 				{
 					SDL_LogCritical(1, "SDL failed to create window! %s", SDL_GetError());
@@ -142,7 +152,10 @@ class GameApp {
 			MenuSpecialDraw = TTF_CreateText(textEngine, MenuSpecialFont, "abcdefghigklmnop", 20);
 
 			BoutonFont = TTF_OpenFont("assets/New Space.ttf", 48);
-
+			ReturnBoutonFont = TTF_OpenFont("assets/New Space.ttf", 24);
+			{
+				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+			}
 			TextStart = TTF_CreateText(textEngine, BoutonFont, "Start",25);
 			if (MenuSpecialDraw == nullptr) {
 				SDL_LogWarn(0,"Les boutons du menu n'a pas chargé : TTF",SDL_GetError());
@@ -151,8 +164,8 @@ class GameApp {
 			if (TextQuit == nullptr) {
 				SDL_LogWarn(0,"Les boutons du menu n'a pas chargé : TTF",SDL_GetError());
 			}
-			TextTBD = TTF_CreateText(textEngine, BoutonFont, "TBD",25);
-			if (TextTBD == nullptr) {
+			TextScore = TTF_CreateText(textEngine, BoutonFont, "Score",25);
+			if (TextScore == nullptr) {
 				SDL_LogWarn(0,"Les boutons du menu n'a pas chargé : TTF",SDL_GetError());
 			}
 			if (TTF_SetTextColor(TextStart, 0, 0, 0, 255) == false)
@@ -163,10 +176,19 @@ class GameApp {
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
 			}
-			if (TTF_SetTextColor(TextTBD, 0, 0, 0, 255) == false)
+			if (TTF_SetTextColor(TextScore, 0, 0, 0, 255) == false)
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
 			}
+			TextQuitScore = TTF_CreateText(textEngine, BoutonFont, "Return \nMenu",25);
+			if (TextQuitScore == nullptr) {
+				SDL_LogWarn(0,"SDL_TTF failed to set the return Menu text)! %s", SDL_GetError());
+			}
+			if (TTF_SetTextColor(TextQuitScore, 0, 0, 0, 255) == false)
+			{
+				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+			}
+
 			fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
 		}
 		//Libere memoire
@@ -180,7 +202,7 @@ class GameApp {
 			TTF_CloseFont(BoutonFont);
 			TTF_DestroyText(TextStart);
 			TTF_DestroyText(TextQuit);
-			TTF_DestroyText(TextTBD);
+			TTF_DestroyText(TextScore);
 			TTF_CloseFont(MenuSpecialFont);
 			SDL_DestroyTexture(spritesheet);
 			SDL_DestroyRenderer(renderer);
@@ -229,8 +251,6 @@ class GameApp {
 				}
 		}
 
-
-
 		void RenderAnimation() const
 		{
 			if (spritesheet != nullptr)
@@ -243,8 +263,8 @@ class GameApp {
 					};
 
 					constexpr SDL_FRect dst = {
-							(2400.0f / 2.0f) - ((TILE_SIZE * PRESENT_SIZE) / 2.0f),
-							(2000.0f / 2.0f) - ((TILE_SIZE * PRESENT_SIZE) / 2.0f),
+							(2800.0f / 2.0f) - ((TILE_SIZE * PRESENT_SIZE) / 2.0f),
+							(1700.0f / 2.0f) - ((TILE_SIZE * PRESENT_SIZE) / 2.0f),
 							static_cast<float>((TILE_SIZE * PRESENT_SIZE)),
 							static_cast<float>((TILE_SIZE * PRESENT_SIZE)),
 					};
@@ -256,7 +276,7 @@ class GameApp {
 		void RenderTitle() {
 
 			TTF_DrawRendererText(MenuTitle, 0, 200);
-			TTF_DrawRendererText(MenuSpecialDraw, 000, 1095);
+			TTF_DrawRendererText(MenuSpecialDraw, 000, 950);
 		}
 		//Boutons
 		void RenderBoutons(const SDL_FRect& rect, TTF_Text* buttonText, Uint8 buttonr, Uint8 buttong, Uint8 buttonb) {
@@ -275,71 +295,131 @@ class GameApp {
 			}
 
 		}
-//Les differents etats
-	enum Gamestate {
-			Menu,
-			Game,
-			HighScore,
-			Quit,
-		};
+
 
 
 	//Menu du jeu qui run
-		void Menu()
-		{
-			bool running = true;
-			uint64_t lastTime = SDL_GetTicks();
+	void Menu(float deltaTime) {
+		SDL_Event MenuEvents;
+		while (SDL_PollEvent(&MenuEvents)) {
+			if (MenuEvents.type == SDL_EVENT_QUIT) {
+				StateActuel = State::Quit; // On change l'état vers Quit
+			}
 
-			while (running)
-				{
-					SDL_Event MenuEvents;
-					while (SDL_PollEvent(&MenuEvents))
-						{
-							if (MenuEvents.type == SDL_EVENT_QUIT)
-								running = false;
+			if (MenuEvents.type == SDL_EVENT_MOUSE_BUTTON_DOWN && MenuEvents.button.button == SDL_BUTTON_LEFT) {
+				SDL_FPoint MousePT = { MenuEvents.button.x, MenuEvents.button.y };
 
-							if (MenuEvents.type == SDL_EVENT_MOUSE_BUTTON_DOWN && MenuEvents.button.button == SDL_BUTTON_LEFT) {
-								SDL_FPoint MousePT = {MenuEvents.button.x, MenuEvents.button.y};
-								//Si on appuie sur Play alors on va vers fonction -> Game
-								if (!bClickedOnPlay && SDL_PointInRectFloat(&MousePT, &BoutonPlay)) {
-									bClickedOnPlay = true;
-
-									running = false;
-								}
-							}
-						}
-
-					const uint64_t currentTime = SDL_GetTicks();
-					const float deltaTime = static_cast<float>(currentTime - lastTime) / 1000.0f;
-					lastTime = currentTime;
-					CalculateFPS(deltaTime);
-
-					AdvanceAnimation(deltaTime);
-
-					//Rendering
-					SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-					SDL_RenderClear(renderer);
-					RenderTitle();
-					RenderAnimation();
-					RenderBoutons(BoutonPlay, TextStart, 250,255,255);
-					RenderBoutons(BoutonQuit, TextQuit, 250,255,255);
-					RenderBoutons(BoutonTBD, TextTBD, 250,255,255);
-
-					TTF_DrawRendererText(fpsText, 1500, 10);
-
-					SDL_RenderPresent(renderer);
+				// Si on clique sur PLAY
+				if (SDL_PointInRectFloat(&MousePT, &BoutonPlay)) {
+					SDL_Log("Transition vers le JEU");
+					StateActuel = State::Game;
 				}
-		}
-
-		void Game() {
-		bool bRunning = true;
-			while (bRunning) {
-				SDL_Event GameEvent;
-				while (SDL_PollEvent(&GameEvent)) {
-
+				// Si on clique pour voir le score
+				if (SDL_PointInRectFloat(&MousePT, &BoutonScore)) {
+				SDL_Log("Transition vers Tableau Score");
+					StateActuel = State::ScoreBoard;
+				}
+				// Si on clique sur QUIT
+				if (SDL_PointInRectFloat(&MousePT, &BoutonQuit)) {
+					StateActuel = State::Quit;
 				}
 			}
 		}
+
+		// Rendu du menu
+		SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+		SDL_RenderClear(renderer);
+
+		RenderTitle();
+		RenderAnimation();
+
+		// Mise à jour animation
+		AdvanceAnimation(deltaTime);
+
+		// Dessin des boutons
+		RenderBoutons(BoutonPlay, TextStart, 250, 255, 255);
+		RenderBoutons(BoutonQuit, TextQuit, 250, 255, 255);
+		RenderBoutons(BoutonScore, TextScore, 250, 255, 255);
+
+		TTF_DrawRendererText(fpsText, 1500, 10);
+		SDL_RenderPresent(renderer);
+	}
+
+	// 3. MODIFICATION : La fonction Game ne boucle plus non plus
+	void Game(float deltaTime) {
+		SDL_Event GameEvents;
+		while (SDL_PollEvent(&GameEvents)) {
+			if (GameEvents.type == SDL_EVENT_QUIT) {
+				StateActuel = State::Quit;
+			}
+
+		}
+
+
+
+		// Rendu du jeu
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir pour le jeu
+		SDL_RenderClear(renderer);
+
+
+		TTF_DrawRendererText(fpsText, 1500, 10); // Affiche FPS en jeu aussi
+
+		SDL_RenderPresent(renderer);
+	}
+	//fonction pour la section score
+	void Score(float deltaTime) {
+			SDL_Event ScoreEvents;
+			while (SDL_PollEvent(&ScoreEvents)) {
+				if (ScoreEvents.type == SDL_EVENT_MOUSE_BUTTON_DOWN && ScoreEvents.button.button == SDL_BUTTON_LEFT) {
+					SDL_FPoint MousePT = { ScoreEvents.button.x, ScoreEvents.button.y };
+
+					// Si on clique sur QUIT
+					if (SDL_PointInRectFloat(&MousePT, &BoutonQuitScore)) {
+						StateActuel = State::Menu;
+					}
+				}
+
+			}
+			// Rendu du Score
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir
+			SDL_RenderClear(renderer);
+
+			RenderBoutons(BoutonQuitScore, TextQuitScore, 250, 255, 255);
+			TTF_DrawRendererText(fpsText, 1500, 10); // Affiche FPS en jeu aussi
+
+			SDL_RenderPresent(renderer);
+		}
+
+	//L'execution ce fait ici avec un switch et les differents States
+	void Run() {
+		uint64_t lastTime = SDL_GetTicks();
+
+		while (StateActuel != State::Quit) {
+			// Calcul du temps global
+			const uint64_t currentTime = SDL_GetTicks();
+			const float deltaTime = static_cast<float>(currentTime - lastTime) / 1000.0f;
+			lastTime = currentTime;
+
+			CalculateFPS(deltaTime);
+
+			switch (StateActuel) {
+				case State::Menu:
+					Menu(deltaTime);
+					break;
+
+				case State::Game:
+					Game(deltaTime);
+					break;
+
+				case State::ScoreBoard:
+					Score(deltaTime);
+					break;
+
+				case State::Quit:
+					break;
+			}
+		}
+	}
 };
 
 int main(int argc, char *argv[])
@@ -347,7 +427,7 @@ int main(int argc, char *argv[])
 
 	GameApp app;
 
-	app.Menu();
+	app.Run();
 
 	return 0;
 }
