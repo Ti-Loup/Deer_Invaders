@@ -186,7 +186,7 @@ class GameApp {
 			}
 			if (TTF_SetTextColor(TextQuitScore, 0, 0, 0, 255) == false)
 			{
-				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+				SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
 			}
 
 			fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
