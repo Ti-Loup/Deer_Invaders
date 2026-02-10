@@ -1,3 +1,8 @@
+//defines
+#define SDL_MAIN_USE_CALLBACKS//Pour le main
+
+
+//includes
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -12,7 +17,6 @@
 #include "Entity.h"
 #include "Personnages.h"
 
-#define SDL_MAIN_USE_CALLBACKS//Pour le main
 
 
 
@@ -197,12 +201,47 @@ class GameApp {
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
 			}
-			//quelques cerfs
+			//Ligne 1 de cerf
 			entities.push_back(new Enemy_Deer(100.f, 100.0f));
-			entities.push_back(new Enemy_Deer(200.f, 150.0f));
-			entities.push_back(new Enemy_Deer(300.f, 50.0f));
-			entities.push_back(new Enemy_Deer(400.0f, 100.0f));
+			entities.push_back(new Enemy_Deer(250.f, 100.0f));
+			entities.push_back(new Enemy_Deer(400.f, 100.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 100.0f));
 
+			entities.push_back(new Enemy_Deer(950.0f, 100.0f));
+			entities.push_back(new Enemy_Deer(1100.0f, 100.0f));
+			entities.push_back(new Enemy_Deer(1250.0f, 100.0f));
+			entities.push_back(new Enemy_Deer(1400.0f, 100.0f));
+
+			//Ligne 2 de cerfs
+			entities.push_back(new Enemy_Deer(100.f, 250.0f));
+			entities.push_back(new Enemy_Deer(250.f, 250.0f));
+			entities.push_back(new Enemy_Deer(400.f, 250.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 250.0f));
+
+			entities.push_back(new Enemy_Deer(950.0f, 250.0f));
+			entities.push_back(new Enemy_Deer(1100.0f, 250.0f));
+			entities.push_back(new Enemy_Deer(1250.0f, 250.0f));
+			entities.push_back(new Enemy_Deer(1400.0f, 250.0f));
+			//Ligne 3 de cerfs
+			entities.push_back(new Enemy_Deer(100.f, 400.0f));
+			entities.push_back(new Enemy_Deer(250.f, 400.0f));
+			entities.push_back(new Enemy_Deer(400.f, 400.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 400.0f));
+
+			entities.push_back(new Enemy_Deer(950.0f, 400.0f));
+			entities.push_back(new Enemy_Deer(1100.0f, 400.0f));
+			entities.push_back(new Enemy_Deer(1250.0f, 400.0f));
+			entities.push_back(new Enemy_Deer(1400.0f, 400.0f));
+			//Ligne 4 de cerfs
+			entities.push_back(new Enemy_Deer(100.f, 600.0f));
+			entities.push_back(new Enemy_Deer(250.f, 600.0f));
+			entities.push_back(new Enemy_Deer(400.f, 600.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 600.0f));
+
+			entities.push_back(new Enemy_Deer(950.0f, 600.0f));
+			entities.push_back(new Enemy_Deer(1100.0f, 600.0f));
+			entities.push_back(new Enemy_Deer(1250.0f, 600.0f));
+			entities.push_back(new Enemy_Deer(1400.0f, 600.0f));
 
 			fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
 		}
@@ -445,7 +484,8 @@ class GameApp {
 	}
 };
 
-SDL_AppResult //deux *pour modifier et				2 etoiles argv signifie avec un array
+/*
+SDL_AppResult //deux *pour modifier et ecrire dans le pointeur				2 etoiles argv signifie avec un array
 SDL_AppInit (void **appstate, int argc, char *argv[]) {
 
 
@@ -464,9 +504,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 SDL_AppResult
 SDL_AppIterate (void *appstate){
 
-GameApp *app (GameApp *)appstate;
+GameApp *app = (GameApp *)appstate;
 if (app) {
-	app.Run();
+	app->Run();
 }
 	return SDL_APP_CONTINUE;
 }
@@ -475,14 +515,12 @@ void
 SDL_AppQuit (void *appstate, SDL_AppResult result)
 {
 }
-
-
-
+*/
 
 
 //Main
 
-/*
+
 int main(int argc, char *argv[])
 {
 
@@ -492,4 +530,3 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-*/

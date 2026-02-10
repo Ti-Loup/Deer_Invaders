@@ -43,7 +43,6 @@ class MovementComponents : public Components
 
   public:
 	SDL_FPoint velocity = { 0.f, 0.f };
-
 	MovementComponents () = default;
 };
 
