@@ -12,6 +12,10 @@
 #include "Entity.h"
 #include "Personnages.h"
 
+#define SDL_MAIN_USE_CALLBACKS//Pour le main
+
+
+
 static constexpr Sint32 TILE_SIZE = 32;
 static constexpr Sint32 ANIM_ROW_BEGIN = 0;
 static constexpr Sint32 ANIM_ROW_END = 0;
@@ -194,9 +198,12 @@ class GameApp {
 				SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
 			}
 			//quelques cerfs
-			entities.push_back(new Enemy_Deer(100.f, 50.f));
-			entities.push_back(new Enemy_Deer(200.f, 150.f));
-			entities.push_back(new Enemy_Deer(300.f, 50.f));
+			entities.push_back(new Enemy_Deer(100.f, 100.0f));
+			entities.push_back(new Enemy_Deer(200.f, 150.0f));
+			entities.push_back(new Enemy_Deer(300.f, 50.0f));
+			entities.push_back(new Enemy_Deer(400.0f, 100.0f));
+
+
 			fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
 		}
 		//Libere memoire
@@ -406,6 +413,7 @@ class GameApp {
 		}
 
 	//L'execution ce fait ici avec un switch et les differents States
+
 	void Run() {
 		uint64_t lastTime = SDL_GetTicks();
 
@@ -437,6 +445,44 @@ class GameApp {
 	}
 };
 
+SDL_AppResult //deux *pour modifier et				2 etoiles argv signifie avec un array
+SDL_AppInit (void **appstate, int argc, char *argv[]) {
+
+
+	GameApp *app = new GameApp();
+
+
+	*appstate = app;
+	return SDL_APP_CONTINUE;
+}
+SDL_AppResult
+SDL_AppEvent(void *appstate, SDL_Event *event) {
+
+
+	return SDL_APP_CONTINUE;
+}
+SDL_AppResult
+SDL_AppIterate (void *appstate){
+
+GameApp *app (GameApp *)appstate;
+if (app) {
+	app.Run();
+}
+	return SDL_APP_CONTINUE;
+}
+
+void
+SDL_AppQuit (void *appstate, SDL_AppResult result)
+{
+}
+
+
+
+
+
+//Main
+
+/*
 int main(int argc, char *argv[])
 {
 
@@ -446,3 +492,4 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+*/
