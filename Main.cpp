@@ -9,6 +9,8 @@
 #include <vector>
 #include "Main.h"
 #include "State.h"
+#include "Entity.h"
+#include "Personnages.h"
 
 static constexpr Sint32 TILE_SIZE = 32;
 static constexpr Sint32 ANIM_ROW_BEGIN = 0;
@@ -75,6 +77,9 @@ class GameApp {
 		bool shouldUpdateText = false;
 		SDL_TimerID fpsTimerID;
 		float currentFPS = 0.0f;
+
+		// La liste de toutes les entités du jeu
+		std::vector<Entity*> entities;
 
 	public:
 		GameApp()//Constructeur
@@ -188,7 +193,10 @@ class GameApp {
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
 			}
-
+			//quelques cerfs
+			entities.push_back(new Enemy_Deer(100.f, 50.f));
+			entities.push_back(new Enemy_Deer(200.f, 150.f));
+			entities.push_back(new Enemy_Deer(300.f, 50.f));
 			fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
 		}
 		//Libere memoire
@@ -352,16 +360,23 @@ class GameApp {
 			if (GameEvents.type == SDL_EVENT_QUIT) {
 				StateActuel = State::Quit;
 			}
-
+			//Les touches
 		}
 
+			// Creation du update
+			for (auto& ent : entities) {
+				ent->MovementUpdate(deltaTime);
+			}
 
 
 		// Rendu du jeu
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir pour le jeu
 		SDL_RenderClear(renderer);
 
-
+			// Dessiner toutes les entités
+			for (auto& ent : entities) {
+				ent->RenderUpdate(renderer);
+			}
 		TTF_DrawRendererText(fpsText, 1500, 10); // Affiche FPS en jeu aussi
 
 		SDL_RenderPresent(renderer);
