@@ -4,6 +4,7 @@
 
 //includes
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <algorithm>
@@ -35,7 +36,7 @@ static Uint32 TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval
 }
 
 class GameApp {
-
+public:
 		SDL_Window *window = nullptr;
 		SDL_Renderer *renderer = nullptr;
 		SDL_Texture *spritesheet = nullptr;
@@ -79,7 +80,6 @@ class GameApp {
 		TTF_Font *ReturnBoutonFont = nullptr;
 		SDL_FRect BoutonQuitScore = { 1250, 900, 250, 100 };
 
-
 		std::vector<float> frameTimes;
 		const size_t MAX_SAMPLES = 100;
 		bool shouldUpdateText = false;
@@ -89,7 +89,19 @@ class GameApp {
 		// La liste de toutes les entités du jeu
 		std::vector<Entity*> entities;
 
-	public:
+	//PATRON DE CONCEPTION SINGLETON
+	//Point unique en avant du constructeur qui est devenue private
+	static GameApp& GetInstance(){
+		static GameApp instance;
+		return instance;
+
+	}
+	GameApp(GameApp const&) = delete;
+	void operator=(GameApp const&) = delete;
+
+
+
+	private:
 		GameApp()//Constructeur
 		{
 			if (SDL_Init(SDL_INIT_VIDEO) == false)
@@ -355,6 +367,9 @@ class GameApp {
 	//Menu du jeu qui run
 	void Menu(float deltaTime) {
 		SDL_Event MenuEvents;
+
+			/*
+			 *Plus besoin des SDL_PoolEvent dans chaque classe
 		while (SDL_PollEvent(&MenuEvents)) {
 			if (MenuEvents.type == SDL_EVENT_QUIT) {
 				StateActuel = State::Quit; // On change l'état vers Quit
@@ -379,6 +394,7 @@ class GameApp {
 				}
 			}
 		}
+		*/
 
 		// Rendu du menu
 		SDL_SetRenderDrawColor(renderer, r, g, b, 255);
@@ -402,12 +418,15 @@ class GameApp {
 	// 3. MODIFICATION : La fonction Game ne boucle plus non plus
 	void Game(float deltaTime) {
 		SDL_Event GameEvents;
+			/*
+		*Plus besoin des SDL_PoolEvent dans chaque classe
 		while (SDL_PollEvent(&GameEvents)) {
 			if (GameEvents.type == SDL_EVENT_QUIT) {
 				StateActuel = State::Quit;
 			}
 			//Les touches
 		}
+		*/
 
 			// Creation du update
 			for (auto& ent : entities) {
@@ -430,6 +449,10 @@ class GameApp {
 	//fonction pour la section score
 	void Score(float deltaTime) {
 			SDL_Event ScoreEvents;
+
+
+			/*
+			 *Plus besoin des SDL_PoolEvent dans chaque classe
 			while (SDL_PollEvent(&ScoreEvents)) {
 				if (ScoreEvents.type == SDL_EVENT_MOUSE_BUTTON_DOWN && ScoreEvents.button.button == SDL_BUTTON_LEFT) {
 					SDL_FPoint MousePT = { ScoreEvents.button.x, ScoreEvents.button.y };
@@ -438,9 +461,11 @@ class GameApp {
 					if (SDL_PointInRectFloat(&MousePT, &BoutonQuitScore)) {
 						StateActuel = State::Menu;
 					}
+
 				}
 
 			}
+			*/
 			// Rendu du Score
 			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir
 			SDL_RenderClear(renderer);
@@ -451,12 +476,13 @@ class GameApp {
 			SDL_RenderPresent(renderer);
 		}
 
-	//L'execution ce fait ici avec un switch et les differents States
+	//L'execution cera appeler par SDL a chaque frame au lieu du main ou on devait faire une boucle while pour faire la boucle Run a l'infini
+public:
+	//Void ne renvoie rien alors on utilise SDL_AppResult pour retourner SDL_APP_SUCCESS && SDL_APP_CONTINUE
+	SDL_AppResult RunCallBacks() {
+		static uint64_t lastTime = SDL_GetTicks();
 
-	void Run() {
-		uint64_t lastTime = SDL_GetTicks();
 
-		while (StateActuel != State::Quit) {
 			// Calcul du temps global
 			const uint64_t currentTime = SDL_GetTicks();
 			const float deltaTime = static_cast<float>(currentTime - lastTime) / 1000.0f;
@@ -478,55 +504,94 @@ class GameApp {
 					break;
 
 				case State::Quit:
-					break;
+				return SDL_APP_SUCCESS;
 			}
-		}
+		return SDL_APP_CONTINUE;
 	}
 };
 
-/*
-SDL_AppResult //deux *pour modifier et ecrire dans le pointeur				2 etoiles argv signifie avec un array
+//Appeler seulement une seul fois
+//-> Parfait pour SINGLETON
+SDL_AppResult //deux *pour modifier et ecrire dans le pointeur (post-it de l'objet qu;on peut mettre de l'information a l'interieur)				2 etoiles argv signifie avec un array
 SDL_AppInit (void **appstate, int argc, char *argv[]) {
 
-
-	GameApp *app = new GameApp();
-
-
-	*appstate = app;
+//Avec le SINGLETON ->
+	GameApp::GetInstance();
 	return SDL_APP_CONTINUE;
 }
+
+//Les events touches etc.
 SDL_AppResult
 SDL_AppEvent(void *appstate, SDL_Event *event) {
+	//Le singleton Pour avoir les touches
+	GameApp& app = GameApp::GetInstance();
+	//Si on clique sur le 'X' de la fenêtre
+	if (event->type == SDL_EVENT_QUIT) {
+		app.StateActuel = State::Quit;
+		return SDL_APP_CONTINUE;
+	}
 
+	//Gestion des touches de souris
+	if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
+		SDL_FPoint MousePT = { event->button.x, event->button.y };
+
+		// Dans le MENU
+		if (app.StateActuel == State::Menu) {
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonPlay)) {
+				app.StateActuel = State::Game;
+			}
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonScore)) {
+				app.StateActuel = State::ScoreBoard;
+			}
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuit)) {
+				app.StateActuel = State::Quit;
+			}
+		}
+		// Dans le Score
+		else if (app.StateActuel == State::ScoreBoard) {
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitScore)) {
+				app.StateActuel = State::Menu;
+			}
+		}
+	}
+
+	//Gestion du clavier
+	 if (event->type == SDL_EVENT_KEY_DOWN) {
+	     if (app.StateActuel == State::Game) {
+
+	     }
+	 }
 
 	return SDL_APP_CONTINUE;
 }
+
+//Appeler a chaque frame par SDL au lieu de la boucle While dans Run
 SDL_AppResult
 SDL_AppIterate (void *appstate){
 
-GameApp *app = (GameApp *)appstate;
-if (app) {
-	app->Run();
-}
-	return SDL_APP_CONTINUE;
+
+
+	return GameApp::GetInstance().RunCallBacks();
 }
 
+//Pour quitter
 void
 SDL_AppQuit (void *appstate, SDL_AppResult result)
 {
+	//Destructeur
+
 }
-*/
 
 
-//Main
+/*
 
-
+//Main de facon traditionnel
 int main(int argc, char *argv[])
 {
 
-	GameApp app;
-
-	app.Run();
+	// instance unique du Singleton
+	GameApp::GetInstance().Run();
 
 	return 0;
 }
+*/
