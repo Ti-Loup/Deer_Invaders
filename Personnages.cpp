@@ -12,7 +12,7 @@ Enemy_Deer::Enemy_Deer(float startX, float startY) {
     health.max_health = 100;
     health.current_health = 100;
     AddComponent (MOVEMENT);
-    movement.velocity = { 0.0f,0.0f };
+    movement.velocity = { 20.0f,0.0f };
     AddComponent (RENDER);
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);

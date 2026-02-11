@@ -43,6 +43,11 @@ class MovementComponents : public Components
 
   public:
 	SDL_FPoint velocity = { 0.f, 0.f };
+
+
+	//Ajout timer pour les cerfs
+	float Timer = 0.0f;
+
 	MovementComponents () = default;
 };
 

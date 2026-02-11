@@ -214,46 +214,46 @@ public:
 				SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
 			}
 			//Ligne 1 de cerf
-			entities.push_back(new Enemy_Deer(100.f, 100.0f));
-			entities.push_back(new Enemy_Deer(250.f, 100.0f));
-			entities.push_back(new Enemy_Deer(400.f, 100.0f));
-			entities.push_back(new Enemy_Deer(550.0f, 100.0f));
+			entities.push_back(new Enemy_Deer(100.f, 50.0f));
+			entities.push_back(new Enemy_Deer(250.f, 50.0f));
+			entities.push_back(new Enemy_Deer(400.f, 50.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 50.0f));
 
-			entities.push_back(new Enemy_Deer(950.0f, 100.0f));
-			entities.push_back(new Enemy_Deer(1100.0f, 100.0f));
-			entities.push_back(new Enemy_Deer(1250.0f, 100.0f));
-			entities.push_back(new Enemy_Deer(1400.0f, 100.0f));
+			entities.push_back(new Enemy_Deer(950.0f, 50.0f));
+			entities.push_back(new Enemy_Deer(1100.0f, 50.0f));
+			entities.push_back(new Enemy_Deer(1250.0f, 50.0f));
+			entities.push_back(new Enemy_Deer(1400.0f, 50.0f));
 
 			//Ligne 2 de cerfs
-			entities.push_back(new Enemy_Deer(100.f, 250.0f));
-			entities.push_back(new Enemy_Deer(250.f, 250.0f));
-			entities.push_back(new Enemy_Deer(400.f, 250.0f));
-			entities.push_back(new Enemy_Deer(550.0f, 250.0f));
+			entities.push_back(new Enemy_Deer(100.f, 200.0f));
+			entities.push_back(new Enemy_Deer(250.f, 200.0f));
+			entities.push_back(new Enemy_Deer(400.f, 200.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 200.0f));
 
-			entities.push_back(new Enemy_Deer(950.0f, 250.0f));
-			entities.push_back(new Enemy_Deer(1100.0f, 250.0f));
-			entities.push_back(new Enemy_Deer(1250.0f, 250.0f));
-			entities.push_back(new Enemy_Deer(1400.0f, 250.0f));
+			entities.push_back(new Enemy_Deer(950.0f, 200.0f));
+			entities.push_back(new Enemy_Deer(1100.0f, 200.0f));
+			entities.push_back(new Enemy_Deer(1250.0f, 200.0f));
+			entities.push_back(new Enemy_Deer(1400.0f, 200.0f));
 			//Ligne 3 de cerfs
-			entities.push_back(new Enemy_Deer(100.f, 400.0f));
-			entities.push_back(new Enemy_Deer(250.f, 400.0f));
-			entities.push_back(new Enemy_Deer(400.f, 400.0f));
-			entities.push_back(new Enemy_Deer(550.0f, 400.0f));
+			entities.push_back(new Enemy_Deer(100.f, 350.0f));
+			entities.push_back(new Enemy_Deer(250.f, 350.0f));
+			entities.push_back(new Enemy_Deer(400.f, 350.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 350.0f));
 
-			entities.push_back(new Enemy_Deer(950.0f, 400.0f));
-			entities.push_back(new Enemy_Deer(1100.0f, 400.0f));
-			entities.push_back(new Enemy_Deer(1250.0f, 400.0f));
-			entities.push_back(new Enemy_Deer(1400.0f, 400.0f));
+			entities.push_back(new Enemy_Deer(950.0f, 350.0f));
+			entities.push_back(new Enemy_Deer(1100.0f, 350.0f));
+			entities.push_back(new Enemy_Deer(1250.0f, 350.0f));
+			entities.push_back(new Enemy_Deer(1400.0f, 350.0f));
 			//Ligne 4 de cerfs
-			entities.push_back(new Enemy_Deer(100.f, 600.0f));
-			entities.push_back(new Enemy_Deer(250.f, 600.0f));
-			entities.push_back(new Enemy_Deer(400.f, 600.0f));
-			entities.push_back(new Enemy_Deer(550.0f, 600.0f));
+			entities.push_back(new Enemy_Deer(100.f, 500.0f));
+			entities.push_back(new Enemy_Deer(250.f, 500.0f));
+			entities.push_back(new Enemy_Deer(400.f, 500.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 500.0f));
 
-			entities.push_back(new Enemy_Deer(950.0f, 600.0f));
-			entities.push_back(new Enemy_Deer(1100.0f, 600.0f));
-			entities.push_back(new Enemy_Deer(1250.0f, 600.0f));
-			entities.push_back(new Enemy_Deer(1400.0f, 600.0f));
+			entities.push_back(new Enemy_Deer(950.0f, 500.0f));
+			entities.push_back(new Enemy_Deer(1100.0f, 500.0f));
+			entities.push_back(new Enemy_Deer(1250.0f, 500.0f));
+			entities.push_back(new Enemy_Deer(1400.0f, 500.0f));
 
 			fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
 		}
@@ -427,10 +427,25 @@ public:
 			//Les touches
 		}
 		*/
-
+			bool DeerHasTouchedEdgedScreen = false;
 			// Creation du update
 			for (auto& ent : entities) {
 				ent->MovementUpdate(deltaTime);
+				//Le mouvement des cerfs et quand toucher au Edged du screen alors ils partent de l'autre coté
+
+				if (ent->HasComponent(TRANSFORM)) {
+					if (ent->transform.position.x <= 0.0f || (ent->transform.position.x + ent->transform.size.x) >= 1600.0f) {
+						DeerHasTouchedEdgedScreen = true;
+				   }
+				}
+			}
+			if (DeerHasTouchedEdgedScreen) {
+				for (auto& ent : entities) {
+					//Inverse la vitesse
+					ent->transform.position.x *= -1.0f;
+
+				}
+
 			}
 
 
