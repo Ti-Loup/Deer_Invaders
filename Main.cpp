@@ -17,8 +17,7 @@
 #include "State.h"
 #include "Entity.h"
 #include "Personnages.h"
-
-
+#include "Player.h"
 
 
 static constexpr Sint32 TILE_SIZE = 32;
@@ -35,8 +34,12 @@ static Uint32 TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval
 	return interval;
 }
 
-class GameApp {
+//De la classe Entity
+Entity *player;
+
+class GameApp final {
 public:
+
 		SDL_Window *window = nullptr;
 		SDL_Renderer *renderer = nullptr;
 		SDL_Texture *spritesheet = nullptr;
@@ -78,7 +81,10 @@ public:
 
 		// -> Score <- Text et Fonts
 		TTF_Font *ReturnBoutonFont = nullptr;
-		SDL_FRect BoutonQuitScore = { 1250, 900, 250, 100 };
+		SDL_FRect BoutonQuitScore = { 1600, 900, 250, 100 };
+
+
+
 
 		std::vector<float> frameTimes;
 		const size_t MAX_SAMPLES = 100;
@@ -109,18 +115,23 @@ public:
 					SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
 					abort();
 				}
-			window = SDL_CreateWindow("Deer Invaders", 1600, 1080, 0);
+			window = SDL_CreateWindow("Deer Invaders", 1280, 720, 0);
 			if (window == nullptr)
 				{
 					SDL_LogCritical(1, "SDL failed to create window! %s", SDL_GetError());
 					abort();
 				}
+			//Mon renderer
 			renderer = SDL_CreateRenderer(window, nullptr);
 			if (renderer == nullptr)
 				{
 					SDL_LogCritical(1, "SDL failed to create renderer! %s", SDL_GetError());
 					abort();
 				}
+			//Le fullscreen renderer qui s'adapte entre WindowMode et FullScreen
+			SDL_SetRenderLogicalPresentation(renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_LETTERBOX);//4 parameters
+
+
 			spritesheet = IMG_LoadTexture(renderer, "assets/spritesheet.png");
 			if (spritesheet == nullptr)
 				{
@@ -174,7 +185,7 @@ public:
 			if (MenuSpecialFont == nullptr) {
 				SDL_LogWarn(0, "SDL_ttf failed to put the font", SDL_GetError());
 			}
-			MenuSpecialDraw = TTF_CreateText(textEngine, MenuSpecialFont, "abcdefghigklmnop", 20);
+			MenuSpecialDraw = TTF_CreateText(textEngine, MenuSpecialFont, "abcdefghigklmnopqrstuv", 20);
 
 			BoutonFont = TTF_OpenFont("assets/New Space.ttf", 48);
 			ReturnBoutonFont = TTF_OpenFont("assets/New Space.ttf", 24);
@@ -213,6 +224,13 @@ public:
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
 			}
+			// -> Dans Game <-
+
+			//Joueur
+			player = new Player();
+
+			entities.push_back (player);
+
 			//Ligne 1 de cerf
 			entities.push_back(new Enemy_Deer(100.f, 50.0f));
 			entities.push_back(new Enemy_Deer(250.f, 50.0f));
@@ -257,6 +275,7 @@ public:
 
 			fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
 		}
+
 		//Libere memoire
 		~GameApp()
 		{
@@ -329,7 +348,7 @@ public:
 					};
 
 					constexpr SDL_FRect dst = {
-							(2800.0f / 2.0f) - ((TILE_SIZE * PRESENT_SIZE) / 2.0f),
+							(3500.0f / 2.0f) - ((TILE_SIZE * PRESENT_SIZE) / 2.0f),
 							(1700.0f / 2.0f) - ((TILE_SIZE * PRESENT_SIZE) / 2.0f),
 							static_cast<float>((TILE_SIZE * PRESENT_SIZE)),
 							static_cast<float>((TILE_SIZE * PRESENT_SIZE)),
@@ -411,7 +430,7 @@ public:
 		RenderBoutons(BoutonQuit, TextQuit, 250, 255, 255);
 		RenderBoutons(BoutonScore, TextScore, 250, 255, 255);
 
-		TTF_DrawRendererText(fpsText, 1500, 10);
+		TTF_DrawRendererText(fpsText, 1800, 10);
 		SDL_RenderPresent(renderer);
 	}
 
@@ -434,18 +453,21 @@ public:
 				//Le mouvement des cerfs et quand toucher au Edged du screen alors ils partent de l'autre coté
 
 				if (ent->HasComponent(TRANSFORM)) {
-					if (ent->transform.position.x <= 0.0f || (ent->transform.position.x + ent->transform.size.x) >= 1600.0f) {
+					if (ent->transform.position.x <= 0.0f || (ent->transform.position.x + ent->transform.size.x) >= 1920.0f) {
 						DeerHasTouchedEdgedScreen = true;
 				   }
+				}
+				if (ent->HasComponent(TRANSFORM)) {
+					if (ent->transform.position.x >=1920.0f){
+						ent->transform.position.x *= -1.0f;
+					}
 				}
 			}
 			if (DeerHasTouchedEdgedScreen) {
 				for (auto& ent : entities) {
 					//Inverse la vitesse
 					ent->transform.position.x *= -1.0f;
-
 				}
-
 			}
 
 
@@ -457,7 +479,7 @@ public:
 			for (auto& ent : entities) {
 				ent->RenderUpdate(renderer);
 			}
-		TTF_DrawRendererText(fpsText, 1500, 10); // Affiche FPS en jeu aussi
+		TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 
 		SDL_RenderPresent(renderer);
 	}
@@ -486,7 +508,7 @@ public:
 			SDL_RenderClear(renderer);
 
 			RenderBoutons(BoutonQuitScore, TextQuitScore, 250, 255, 255);
-			TTF_DrawRendererText(fpsText, 1500, 10); // Affiche FPS en jeu aussi
+			TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 
 			SDL_RenderPresent(renderer);
 		}
@@ -533,6 +555,7 @@ SDL_AppInit (void **appstate, int argc, char *argv[]) {
 //Avec le SINGLETON ->
 	GameApp::GetInstance();
 	return SDL_APP_CONTINUE;
+
 }
 
 //Les events touches etc.
@@ -540,15 +563,24 @@ SDL_AppResult
 SDL_AppEvent(void *appstate, SDL_Event *event) {
 	//Le singleton Pour avoir les touches
 	GameApp& app = GameApp::GetInstance();
-	//Si on clique sur le 'X' de la fenêtre
+
+
+	//Si on clique sur le X de la fenêtre
 	if (event->type == SDL_EVENT_QUIT) {
 		app.StateActuel = State::Quit;
 		return SDL_APP_CONTINUE;
 	}
 
-	//Gestion des touches de souris
+	//Gestion des touches de souris et le bouton
 	if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
-		SDL_FPoint MousePT = { event->button.x, event->button.y };
+
+		//Les variables
+		float nouveauX, nouveauY;
+
+		//Conversion de coordonnées des touches Lorsqu'on passe du plein écran au mode fenetrer
+		SDL_RenderCoordinatesFromWindow(app.renderer, event->button.x, event->button.y, &nouveauX, &nouveauY);
+		SDL_FPoint MousePT = { nouveauX, nouveauY };
+		// On utilise les coordonnées converties pour créer le point
 
 		// Dans le MENU
 		if (app.StateActuel == State::Menu) {
@@ -572,10 +604,63 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 	//Gestion du clavier
 	 if (event->type == SDL_EVENT_KEY_DOWN) {
+
+	 	//Si on est dans notre jeu alors on peut appuyer pour bouger notre personnage
 	     if (app.StateActuel == State::Game) {
 
+	     	if (event->key.scancode == SDL_SCANCODE_D) {
+	     		player->movement.velocity.x = 250.0f;
+	     	}
+	     	else if (event->key.scancode == SDL_SCANCODE_A) {
+	     		player->movement.velocity.x = -250.0f;
+	     	}
+
 	     }
+
+
+	 	//Mettre le jeu plein ecran
+	 	if (event->key.scancode == SDL_SCANCODE_F) {
+
+	 		//flag
+	 		Uint32 FullScreenflag = SDL_GetWindowFlags(app.window);
+
+	 		//si on est en plein ecran alors on retourne en fenetrer
+	 		if (FullScreenflag & SDL_WINDOW_FULLSCREEN) {
+
+	 			SDL_SetWindowFullscreen(app.window,0 );//0 -> fenetrer
+	 		}
+	 		//Sinon on va en fullscreen
+	 		else {
+			SDL_SetWindowFullscreen(app.window, SDL_WINDOW_FULLSCREEN);	 		}
+
+	 	}
+	 	//Pour exit avec escape
+	 	if (event->key.scancode == SDL_SCANCODE_ESCAPE) {
+	 		app.StateActuel = State::Quit;
+	 	}
+
 	 }
+	//KEY UP
+	if (event->type == SDL_EVENT_KEY_UP) {
+
+		//Si on est dans notre jeu alors on peut relacher les touches de notre personnage
+		if (app.StateActuel == State::Game) {
+			//Relache D
+			if (event->key.scancode == SDL_SCANCODE_D) {
+				if (player->movement.velocity.x > 0.0f) {
+					player->movement.velocity.x = 0.0f;
+				}
+			}
+			//Relache A
+			if (event->key.scancode == SDL_SCANCODE_A) {
+				if (player->movement.velocity.x < 0.0f) {
+					player->movement.velocity.x = 0.0f;
+				}
+			}
+		}
+
+
+	}
 
 	return SDL_APP_CONTINUE;
 }

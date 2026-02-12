@@ -28,20 +28,6 @@ void Entity::MovementUpdate(float deltaTime) {
         transform.position.y += movement.velocity.y * deltaTime;
 
 
-        //Pour que les cerfs bouge légèrement haut et en bas de façon logique
-        //Le randomizer <random>
-       static std::random_device nombreAleatoire;
-       static std::mt19937 aleatoire(nombreAleatoire());
-       static std::uniform_real_distribution<float> distanceVitesse(-5.0f, 5.0f);
-       static std::uniform_real_distribution<float> distanceTemp(1.0f, 3.0f); //Pendant combien de temps le cerf va bouger
-
-        movement.Timer -= deltaTime;
-        //Quand minuteur a 0
-        if (movement.Timer <= 0.0f) {
-
-            movement.velocity.y = distanceVitesse(aleatoire);//Bouge sur l'axe des y
-            movement.Timer = distanceTemp(aleatoire);
-        }
 
 
     }
