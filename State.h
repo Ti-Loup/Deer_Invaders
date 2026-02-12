@@ -10,6 +10,7 @@ enum class State {
 Menu,
 Game,
 ScoreBoard,
+Shop,
 Quit,
 };
 

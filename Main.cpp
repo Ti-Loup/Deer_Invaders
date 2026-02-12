@@ -68,23 +68,34 @@ public:
 		bool bClickedOnPlay = false;
 		bool bClickedOnQuit = false;
 		bool bClickedOnScore = false;
+		bool bClickedOnShop = false;
 		SDL_FRect BoutonScore = { 120, 600, 250, 100 };
 		SDL_FRect BoutonQuit = { 180, 750, 250, 100 };
+		SDL_FRect BoutonShop = {1000, 800, 250, 150};
 
 		TTF_Text *TextStart = nullptr;
 		TTF_Text *TextQuit = nullptr;
 		TTF_Text *TextScore = nullptr;//Pour les boutons Start Quit et TBh
-		TTF_Text *TextQuitScore = nullptr;
+		TTF_Text *TextShop = nullptr;
+		TTF_Text *TextQuitReturnMenu = nullptr;
 		TTF_Font *BoutonFont = nullptr;
 
 		// -> GAME <- Text et Fonts
 
+
 		// -> Score <- Text et Fonts
 		TTF_Font *ReturnBoutonFont = nullptr;
-		SDL_FRect BoutonQuitScore = { 1600, 900, 250, 100 };
+		SDL_FRect BoutonQuitRetourMenu = { 1600, 900, 250, 100 };
 
-
-
+		// -> Shop <- Text et Fonts
+	//Fonts
+		TTF_Font *BoutonUpgradeFont = nullptr;
+	//Texts
+		TTF_Text *BoutonUpgradeText = nullptr;
+		TTF_Text *BoutonHPUpgradeText = nullptr;
+	//Boutons
+		SDL_FRect BoutonUpgrade = {300,800,125,100};
+		SDL_FRect BoutonHPUpgrade = { 500, 800, 125, 100};
 
 		std::vector<float> frameTimes;
 		const size_t MAX_SAMPLES = 100;
@@ -192,6 +203,7 @@ public:
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
 			}
+			BoutonUpgradeFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 28);
 			TextStart = TTF_CreateText(textEngine, BoutonFont, "Start",25);
 			if (MenuSpecialDraw == nullptr) {
 				SDL_LogWarn(0,"Les boutons du menu n'a pas chargé : TTF",SDL_GetError());
@@ -203,6 +215,21 @@ public:
 			TextScore = TTF_CreateText(textEngine, BoutonFont, "Score",25);
 			if (TextScore == nullptr) {
 				SDL_LogWarn(0,"Les boutons du menu n'a pas chargé : TTF",SDL_GetError());
+			}
+			TextShop = TTF_CreateText(textEngine, BoutonFont, "Shop",25);
+			if (TextShop == nullptr) {
+				SDL_LogWarn (0, "Le text du bouton Shop n'a pas fonctionner" , SDL_GetError());
+			}
+			BoutonUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, " Weapon \nUpgrade", 25);
+			if (TTF_SetTextColor(BoutonUpgradeText, 0, 0, 0, 255 ) == false){
+			SDL_LogWarn(0, "Couleur du bouton amelioration n'a pas fonctionné", SDL_GetError());
+			}
+			BoutonHPUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, "      HP \nUpgrade" , 25);
+			if (TTF_SetTextColor(BoutonHPUpgradeText, 0, 0, 0, 255 ) == false) {
+				SDL_LogWarn(0, "Couleur de Bouton HP Upgrade" ,SDL_GetError());
+			}
+			if (TTF_SetTextColor(TextShop, 0, 0, 0, 250) == false) {
+				SDL_LogWarn (0, "La couleur de TextShop n'a pas fonctionné" , SDL_GetError());
 			}
 			if (TTF_SetTextColor(TextStart, 0, 0, 0, 255) == false)
 			{
@@ -216,11 +243,11 @@ public:
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
 			}
-			TextQuitScore = TTF_CreateText(textEngine, BoutonFont, "Return \nMenu",25);
-			if (TextQuitScore == nullptr) {
+			TextQuitReturnMenu = TTF_CreateText(textEngine, BoutonFont, "Return \nMenu",25);
+			if (TextQuitReturnMenu == nullptr) {
 				SDL_LogWarn(0,"SDL_TTF failed to set the return Menu text)! %s", SDL_GetError());
 			}
-			if (TTF_SetTextColor(TextQuitScore, 0, 0, 0, 255) == false)
+			if (TTF_SetTextColor(TextQuitReturnMenu, 0, 0, 0, 255) == false)
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
 			}
@@ -288,6 +315,7 @@ public:
 			TTF_DestroyText(TextStart);
 			TTF_DestroyText(TextQuit);
 			TTF_DestroyText(TextScore);
+			TTF_DestroyText(TextQuit);
 			TTF_CloseFont(MenuSpecialFont);
 			SDL_DestroyTexture(spritesheet);
 			SDL_DestroyRenderer(renderer);
@@ -429,6 +457,7 @@ public:
 		RenderBoutons(BoutonPlay, TextStart, 250, 255, 255);
 		RenderBoutons(BoutonQuit, TextQuit, 250, 255, 255);
 		RenderBoutons(BoutonScore, TextScore, 250, 255, 255);
+		RenderBoutons(BoutonShop, TextShop, 250, 255,255);
 
 		TTF_DrawRendererText(fpsText, 1800, 10);
 		SDL_RenderPresent(renderer);
@@ -507,10 +536,28 @@ public:
 			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir
 			SDL_RenderClear(renderer);
 
-			RenderBoutons(BoutonQuitScore, TextQuitScore, 250, 255, 255);
+			RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 250, 255, 255);
 			TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 
 			SDL_RenderPresent(renderer);
+		}
+	//Avoir un shop pour acheter des skins -> amilioration d'arme
+	void Shop (float deltaTime) {
+			SDL_Event ShopEvents;
+
+			//Render
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);//Fond noir
+			SDL_RenderClear(renderer);
+
+			RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255,255,255);
+			RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 255, 255, 255);
+			RenderBoutons(BoutonHPUpgrade, BoutonHPUpgradeText, 255,255,255);
+			//Fonts
+			TTF_DrawRendererText(fpsText , 1800, 10);
+
+
+
+		SDL_RenderPresent(renderer);
 		}
 
 	//L'execution cera appeler par SDL a chaque frame au lieu du main ou on devait faire une boucle while pour faire la boucle Run a l'infini
@@ -538,6 +585,10 @@ public:
 
 				case State::ScoreBoard:
 					Score(deltaTime);
+					break;
+				//Pour ouvrir le shop
+				case State::Shop:
+					Shop(deltaTime);
 					break;
 
 				case State::Quit:
@@ -590,13 +641,21 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 			if (SDL_PointInRectFloat(&MousePT, &app.BoutonScore)) {
 				app.StateActuel = State::ScoreBoard;
 			}
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonShop)) {
+				app.StateActuel = State::Shop;
+			}
 			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuit)) {
 				app.StateActuel = State::Quit;
 			}
 		}
 		// Dans le Score
 		else if (app.StateActuel == State::ScoreBoard) {
-			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitScore)) {
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
+				app.StateActuel = State::Menu;
+			}
+		}
+		else if (app.StateActuel == State::Shop) {
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
 				app.StateActuel = State::Menu;
 			}
 		}
