@@ -3,7 +3,7 @@
 //
 
 #include "Player.h"
-
+//Pour timer
 
 
 Player::Player (){
@@ -68,6 +68,10 @@ void Player::Shoot (std::vector<Entity *> &entity, SDL_Point dir)
 {
     SDL_Color BulletColor = currentWeapon->GetColor();//Prend la couleur de l'arme actuel
     entity.push_back (new Bullet (transform.position, dir, BulletColor));
+
+    //Timer pour pas tirer a chaque seconde
+
+
 }
 
 Bullet::Bullet (SDL_FPoint spawn, SDL_Point dir, SDL_Color color)

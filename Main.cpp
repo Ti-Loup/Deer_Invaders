@@ -71,7 +71,7 @@ public:
 		bool bClickedOnShop = false;
 		SDL_FRect BoutonScore = { 120, 600, 250, 100 };
 		SDL_FRect BoutonQuit = { 180, 750, 250, 100 };
-		SDL_FRect BoutonShop = {1000, 800, 250, 150};
+		SDL_FRect BoutonShop = {1350, 850, 230, 130};
 
 		TTF_Text *TextStart = nullptr;
 		TTF_Text *TextQuit = nullptr;
@@ -687,6 +687,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 				}
 				if (event->key.scancode == SDL_SCANCODE_A) {
 					player->bIsMovingLeft = true;
+				}
+				//Pour tirer
+				if (event->key.scancode == SDL_SCANCODE_SPACE) {
+
+				player->Shoot (app.entities, (SDL_Point){ 0, 1 });
 				}
 
 			}
