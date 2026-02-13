@@ -5,15 +5,20 @@
 #ifndef DEER_INVADERS_PLAYER_H
 #define DEER_INVADERS_PLAYER_H
 #include "Entity.h"
+#include "State.h"
 #include <vector>
 
 class Player : public Entity{
 public:
     Player ();
+    ~Player();
     //fonction pour glisser
      void UpdatePhysics(float deltaTime);
      bool bIsMovingRight = false;
      bool bIsMovingLeft = false;
+
+     //Le type d'arme (-> Dans State.h)
+    BulletType* currentWeapon;
 
     void Shoot(std::vector<Entity *> &entity, SDL_Point dir);
 };

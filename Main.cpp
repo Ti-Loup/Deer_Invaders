@@ -34,8 +34,8 @@ static Uint32 TimerCallback(void *userdata, SDL_TimerID timerID, Uint32 interval
 	return interval;
 }
 
-//De la classe Entity
-Entity *player;
+
+Player *player;
 
 class GameApp final {
 public:
@@ -475,6 +475,11 @@ public:
 			//Les touches
 		}
 		*/
+			//Calcul de la nouvelle vitesse avant de deplacer les entities
+			if (player != nullptr) {
+				player->UpdatePhysics(deltaTime);
+			}
+
 			bool DeerHasTouchedEdgedScreen = false;
 			// Creation du update
 			for (auto& ent : entities) {
@@ -498,6 +503,7 @@ public:
 					ent->transform.position.x *= -1.0f;
 				}
 			}
+
 
 
 		// Rendu du jeu
@@ -624,7 +630,6 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 	//Gestion des touches de souris et le bouton
 	if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN && event->button.button == SDL_BUTTON_LEFT) {
-
 		//Les variables
 		float nouveauX, nouveauY;
 
@@ -658,68 +663,76 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
 				app.StateActuel = State::Menu;
 			}
-		}
-	}
-
-	//Gestion du clavier
-	 if (event->type == SDL_EVENT_KEY_DOWN) {
-
-	 	//Si on est dans notre jeu alors on peut appuyer pour bouger notre personnage
-	     if (app.StateActuel == State::Game) {
-
-	     	if (event->key.scancode == SDL_SCANCODE_D) {
-	     		player->movement.velocity.x = 250.0f;
-	     	}
-	     	else if (event->key.scancode == SDL_SCANCODE_A) {
-	     		player->movement.velocity.x = -250.0f;
-	     	}
-
-	     }
-
-
-	 	//Mettre le jeu plein ecran
-	 	if (event->key.scancode == SDL_SCANCODE_F) {
-
-	 		//flag
-	 		Uint32 FullScreenflag = SDL_GetWindowFlags(app.window);
-
-	 		//si on est en plein ecran alors on retourne en fenetrer
-	 		if (FullScreenflag & SDL_WINDOW_FULLSCREEN) {
-
-	 			SDL_SetWindowFullscreen(app.window,0 );//0 -> fenetrer
-	 		}
-	 		//Sinon on va en fullscreen
-	 		else {
-			SDL_SetWindowFullscreen(app.window, SDL_WINDOW_FULLSCREEN);	 		}
-
-	 	}
-	 	//Pour exit avec escape
-	 	if (event->key.scancode == SDL_SCANCODE_ESCAPE) {
-	 		app.StateActuel = State::Quit;
-	 	}
-
-	 }
-	//KEY UP
-	if (event->type == SDL_EVENT_KEY_UP) {
-
-		//Si on est dans notre jeu alors on peut relacher les touches de notre personnage
-		if (app.StateActuel == State::Game) {
-			//Relache D
-			if (event->key.scancode == SDL_SCANCODE_D) {
-				if (player->movement.velocity.x > 0.0f) {
-					player->movement.velocity.x = 0.0f;
-				}
+			// Bouton Upgrade Arme
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonUpgrade)) {
+				SDL_Log("Achat Upgrade Arme");
+				// player->UpgradeWeapon();
 			}
-			//Relache A
-			if (event->key.scancode == SDL_SCANCODE_A) {
-				if (player->movement.velocity.x < 0.0f) {
-					player->movement.velocity.x = 0.0f;
-				}
+
+			// Bouton Upgrade HP
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonHPUpgrade)) {
+				SDL_Log("Achat Upgrade HP");
+				// player->Heal();
 			}
 		}
-
-
 	}
+		//Gestion du clavier
+		if (event->type == SDL_EVENT_KEY_DOWN) {
+
+			//Si on est dans notre jeu alors on peut appuyer pour bouger notre personnage
+			if (app.StateActuel == State::Game) {
+
+				if (event->key.scancode == SDL_SCANCODE_D) {
+					player->bIsMovingRight = true;
+				}
+				if (event->key.scancode == SDL_SCANCODE_A) {
+					player->bIsMovingLeft = true;
+				}
+
+			}
+			//DANS LE SHOP
+			if (app.StateActuel == State::Shop) {
+
+
+			}
+
+			//Mettre le jeu plein ecran
+			if (event->key.scancode == SDL_SCANCODE_F) {
+
+				//flag
+				Uint32 FullScreenflag = SDL_GetWindowFlags(app.window);
+
+				//si on est en plein ecran alors on retourne en fenetrer
+				if (FullScreenflag & SDL_WINDOW_FULLSCREEN) {
+
+					SDL_SetWindowFullscreen(app.window,0 );//0 -> fenetrer
+				}
+				//Sinon on va en fullscreen
+				else {
+					SDL_SetWindowFullscreen(app.window, SDL_WINDOW_FULLSCREEN);	 		}
+
+			}
+			//Pour exit avec escape
+			if (event->key.scancode == SDL_SCANCODE_ESCAPE) {
+				app.StateActuel = State::Quit;
+			}
+
+		}
+		//KEY UP
+		if (event->type == SDL_EVENT_KEY_UP) {
+			//Si on est dans notre jeu alors on peut relacher les touches de notre personnage
+			if (app.StateActuel == State::Game) {
+				//Relache D
+				if (event->key.scancode == SDL_SCANCODE_D) {
+					player->bIsMovingRight = false;
+				}
+				//Relache A
+				if (event->key.scancode == SDL_SCANCODE_A) {
+					player->bIsMovingLeft = false;
+				}
+			}
+
+		}
 
 	return SDL_APP_CONTINUE;
 }

@@ -7,6 +7,7 @@
 
 
 Player::Player (){
+//constructeur
     AddComponent(HEALTH);
     health.max_health = 250;
     health.current_health = health.max_health;
@@ -18,22 +19,61 @@ Player::Player (){
     //position depart
     transform.position = (SDL_FPoint){960,1000};
     transform.size = (SDL_FPoint){64.0f,64.0f};
+    //ClassicBulletType par défaut
+    currentWeapon = new ClassicBulletType();
 }
+//destructeur
+Player::~Player() {
+    if (currentWeapon != nullptr) {
+        delete currentWeapon;
+        currentWeapon = nullptr;
+    }
+}
+
 //Pour modifier Sa vitesse, le freinage et Sa vitesse maximale
 void Player::UpdatePhysics(float deltaTime) {
+    float acceleration = 1000.0f;//acceleration vers -> MaxSpeed
+    float friction = 500.0f;//Temps que le personnage va continuer a bouger apres avoir relacher la touche clavier
+    float maxSpeed = 500.0f;//Speed Max apres l'acceleration
 
+    //acceleration
+    if (bIsMovingRight) {
+        movement.velocity.x += acceleration * deltaTime;
+    }
+    else if (bIsMovingLeft) {
+        movement.velocity.x -= acceleration * deltaTime;
+    }
+
+    //friction
+    if (!bIsMovingRight && !bIsMovingLeft) {
+        // Si on va à droite -> frein gauche
+        if (movement.velocity.x > 0) {
+            movement.velocity.x -= friction * deltaTime;
+            if (movement.velocity.x < 0) movement.velocity.x = 0;
+        }
+        // Si on va à gauche -> frein droite
+        else if (movement.velocity.x < 0) {
+            movement.velocity.x += friction * deltaTime;
+            if (movement.velocity.x > 0) movement.velocity.x = 0;
+        }
+    }
+
+    //Pour pas depacer la vitesse maximal
+    if (movement.velocity.x > maxSpeed) movement.velocity.x = maxSpeed;
+    if (movement.velocity.x < -maxSpeed) movement.velocity.x = -maxSpeed;
 
 }
-
-//void Player::Shoot (std::vector<Entity *> &entity, SDL_Point dir)
-//{
-//    entity.push_back (new Bullet (transform.position, dir, magic.type->GetColor ()));
-//}
+//Pour tirer
+void Player::Shoot (std::vector<Entity *> &entity, SDL_Point dir)
+{
+    SDL_Color BulletColor = currentWeapon->GetColor();//Prend la couleur de l'arme actuel
+    entity.push_back (new Bullet (transform.position, dir, BulletColor));
+}
 
 Bullet::Bullet (SDL_FPoint spawn, SDL_Point dir, SDL_Color color)
 {
     AddComponent (MOVEMENT);
-    movement.velocity = (SDL_FPoint){ 120.f * dir.x, 120.f * dir.y };
+    movement.velocity = (SDL_FPoint){ 0.f * dir.x, -400.f * dir.y };//les bullets aillent vers le haut
     AddComponent (RENDER);
     render.color = color;
     AddComponent (TRANSFORM);
