@@ -61,6 +61,8 @@ public:
 		TTF_TextEngine *textEngine = nullptr;
 		TTF_Text *fpsText = nullptr;
 		TTF_Text *MenuTitle = nullptr;//Pour rajouter un Titre
+		TTF_Text *BoutonCreditsText = nullptr;
+
 	//Texte special
 		TTF_Font *MenuSpecialFont = nullptr;
 		TTF_Text *MenuSpecialDraw = nullptr;
@@ -72,7 +74,8 @@ public:
 		bool bClickedOnShop = false;
 		SDL_FRect BoutonScore = { 120, 600, 250, 100 };
 		SDL_FRect BoutonQuit = { 180, 750, 250, 100 };
-		SDL_FRect BoutonShop = {1350, 850, 180, 100};
+		SDL_FRect BoutonShop = {1350, 790, 170, 100};
+		SDL_FRect BoutonCredits = {1350, 900, 170, 50};
 
 		TTF_Text *TextStart = nullptr;
 		TTF_Text *TextQuit = nullptr;
@@ -97,6 +100,8 @@ public:
 	//Boutons
 		SDL_FRect BoutonUpgrade = {300,800,125,100};
 		SDL_FRect BoutonHPUpgrade = { 500, 800, 125, 100};
+
+		// -> Credits <- Text et Fonts
 
 		std::vector<float> frameTimes;
 		const size_t MAX_SAMPLES = 100;
@@ -232,6 +237,13 @@ public:
 			if (TTF_SetTextColor(BoutonHPUpgradeText, 0, 0, 0, 255 ) == false) {
 				SDL_LogWarn(0, "Couleur de Bouton HP Upgrade" ,SDL_GetError());
 			}
+			BoutonCreditsText = TTF_CreateText(textEngine, BoutonUpgradeFont, "Credits",25);
+			if (TTF_SetTextColor(BoutonCreditsText, 0, 0, 0, 255 ) == false) {
+				SDL_LogWarn(0, "Attention BoutonCredits n'a pas changer de couleurs", SDL_GetError());
+			}
+
+
+
 			if (TTF_SetTextColor(TextShop, 0, 0, 0, 250) == false) {
 				SDL_LogWarn (0, "La couleur de TextShop n'a pas fonctionné" , SDL_GetError());
 			}
@@ -390,6 +402,8 @@ public:
 					SDL_RenderTexture(renderer, spritesheet, &src, &dst);
 				}
 		}
+
+
 		//Petite fonction pour mettre un titre
 		void RenderTitle() {
 
@@ -413,7 +427,18 @@ public:
 			}
 
 		}
+		void UpdateBackgroundTint(const float deltaTime)
+		{
+			constexpr float speed = 5.0f;
+			colorTime += deltaTime * speed;
 
+			constexpr float Amplitude = 60.0f;
+			constexpr float MidPoint = 144.0f;
+
+			r = static_cast<Uint8>(std::clamp(std::sin(colorTime) * Amplitude + MidPoint, 0.0f, 255.0f));
+			g = static_cast<Uint8>(std::clamp(std::sin(colorTime + 2.0f) * Amplitude + MidPoint, 0.0f, 255.0f));
+			b = static_cast<Uint8>(std::clamp(std::sin(colorTime + 4.0f) * Amplitude + MidPoint, 0.0f, 255.0f));
+		}
 
 
 	//Menu du jeu qui run
@@ -447,9 +472,9 @@ public:
 			}
 		}
 		*/
-
+		UpdateBackgroundTint(deltaTime);
 		// Rendu du menu
-		SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		SDL_RenderClear(renderer);
 
 		RenderTitle();
@@ -462,7 +487,9 @@ public:
 		RenderBoutons(BoutonPlay, TextStart, 250, 255, 255);
 		RenderBoutons(BoutonQuit, TextQuit, 250, 255, 255);
 		RenderBoutons(BoutonScore, TextScore, 250, 255, 255);
-		RenderBoutons(BoutonShop, TextShop, 250, 255,255);
+		RenderBoutons(BoutonShop, TextShop, r, g,b);
+		RenderBoutons(BoutonCredits, BoutonCreditsText, 255, 255,255);
+
 
 		TTF_DrawRendererText(fpsText, 1800, 10);
 		SDL_RenderPresent(renderer);
@@ -608,6 +635,26 @@ public:
 		SDL_RenderPresent(renderer);
 		}
 
+	//Avoir un shop pour acheter des skins -> amilioration d'arme
+	void Credits (float deltaTime) {
+			SDL_Event ShopEvents;
+
+			//Render
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);//Fond noir
+			SDL_RenderClear(renderer);
+			//boutons
+			RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255,255,255);
+
+
+
+			//Fonts
+			TTF_DrawRendererText(fpsText , 1800, 10);
+
+
+
+			SDL_RenderPresent(renderer);
+		}
+
 	//L'execution cera appeler par SDL a chaque frame au lieu du main ou on devait faire une boucle while pour faire la boucle Run a l'infini
 public:
 	//Void ne renvoie rien alors on utilise SDL_AppResult pour retourner SDL_APP_SUCCESS && SDL_APP_CONTINUE
@@ -637,6 +684,10 @@ public:
 				//Pour ouvrir le shop
 				case State::Shop:
 					Shop(deltaTime);
+					break;
+				//Pour ouvrir Credits
+				case State::Credits:
+					Credits(deltaTime);
 					break;
 
 				case State::Quit:
@@ -691,6 +742,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 			if (SDL_PointInRectFloat(&MousePT, &app.BoutonShop)) {
 				app.StateActuel = State::Shop;
 			}
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonCredits)) {
+				app.StateActuel = State::Credits;
+			}
 			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuit)) {
 				app.StateActuel = State::Quit;
 			}
@@ -701,6 +755,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 				app.StateActuel = State::Menu;
 			}
 		}
+		//Dans le Shop
 		else if (app.StateActuel == State::Shop) {
 			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
 				app.StateActuel = State::Menu;
@@ -715,6 +770,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 			if (SDL_PointInRectFloat(&MousePT, &app.BoutonHPUpgrade)) {
 				SDL_Log("Achat Upgrade HP");
 				// player->Heal();
+			}
+		}
+		else if (app.StateActuel == State::Credits) {
+			if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
+				app.StateActuel = State::Menu;
 			}
 		}
 	}

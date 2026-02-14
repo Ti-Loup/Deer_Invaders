@@ -13,6 +13,7 @@ Menu,
 Game,
 ScoreBoard,
 Shop,
+Credits,
 Quit,
 };
 
