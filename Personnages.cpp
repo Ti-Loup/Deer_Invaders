@@ -18,7 +18,7 @@ Enemy_Deer::Enemy_Deer(float startX, float startY) {
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
     transform.size = { 80.f, 80.f };
-
+/*
     //Pour que les cerfs bouge légèrement haut et en bas de façon logique
     //Le randomizer <random>
     static std::random_device nombreAleatoire;
@@ -34,6 +34,7 @@ Enemy_Deer::Enemy_Deer(float startX, float startY) {
         movement.velocity.y = distanceVitesse(aleatoire);//Bouge sur l'axe des y
         movement.Timer = distanceTemp(aleatoire);
     }
+    */
 }
 
 Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {

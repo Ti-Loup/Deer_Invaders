@@ -12,13 +12,21 @@ class Player : public Entity{
 public:
     Player ();
     ~Player();
-    //fonction pour glisser
-     void UpdatePhysics(float deltaTime);
+
      bool bIsMovingRight = false;
      bool bIsMovingLeft = false;
 
+Uint32 lastBulletSpawned; // dernier bullet lancer
+        Uint32 bulletRateSpawn;// delai entre 2 tirs
+
+
      //Le type d'arme (-> Dans State.h)
     BulletType* currentWeapon;
+
+//fonctions
+
+//fonction pour glisser
+    void UpdatePhysics(float deltaTime);
 
     void Shoot(std::vector<Entity *> &entity, SDL_Point dir);
 };

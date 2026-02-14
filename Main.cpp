@@ -57,6 +57,7 @@ public:
 		//-> MENU <- Font et Texts
 		TTF_Font *font = nullptr;
 		TTF_Font *MenuFont = nullptr;
+		TTF_Font *ShopFont = nullptr;
 		TTF_TextEngine *textEngine = nullptr;
 		TTF_Text *fpsText = nullptr;
 		TTF_Text *MenuTitle = nullptr;//Pour rajouter un Titre
@@ -71,7 +72,7 @@ public:
 		bool bClickedOnShop = false;
 		SDL_FRect BoutonScore = { 120, 600, 250, 100 };
 		SDL_FRect BoutonQuit = { 180, 750, 250, 100 };
-		SDL_FRect BoutonShop = {1350, 850, 230, 130};
+		SDL_FRect BoutonShop = {1350, 850, 180, 100};
 
 		TTF_Text *TextStart = nullptr;
 		TTF_Text *TextQuit = nullptr;
@@ -85,7 +86,7 @@ public:
 
 		// -> Score <- Text et Fonts
 		TTF_Font *ReturnBoutonFont = nullptr;
-		SDL_FRect BoutonQuitRetourMenu = { 1600, 900, 250, 100 };
+		SDL_FRect BoutonQuitRetourMenu = { 1600, 900, 200, 100 };
 
 		// -> Shop <- Text et Fonts
 	//Fonts
@@ -199,7 +200,10 @@ public:
 			MenuSpecialDraw = TTF_CreateText(textEngine, MenuSpecialFont, "abcdefghigklmnopqrstuv", 20);
 
 			BoutonFont = TTF_OpenFont("assets/New Space.ttf", 48);
-			ReturnBoutonFont = TTF_OpenFont("assets/New Space.ttf", 24);
+
+			ReturnBoutonFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 44);
+			ShopFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 60);
+			if (ReturnBoutonFont == nullptr)
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
 			}
@@ -216,7 +220,7 @@ public:
 			if (TextScore == nullptr) {
 				SDL_LogWarn(0,"Les boutons du menu n'a pas chargé : TTF",SDL_GetError());
 			}
-			TextShop = TTF_CreateText(textEngine, BoutonFont, "Shop",25);
+			TextShop = TTF_CreateText(textEngine, ShopFont, "Shop",25);
 			if (TextShop == nullptr) {
 				SDL_LogWarn (0, "Le text du bouton Shop n'a pas fonctionner" , SDL_GetError());
 			}
@@ -243,7 +247,7 @@ public:
 			{
 				SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
 			}
-			TextQuitReturnMenu = TTF_CreateText(textEngine, BoutonFont, "Return \nMenu",25);
+			TextQuitReturnMenu = TTF_CreateText(textEngine, ReturnBoutonFont, "Return \nMenu",25);
 			if (TextQuitReturnMenu == nullptr) {
 				SDL_LogWarn(0,"SDL_TTF failed to set the return Menu text)! %s", SDL_GetError());
 			}
@@ -259,46 +263,47 @@ public:
 			entities.push_back (player);
 
 			//Ligne 1 de cerf
+
 			entities.push_back(new Enemy_Deer(100.f, 50.0f));
 			entities.push_back(new Enemy_Deer(250.f, 50.0f));
 			entities.push_back(new Enemy_Deer(400.f, 50.0f));
 			entities.push_back(new Enemy_Deer(550.0f, 50.0f));
 
-			entities.push_back(new Enemy_Deer(950.0f, 50.0f));
-			entities.push_back(new Enemy_Deer(1100.0f, 50.0f));
-			entities.push_back(new Enemy_Deer(1250.0f, 50.0f));
-			entities.push_back(new Enemy_Deer(1400.0f, 50.0f));
+			entities.push_back(new Enemy_Deer(700.0f, 50.0f));
+			entities.push_back(new Enemy_Deer(850.0f, 50.0f));
+			entities.push_back(new Enemy_Deer(1000.0f, 50.0f));
+			entities.push_back(new Enemy_Deer(1150.0f, 50.0f));
 
 			//Ligne 2 de cerfs
-			entities.push_back(new Enemy_Deer(100.f, 200.0f));
-			entities.push_back(new Enemy_Deer(250.f, 200.0f));
-			entities.push_back(new Enemy_Deer(400.f, 200.0f));
-			entities.push_back(new Enemy_Deer(550.0f, 200.0f));
+			entities.push_back(new Enemy_Deer(100.f, 180.0f));
+			entities.push_back(new Enemy_Deer(250.f, 180.0f));
+			entities.push_back(new Enemy_Deer(400.f, 180.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 180.0f));
 
-			entities.push_back(new Enemy_Deer(950.0f, 200.0f));
-			entities.push_back(new Enemy_Deer(1100.0f, 200.0f));
-			entities.push_back(new Enemy_Deer(1250.0f, 200.0f));
-			entities.push_back(new Enemy_Deer(1400.0f, 200.0f));
+			entities.push_back(new Enemy_Deer(700.0f, 180.0f));
+			entities.push_back(new Enemy_Deer(850.0f, 180.0f));
+			entities.push_back(new Enemy_Deer(1000.0f, 180.0f));
+			entities.push_back(new Enemy_Deer(1150.0f, 180.0f));
 			//Ligne 3 de cerfs
-			entities.push_back(new Enemy_Deer(100.f, 350.0f));
-			entities.push_back(new Enemy_Deer(250.f, 350.0f));
-			entities.push_back(new Enemy_Deer(400.f, 350.0f));
-			entities.push_back(new Enemy_Deer(550.0f, 350.0f));
+			entities.push_back(new Enemy_Deer(100.f, 330.0f));
+			entities.push_back(new Enemy_Deer(250.f, 330.0f));
+			entities.push_back(new Enemy_Deer(400.f, 330.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 330.0f));
 
-			entities.push_back(new Enemy_Deer(950.0f, 350.0f));
-			entities.push_back(new Enemy_Deer(1100.0f, 350.0f));
-			entities.push_back(new Enemy_Deer(1250.0f, 350.0f));
-			entities.push_back(new Enemy_Deer(1400.0f, 350.0f));
+			entities.push_back(new Enemy_Deer(700.0f, 330.0f));
+			entities.push_back(new Enemy_Deer(850.0f, 330.0f));
+			entities.push_back(new Enemy_Deer(1000.0f, 330.0f));
+			entities.push_back(new Enemy_Deer(1150.0f, 330.0f));
 			//Ligne 4 de cerfs
-			entities.push_back(new Enemy_Deer(100.f, 500.0f));
-			entities.push_back(new Enemy_Deer(250.f, 500.0f));
-			entities.push_back(new Enemy_Deer(400.f, 500.0f));
-			entities.push_back(new Enemy_Deer(550.0f, 500.0f));
+			entities.push_back(new Enemy_Deer(100.f, 480.0f));
+			entities.push_back(new Enemy_Deer(250.f, 480.0f));
+			entities.push_back(new Enemy_Deer(400.f, 480.0f));
+			entities.push_back(new Enemy_Deer(550.0f, 480.0f));
 
-			entities.push_back(new Enemy_Deer(950.0f, 500.0f));
-			entities.push_back(new Enemy_Deer(1100.0f, 500.0f));
-			entities.push_back(new Enemy_Deer(1250.0f, 500.0f));
-			entities.push_back(new Enemy_Deer(1400.0f, 500.0f));
+			entities.push_back(new Enemy_Deer(700.0f, 480.0f));
+			entities.push_back(new Enemy_Deer(850.0f, 480.0f));
+			entities.push_back(new Enemy_Deer(1000.0f, 480.0f));
+			entities.push_back(new Enemy_Deer(1150.0f, 480.0f));
 
 			fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
 		}
@@ -480,29 +485,66 @@ public:
 				player->UpdatePhysics(deltaTime);
 			}
 
-			bool DeerHasTouchedEdgedScreen = false;
-			// Creation du update
-			for (auto& ent : entities) {
-				ent->MovementUpdate(deltaTime);
-				//Le mouvement des cerfs et quand toucher au Edged du screen alors ils partent de l'autre coté
+			bool ToucheMurGauche = false;
+    bool ToucheMurDroit = false;
+    float MaxPushBack = 0.0f;
 
-				if (ent->HasComponent(TRANSFORM)) {
-					if (ent->transform.position.x <= 0.0f || (ent->transform.position.x + ent->transform.size.x) >= 1920.0f) {
-						DeerHasTouchedEdgedScreen = true;
-				   }
-				}
-				if (ent->HasComponent(TRANSFORM)) {
-					if (ent->transform.position.x >=1920.0f){
-						ent->transform.position.x *= -1.0f;
-					}
-				}
-			}
-			if (DeerHasTouchedEdgedScreen) {
-				for (auto& ent : entities) {
-					//Inverse la vitesse
-					ent->transform.position.x *= -1.0f;
-				}
-			}
+    // Mouvement et Détection Des cerfs
+    for (auto& ent : entities) {
+        ent->MovementUpdate(deltaTime);
+
+        if (ent->HasComponent(TRANSFORM)) {
+
+            // Verifie Gauche
+            if (ent->transform.position.x <= 0.0f) {
+                ToucheMurGauche = true;
+
+                // Calcul Combien le cerf est dans la bourdure
+                float deerInBorder = -ent->transform.position.x;
+
+
+                // Si le cerf est plus en dehors du screen c'est lui qui devient le lead
+                if (deerInBorder > MaxPushBack) {
+                    MaxPushBack = deerInBorder;
+                }
+            }
+            // Verifie Droite
+            else if ((ent->transform.position.x + ent->transform.size.x) >= 1920.0f) {
+                ToucheMurDroit = true;
+
+                float depassement = ent->transform.position.x + ent->transform.size.x - 1920.0f;
+
+                // Pareil pour la droite, on garde le plus grand dépassement
+                if (depassement > MaxPushBack) {
+                    MaxPushBack = depassement;
+                }
+            }
+        }
+    }
+
+    // Application de la correction
+    // touché à Gauche -> force vers la Droite
+    if (ToucheMurGauche) {
+        for (auto& ent : entities) {
+            if (ent->HasComponent(TRANSFORM)) {
+				//vitesse en positif std::abs (droite)
+                ent->movement.velocity.x = std::abs(ent->movement.velocity.x);
+                ent->transform.position.x += (MaxPushBack + 1.0f);
+            }
+        }
+    }
+    // touché à Droite -> force vers la Gauche
+    else if (ToucheMurDroit) {
+        for (auto& ent : entities) {
+            if (ent->HasComponent(TRANSFORM)) {
+
+                // vitesse en Negatif -std::abs (gauche)
+                ent->movement.velocity.x = -std::abs(ent->movement.velocity.x);
+                ent->transform.position.x -= (MaxPushBack + 1.0f);
+            }
+        }
+    }
+
 
 
 
@@ -692,6 +734,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 				if (event->key.scancode == SDL_SCANCODE_SPACE) {
 
 				player->Shoot (app.entities, (SDL_Point){ 0, 1 });
+
 				}
 
 			}
