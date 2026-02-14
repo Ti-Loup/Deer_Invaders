@@ -495,7 +495,7 @@ public:
 		SDL_RenderPresent(renderer);
 	}
 
-	// 3. MODIFICATION : La fonction Game ne boucle plus non plus
+	// La fonction Game ne boucle
 	void Game(float deltaTime) {
 		SDL_Event GameEvents;
 			/*
@@ -511,8 +511,8 @@ public:
 			if (player != nullptr) {
 				player->UpdatePhysics(deltaTime);
 			}
-
-			bool ToucheMurGauche = false;
+	//Variables de Detection des cerfs et murs
+	bool ToucheMurGauche = false;
     bool ToucheMurDroit = false;
     float MaxPushBack = 0.0f;
 
@@ -571,6 +571,24 @@ public:
             }
         }
     }
+
+			//L'algorithme de collision
+			//vérifier chaque balle pour voir si elle touche un ennemi.
+			for (auto& Bullet : entities) {
+				//Si balle est une balle
+			if (Bullet->entityType == EntityType::Bullet) {
+				//Yes
+			}
+			else {
+				 continue;
+			}
+				for (auto& ennemi : entities) {
+					if (ennemi->entityType == EntityType::Enemy) {
+						//Non
+					}
+				}
+			}
+
 
 
 

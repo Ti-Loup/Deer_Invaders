@@ -20,6 +20,10 @@ Player::Player (){
     transform.size = (SDL_FPoint){64.0f,64.0f};
     //ClassicBulletType par défaut
     currentWeapon = new ClassicBulletType();
+
+    //Le Type d'entity
+    entityType = EntityType::Player;
+
 }
 //destructeur
 Player::~Player() {
@@ -67,11 +71,12 @@ void Player::Shoot (std::vector<Entity *> &entity, SDL_Point dir)
 {
         SDL_Color BulletColor = currentWeapon->GetColor();//Prend la couleur de l'arme actuel
         //ce qui spawn
-        entity.push_back (new Bullet (transform.position, dir, BulletColor));\
+        entity.push_back (new Bullet (transform.position, dir, BulletColor));
 }
 
 Bullet::Bullet (SDL_FPoint spawn, SDL_Point dir, SDL_Color color)
 {
+    //Constructeur
     AddComponent (MOVEMENT);
     movement.velocity = (SDL_FPoint){ 0.f * dir.x, -400.f * dir.y };//les bullets aillent vers le haut
     AddComponent (RENDER);
@@ -79,4 +84,6 @@ Bullet::Bullet (SDL_FPoint spawn, SDL_Point dir, SDL_Color color)
     AddComponent (TRANSFORM);
     transform.position = spawn;
     transform.size = (SDL_FPoint){ 16.f, 16.f };
+
+    entityType = EntityType::Bullet;
 }

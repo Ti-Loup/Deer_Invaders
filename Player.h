@@ -16,8 +16,6 @@ public:
      bool bIsMovingRight = false;
      bool bIsMovingLeft = false;
 
-Uint32 lastBulletSpawned; // dernier bullet lancer
-        Uint32 bulletRateSpawn;// delai entre 2 tirs
 
 
      //Le type d'arme (-> Dans State.h)

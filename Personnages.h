@@ -23,7 +23,11 @@ class Enemy_HealerDeer : public Entity{
 public:
     Enemy_HealerDeer(float startX, float startY);
 };
-
+//Des meteorites qui tombent du ciel
+class Enemy_Meteor : public Entity{
+public:
+    Enemy_Meteor(float startX, float startY);
+};
 
 
 //Bosses
@@ -32,5 +36,16 @@ public:
     Enemy_FraiseBoss(float floatX, float floatY);
 
 };
+
+
+
+//COLLECTIBLES
+class Collectible_Meat : public Entity {
+public:
+    Collectible_Meat(float floatX, float floatY);
+
+};
+
+
 
 #endif //DEER_INVADERS_PERSONNAGES_H

@@ -8,6 +8,13 @@
 #include "components.h"
 
 #include <SDL3/SDL_render.h>//Pour Uint64
+//Enum pour les différents types d'ennemies
+enum class EntityType {
+Player,//0
+Enemy,//1
+Bullet,//2
+Collectable,//3
+};
 
 class Entity {
     // Le flag qui dit quels composants sont actifs
@@ -32,6 +39,10 @@ public:
     // Systèmes intégrés (Update et Render)
     virtual void MovementUpdate(float deltaTime);
     virtual void RenderUpdate(SDL_Renderer* renderer);
+
+    //declaration des etiquettes de chacun pour intégrés les enums EntityType dans chaque entity
+    EntityType entityType = EntityType::Enemy;
+
 };
 
 

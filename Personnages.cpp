@@ -18,6 +18,9 @@ Enemy_Deer::Enemy_Deer(float startX, float startY) {
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
     transform.size = { 80.f, 80.f };
+
+    //Le type de l'entity
+    entityType = EntityType::Enemy;
 /*
     //Pour que les cerfs bouge légèrement haut et en bas de façon logique
     //Le randomizer <random>
@@ -38,5 +41,70 @@ Enemy_Deer::Enemy_Deer(float startX, float startY) {
 }
 
 Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {
+    AddComponent (HEALTH);
+    health.max_health = 100;
+    health.current_health = 100;
+    AddComponent (MOVEMENT);
+    movement.velocity = { 30.0f,0.0f };
+    AddComponent (RENDER);
+    render.color = { 139, 69, 19, 255 };//couleur brun
+    AddComponent (TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size = { 80.f, 80.f };
 
+    //Le type d'entity
+    entityType = EntityType::Enemy;
+}
+
+Enemy_Meteor::Enemy_Meteor(float startX, float  startY) {
+    AddComponent (HEALTH);
+    health.max_health = 100;
+    health.current_health = 100;
+    AddComponent (MOVEMENT);
+    movement.velocity = { 30.0f,0.0f };
+    AddComponent (RENDER);
+    render.color = { 139, 69, 19, 255 };//couleur brun
+    AddComponent (TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size = { 80.f, 80.f };
+
+    //Le type d'entity
+    entityType = EntityType::Enemy;
+
+}
+
+//  BOSS
+Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY) {
+    AddComponent (HEALTH);
+    health.max_health = 100;
+    health.current_health = 100;
+    AddComponent (MOVEMENT);
+    movement.velocity = { 30.0f,0.0f };
+    AddComponent (RENDER);
+    render.color = { 139, 69, 19, 255 };//couleur brun
+    AddComponent (TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size = { 80.f, 80.f };
+
+    //Le type d'entity
+    entityType = EntityType::Enemy;
+}
+
+
+//  COLLECTIBLES
+
+Collectible_Meat::Collectible_Meat(float startX, float startY) {
+    AddComponent (HEALTH);
+    health.max_health = 100;
+    health.current_health = 100;
+    AddComponent (MOVEMENT);
+    movement.velocity = { 30.0f,0.0f };
+    AddComponent (RENDER);
+    render.color = { 139, 69, 19, 255 };//couleur brun
+    AddComponent (TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size = { 80.f, 80.f };
+
+    //Le type d'entity
+    entityType = EntityType::Collectable;
 }
