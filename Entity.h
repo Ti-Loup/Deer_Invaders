@@ -43,6 +43,10 @@ public:
     //declaration des etiquettes de chacun pour intégrés les enums EntityType dans chaque entity
     EntityType entityType = EntityType::Enemy;
 
+    //Bool pour savoir si un object est detruit ou non
+    bool bIsDestroyed = false;
+
+
 };
 
 

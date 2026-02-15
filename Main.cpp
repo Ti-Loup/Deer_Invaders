@@ -574,17 +574,44 @@ public:
 
 			//L'algorithme de collision
 			//vérifier chaque balle pour voir si elle touche un ennemi.
-			for (auto& Bullet : entities) {
+			for (auto& bullet : entities) {
 				//Si balle est une balle
-			if (Bullet->entityType == EntityType::Bullet) {
-				//Yes
-			}
-			else {
-				 continue;
-			}
+				if (bullet->entityType != EntityType::Bullet) {
+				//non
+				continue;
+				}
 				for (auto& ennemi : entities) {
 					if (ennemi->entityType == EntityType::Enemy) {
-						//Non
+						//oui (a coder)
+						//Creation Collision Bullet
+						SDL_FRect rectBullet = {
+							bullet->transform.position.x,
+							bullet->transform.position.y,
+							bullet->transform.size.x,
+							bullet->transform.size.y
+						};
+						//Creation Collision des ennemies
+						SDL_FRect rectEnnemi = {
+							ennemi->transform.position.x,
+							ennemi->transform.position.y,
+							ennemi->transform.size.x,
+							ennemi->transform.size.y
+						};
+						//Si collision entre Bullet & Ennemi ce fait -> SDL_HasRectIntersectionFloat (A,B) bool
+						if (SDL_HasRectIntersectionFloat(&rectBullet, &rectEnnemi)) {
+							SDL_LogWarn(0,"Collision fonctionne");
+							//detruit la balle au contact d'un cerf
+							bullet->bIsDestroyed = true;
+
+							//Pv des ennemies baisses
+							ennemi->health.current_health -= 20;
+							if (ennemi->health.current_health <= 0) {
+								ennemi->bIsDestroyed = true;
+								SDL_LogWarn(0,"Un cerf est mort");
+							}
+
+						}
+
 					}
 				}
 			}
