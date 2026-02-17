@@ -37,7 +37,7 @@ Player::~Player() {
 //Pour modifier Sa vitesse, le freinage et Sa vitesse maximale
 void Player::UpdatePhysics(float deltaTime) {
     float acceleration = 1000.0f; //acceleration vers -> MaxSpeed
-    float friction = 500.0f; //Temps que le personnage va continuer a bouger apres avoir relacher la touche clavier
+    float friction = 400.0f; //Temps que le personnage va continuer a bouger apres avoir relacher la touche clavier
     float maxSpeed = 500.0f; //Speed Max apres l'acceleration
 
     //acceleration
@@ -76,7 +76,7 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_Point dir) {
 Bullet::Bullet(SDL_FPoint spawn, SDL_Point dir, SDL_Color color) {
     //Constructeur
     AddComponent(MOVEMENT);
-    movement.velocity = (SDL_FPoint){0.f * dir.x, 400.f * dir.y}; //les bullets aillent vers le haut
+    movement.velocity = (SDL_FPoint){0.f * dir.x, 600.f * dir.y}; //les bullets aillent vers le haut
     AddComponent(RENDER);
     render.color = color;
     AddComponent(TRANSFORM);
@@ -91,12 +91,13 @@ float ShootDefaultCooldown = 90.f;
 
 //Tick cooldown
 void Player::ShootUpdate(std::vector<Entity *> &entity, SDL_Point dir, float deltaTime) {
-    if (ShootCooldown <= 0.f) {
+    //Rajout si on appuie sur la touche
+    if (ShootCooldown <= 0.f && isCurrentlyShooting == true) {
         // TIRER ICI
         Shoot(entity, dir);
 
         ShootCooldown = ShootDefaultCooldown;
     } else {
-        ShootCooldown -= deltaTime * 100.f;
+        ShootCooldown -= deltaTime *150.f;
     }
 }

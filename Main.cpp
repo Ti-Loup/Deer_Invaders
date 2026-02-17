@@ -141,9 +141,19 @@ public:
 
     void operator=(GameApp const &) = delete;
 
+    //CONTROLLER
+    SDL_Gamepad* gameController = nullptr; // Manette
+    const Sint16 DEADZONE = 4000;          // Zone morte
+
+
 private:
     GameApp() //Constructeur
     {
+        //initionalisation du GAMEPAD
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) == false) {
+            SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
+            abort();
+        }
         if (SDL_Init(SDL_INIT_VIDEO) == false) {
             SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
             abort();
@@ -348,6 +358,9 @@ private:
         SDL_DestroyWindow(window);
         TTF_Quit();
         SDL_Quit();
+        if (gameController) {
+            SDL_CloseGamepad(gameController);
+        }
     }
 
     void CalculateFPS(const float deltaTime) {
@@ -580,7 +593,7 @@ private:
         //L'algorithme de collision
         //vérifier chaque balle pour voir si elle touche un ennemi.
         for (auto &bullet: entities) {
-            //Si balle est une balle
+            //Si balle
             if (bullet->entityType != EntityType::Bullet) {
                 //non
                 continue;
@@ -756,6 +769,83 @@ SDL_AppResult
 SDL_AppEvent(void *appstate, SDL_Event *event) {
     //Le singleton Pour avoir les touches
     GameApp &app = GameApp::GetInstance();
+    //MANETTE CONNECTER
+    if (event->type == SDL_EVENT_GAMEPAD_ADDED) {
+        if (app.gameController == nullptr) {
+            app.gameController = SDL_OpenGamepad(event->gdevice.which);
+            SDL_Log("Controller Detected");
+        }
+    }
+    //MANETTE DECONNECTER
+    if (event->type == SDL_EVENT_GAMEPAD_REMOVED) {
+        if (app.gameController) {
+            SDL_CloseGamepad(app.gameController);
+            app.gameController = nullptr;
+            SDL_Log("Controller Disconnected");
+        }
+    }
+    // BOUTON MANETTE DOWN
+    if (event->type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) {
+        //Pour tirer
+        if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+            if (app.StateActuel == State::Game) {
+
+                //POWER UP
+            }
+        }
+    }
+    // BOUTON MANETTE UP
+    if (event->type == SDL_EVENT_GAMEPAD_BUTTON_UP) {
+        if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+            if (app.StateActuel == State::Game) {
+
+                //RELACHE POWER UP
+            }
+        }
+    }
+
+    // MANETTE STICK
+    if (event->type == SDL_EVENT_GAMEPAD_AXIS_MOTION) {
+        // STICK GAUCHE AXE X
+        if (event->gaxis.axis == SDL_GAMEPAD_AXIS_LEFTX) {
+            Sint16 xValue = event->gaxis.value;
+
+            if (app.StateActuel == State::Game) {
+                // Vers la droite
+                if (xValue > app.DEADZONE) {
+                    player->bIsMovingRight = true;
+                    player->bIsMovingLeft = false;
+                }
+                // Vers la gauche
+                else if (xValue < -app.DEADZONE) {
+                    player->bIsMovingRight = false;
+                    player->bIsMovingLeft = true;
+                }
+                // deadZone
+                else {
+                    player->bIsMovingRight = false;
+                    player->bIsMovingLeft = false;
+                }
+            }
+        }
+        else if (event->gaxis.axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
+            Sint16 triggerValue = event->gaxis.value;
+
+            if (triggerValue > 3000) { // > deadZone
+                if (app.StateActuel == State::Game) {
+                    player->isCurrentlyShooting = true;
+                }
+            }
+            else {
+                // Si on relâche la gâchette
+                if (app.StateActuel == State::Game) {
+                    player->isCurrentlyShooting = false;
+                }
+            }
+        }
+    }
+
+
 
 
     //Si on clique sur le X de la fenêtre
@@ -833,7 +923,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             //Pour tirer
             if (event->key.scancode == SDL_SCANCODE_SPACE) {
-
+                player->isCurrentlyShooting = true;
             }
         }
         //DANS LE SHOP
@@ -873,6 +963,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
         }
         if (event->key.scancode == SDL_SCANCODE_SPACE) {
+            player->isCurrentlyShooting = false;
         }
     }
 

@@ -16,8 +16,10 @@ public:
      bool bIsMovingRight = false;
      bool bIsMovingLeft = false;
 
-    bool isCurrentlyShooting = true;
 
+    bool isCurrentlyShooting = false;
+  float shootCooldown = 0.f;
+  float shootDefaultCooldown = 90.0f;//1.5 sec
 
      //Le type d'arme (-> Dans State.h)
     BulletType* currentWeapon;
