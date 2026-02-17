@@ -16,6 +16,7 @@ public:
      bool bIsMovingRight = false;
      bool bIsMovingLeft = false;
 
+    bool isCurrentlyShooting = true;
 
 
      //Le type d'arme (-> Dans State.h)
@@ -27,6 +28,8 @@ public:
     void UpdatePhysics(float deltaTime);
 
     void Shoot(std::vector<Entity *> &entity, SDL_Point dir);
+
+    void ShootUpdate (std::vector<Entity *> &entity, SDL_Point dir,float deltaTime);
 };
 
 //Pour que le joueur puisse tirer
