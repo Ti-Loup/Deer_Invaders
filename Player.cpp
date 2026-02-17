@@ -9,7 +9,7 @@
 Player::Player() {
     //constructeur
     AddComponent(HEALTH);
-    health.max_health = 250;
+    health.max_health = 150;
     health.current_health = health.max_health;
     AddComponent(MOVEMENT);
     movement.velocity = (SDL_FPoint){0.0f, 0.0f};

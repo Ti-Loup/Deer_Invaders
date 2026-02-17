@@ -9,8 +9,8 @@
 //enemy_Deer
 Enemy_Deer::Enemy_Deer(float startX, float startY) {
     AddComponent (HEALTH);
-    health.max_health = 100;
-    health.current_health = 100;
+    health.max_health = 40;
+    health.current_health = 40;
     AddComponent (MOVEMENT);
     movement.velocity = { 30.0f,0.0f };
     AddComponent (RENDER);
