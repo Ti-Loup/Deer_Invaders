@@ -13,6 +13,8 @@ class Main {
 //~ methodes ~
 public:
 void RenderTitle();//Pour mettre un titre
+void RenderCreditsTitle();//Titre Credits
+void RenderShopTitle();//Titre Shop
 void Game();
 
 

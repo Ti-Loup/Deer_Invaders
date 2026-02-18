@@ -112,8 +112,10 @@ public:
     SDL_FRect BoutonUpgrade = {300, 800, 125, 100};
     SDL_FRect BoutonHPUpgrade = {500, 800, 125, 100};
 
+    TTF_Text *ShopMenuText = nullptr;
+
     // -> Credits <- Text et Fonts
-    TTF_Font *CreditsFont = nullptr;
+    TTF_Font *Credits_Shop_TitleFont = nullptr;
     TTF_Text *CreditsMenuText = nullptr;
 
 
@@ -144,8 +146,11 @@ public:
     //CONTROLLER
     SDL_Gamepad* gameController = nullptr; // Manette
     const Sint16 DEADZONE = 4000;          // Zone morte
-
-
+    //Boutons gbutton
+    int selectedButtonMenu = 0;
+    int selectedButtonScore = 0;
+    int selectedButtonShop = 0;
+    int selectedButtonCredits = 0;
 private:
     GameApp() //Constructeur
     {
@@ -277,11 +282,24 @@ private:
         if (TTF_SetTextColor(TextQuitReturnMenu, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
         }
+        Credits_Shop_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        //SHOP
+        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_TitleFont, "Shop", 25);
+        if (ShopMenuText == nullptr) {
+            SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
+        }
+        if (TTF_SetTextColor(ShopMenuText, 255, 255, 255, 255) == false) {
+            SDL_LogWarn(2,"Erreur de couleur pour le titre de Shop -> Shop", SDL_GetError());
+        }
+
         //credits
-        CreditsFont = TTF_OpenFont("assets/ Cosmo Corner.ttf", 48);
-        CreditsMenuText = TTF_CreateText(textEngine, CreditsFont, "Credits", 25);
+        Credits_Shop_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_TitleFont, "Credits", 25);
         if (CreditsMenuText == nullptr) {
             SDL_LogWarn(0, "EERREUR ! Le texte CreditsText n'a pas charger", SDL_GetError());
+        }
+        if (TTF_SetTextColor(CreditsMenuText, 255, 255, 255, 255) == false) {
+            SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
         }
 
         // -> Dans Game <-
@@ -346,7 +364,7 @@ private:
         TTF_DestroyRendererTextEngine(textEngine);
         TTF_CloseFont(font);
         TTF_CloseFont(BoutonFont);
-        TTF_CloseFont(CreditsFont);
+        TTF_CloseFont(Credits_Shop_TitleFont);
         TTF_DestroyText(TextStart);
         TTF_DestroyText(TextQuit);
         TTF_DestroyText(TextScore);
@@ -454,9 +472,12 @@ private:
         b = static_cast<Uint8>(std::clamp(std::sin(colorTime + 4.0f) * Amplitude + MidPoint, 0.0f, 255.0f));
     }
 
-    void RenderCreditsTitle() {
-        TTF_DrawRendererText(CreditsMenuText, 200, 200);
+    void RenderShopTitle() {
+        TTF_DrawRendererText(ShopMenuText, 700, 150);
 
+    }
+    void RenderCreditsTitle() {
+        TTF_DrawRendererText(CreditsMenuText, 700, 150);
     }
 
 
@@ -502,13 +523,39 @@ private:
         // Mise à jour animation
         AdvanceAnimation(deltaTime);
 
-        // Dessin des boutons
-        RenderBoutons(BoutonPlay, TextStart, 250, 255, 255);
-        RenderBoutons(BoutonQuit, TextQuit, 250, 255, 255);
-        RenderBoutons(BoutonScore, TextScore, 250, 255, 255);
-        RenderBoutons(BoutonShop, TextShop, r, g, b);
-        RenderBoutons(BoutonCredits, BoutonCreditsText, 255, 255, 255);
-
+        // Dessin des boutons + Selection avec manette
+        //Bouton Play
+        if (selectedButtonMenu == 0) {
+            RenderBoutons(BoutonPlay, TextStart, r, g, b);//Couleur si selectionner
+        }else {
+            RenderBoutons(BoutonPlay, TextStart, 250, 255, 255);//Blanc de base
+        }
+        //BOUTON SCORE
+        if (selectedButtonMenu == 1) {
+            RenderBoutons(BoutonScore, TextScore, r, g, b);
+        }else {
+            RenderBoutons(BoutonScore, TextScore, 250, 255, 255);//blanc de base
+        }
+        //BOUTON QUIT
+        if (selectedButtonMenu == 2) {
+            RenderBoutons(BoutonQuit, TextQuit, r, g, b);
+        }else {
+            RenderBoutons(BoutonQuit, TextQuit, 250, 255, 255);
+        }
+        //BOUTON SHOP
+        if (selectedButtonMenu == 3) {
+            RenderBoutons(BoutonShop, TextShop, r, g, b);
+        }
+        else {
+            RenderBoutons(BoutonShop, TextShop, 250, 255, 255);
+        }
+        //BOUTON CREDITS
+        if (selectedButtonMenu == 4) {
+            RenderBoutons(BoutonCredits, BoutonCreditsText, r, g, b);
+        }
+        else {
+            RenderBoutons(BoutonCredits, BoutonCreditsText, 250, 255, 255);
+        }
 
         TTF_DrawRendererText(fpsText, 1800, 10);
         SDL_RenderPresent(renderer);
@@ -669,8 +716,12 @@ private:
         // Rendu du Score
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir
         SDL_RenderClear(renderer);
+        if (selectedButtonScore == 0) {
+            RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
+        }else {
+            RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 250, 255, 255);
 
-        RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 250, 255, 255);
+        }
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 
         SDL_RenderPresent(renderer);
@@ -682,11 +733,29 @@ private:
 
         //Render
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //Fond noir
+       //clean
         SDL_RenderClear(renderer);
+        //Render
+        RenderShopTitle();
+        UpdateBackgroundTint(deltaTime);//Le rgb
+        if (selectedButtonShop == 0) {
+            RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
+        }else {
+            RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 255, 255, 255);
+        }
 
-        RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255, 255, 255);
-        RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 255, 255, 255);
-        RenderBoutons(BoutonHPUpgrade, BoutonHPUpgradeText, 255, 255, 255);
+        if (selectedButtonShop == 1) {
+            RenderBoutons(BoutonHPUpgrade, BoutonHPUpgradeText, r, g, b);
+        }else {
+            RenderBoutons(BoutonHPUpgrade, BoutonHPUpgradeText, 255, 255, 255);
+        }
+
+        if (selectedButtonShop == 2) {
+            RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
+        }else {
+            RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255, 255, 255);
+        }
+
         //Fonts
         TTF_DrawRendererText(fpsText, 1800, 10);
 
@@ -701,8 +770,15 @@ private:
         //Render
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //Fond noir
         SDL_RenderClear(renderer);
+        UpdateBackgroundTint(deltaTime);//Le rgb
+        RenderCreditsTitle();
         //boutons
-        RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255, 255, 255);
+        if (selectedButtonCredits == 0) {
+            RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
+        }else {
+            RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255, 255, 255);
+
+        }
 
 
         //Fonts
@@ -786,20 +862,161 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     }
     // BOUTON MANETTE DOWN
     if (event->type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) {
-        //Pour tirer
-        if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
-            if (app.StateActuel == State::Game) {
+        //POUR POWER UP
+        if (app.StateActuel == State::Game) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
 
+                SDL_Log("Button Down");
                 //POWER UP
+
             }
         }
+        //GERER SELECTION MENU AVEC GAMEPAD
+        if (app.StateActuel == State::Menu) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
+                //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
+                app.selectedButtonMenu++;
+                //Dessend 0 vers 4~
+                if (app.selectedButtonMenu > 4) {
+                    app.selectedButtonMenu = 0;//loop entre 4 et 0
+                }
+            }
+            //Monte ~
+                if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
+                //Monte
+                app.selectedButtonMenu--;
+                if (app.selectedButtonMenu < 0) {
+                    app.selectedButtonMenu = 4;
+                }
+            }
+            //validation Touche A
+            if (event->gbutton.button ==  SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("blablabla");
+
+            //switch case MENU
+            switch (app.selectedButtonMenu) {
+                case 0:
+                    app.StateActuel = State::Game;
+                    break;
+                case 1:
+                    app.StateActuel = State::ScoreBoard;
+                    break;
+                case 2:
+                    app.StateActuel = State::Quit;
+                    break;
+                case 3:
+                    app.StateActuel = State::Shop;
+                    app.selectedButtonShop = 0;//Remet a zero
+                    break;
+                case 4:
+                    app.StateActuel = State::Credits;
+                    app.selectedButtonShop = 0;
+                    break;
+                }
+
+            }
+
+
+        }
+        //GERER SELECTION SCORE AVEC GAMEPAD
+        else if (app.StateActuel == State::ScoreBoard) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
+                //app.selectedButtonScore++;
+                if (app.selectedButtonScore > 0) {
+                    app.selectedButtonScore = 0;//Retourne au premier
+                }
+            }
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
+                //app.selectedButtonScore--;
+                if (app.selectedButtonScore < 0) {
+                    app.selectedButtonScore = 0;//retourne au dernier
+                }
+            }
+            //Verification
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("Button A Down");
+                //SwitchCase
+                switch (app.selectedButtonCredits) {
+                    case 0:
+                        //Rien Encore Pour L'upgrade
+                        SDL_Log("Retour Menu");
+                        app.StateActuel = State::Menu;
+                        break;
+                }
+            }
+        }
+
+        //GERER SELECTION SHOP AVEC GAMEPAD
+        else if (app.StateActuel == State::Shop) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT){
+            app.selectedButtonShop++;
+                if (app.selectedButtonShop > 2) {
+                    app.selectedButtonShop = 0;//Retourne au premier
+                }
+            }
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
+                app.selectedButtonShop--;
+                if (app.selectedButtonShop < 0) {
+                    app.selectedButtonShop = 2;//retourne au dernier
+                }
+            }
+            //Verification
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("Button A Down");
+                //SwitchCase
+                switch (app.selectedButtonShop) {
+                    case 0:
+                        //Rien Encore Pour L'upgrade
+                        SDL_Log("Weapon Upgrade");
+                        break;
+                    case 1:
+                        //Rien Encore Pour Upgrade HP
+                        SDL_Log("HP Upgrade");
+                        break;
+                    case 2:
+                        //Retour menu
+                        app.StateActuel = State::Menu;
+                        break;
+                }
+            }
+        }
+        //CREDITS
+        else if (app.StateActuel == State::Credits) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
+                //app.selectedButtonCredits++;
+                if (app.selectedButtonCredits > 0) {
+                    app.selectedButtonCredits = 0;//Retourne au premier
+                }
+            }
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
+                //app.selectedButtonCredits--;
+                if (app.selectedButtonCredits < 0) {
+                    app.selectedButtonCredits = 0;//retourne au dernier
+                }
+            }
+            //Verification
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("Button A Down");
+                //SwitchCase
+                switch (app.selectedButtonCredits) {
+                    case 0:
+                        //Rien Encore Pour L'upgrade
+                        SDL_Log("Retour Menu");
+                        app.StateActuel = State::Menu;
+                        break;
+                }
+            }
+        }
+
     }
     // BOUTON MANETTE UP
     if (event->type == SDL_EVENT_GAMEPAD_BUTTON_UP) {
-        if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
-            if (app.StateActuel == State::Game) {
+        if (app.StateActuel == State::Game) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
 
+                SDL_Log("Button Up");
                 //RELACHE POWER UP
+
             }
         }
     }
@@ -995,3 +1212,5 @@ int main(int argc, char *argv[])
 	return 0;
 }
 */
+
+
