@@ -101,6 +101,7 @@ public:
     // -> Score <- Text et Fonts
     TTF_Font *ReturnBoutonFont = nullptr;
     SDL_FRect BoutonQuitRetourMenu = {1600, 900, 200, 100};
+    TTF_Text *ScoreMenuText = nullptr;
 
     // -> Shop <- Text et Fonts
     //Fonts
@@ -115,7 +116,7 @@ public:
     TTF_Text *ShopMenuText = nullptr;
 
     // -> Credits <- Text et Fonts
-    TTF_Font *Credits_Shop_TitleFont = nullptr;
+    TTF_Font *Credits_Shop_Score_TitleFont = nullptr;
     TTF_Text *CreditsMenuText = nullptr;
 
 
@@ -261,8 +262,6 @@ private:
         if (TTF_SetTextColor(BoutonCreditsText, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "Attention BoutonCredits n'a pas changer de couleurs", SDL_GetError());
         }
-
-
         if (TTF_SetTextColor(TextShop, 0, 0, 0, 250) == false) {
             SDL_LogWarn(0, "La couleur de TextShop n'a pas fonctionné", SDL_GetError());
         }
@@ -282,9 +281,20 @@ private:
         if (TTF_SetTextColor(TextQuitReturnMenu, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
         }
-        Credits_Shop_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        //FONT POUR TITRE SCORE, SHOP, CREDITS
+        Credits_Shop_Score_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+
+        //Score
+        ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_TitleFont, "Score", 25);
+        if (ScoreMenuText == nullptr) {
+            SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
+        }
+        if (TTF_SetTextColor(ScoreMenuText, 255,255,255,255) == false) {
+            SDL_LogWarn(0,"Erreur couleur du titre Score n'a pas changer");
+        }
+
         //SHOP
-        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_TitleFont, "Shop", 25);
+        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_TitleFont, "Shop", 25);
         if (ShopMenuText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
         }
@@ -293,8 +303,8 @@ private:
         }
 
         //credits
-        Credits_Shop_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
-        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_TitleFont, "Credits", 25);
+        Credits_Shop_Score_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_TitleFont, "Credits", 25);
         if (CreditsMenuText == nullptr) {
             SDL_LogWarn(0, "EERREUR ! Le texte CreditsText n'a pas charger", SDL_GetError());
         }
@@ -311,46 +321,46 @@ private:
 
         //Ligne 1 de cerf
 
-        entities.push_back(new Enemy_Deer(100.f, 50.0f));
-        entities.push_back(new Enemy_Deer(250.f, 50.0f));
-        entities.push_back(new Enemy_Deer(400.f, 50.0f));
-        entities.push_back(new Enemy_Deer(550.0f, 50.0f));
+        entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(250.f, 50.0f, true));
+        entities.push_back(new Enemy_Deer(400.f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true));
 
-        entities.push_back(new Enemy_Deer(700.0f, 50.0f));
-        entities.push_back(new Enemy_Deer(850.0f, 50.0f));
-        entities.push_back(new Enemy_Deer(1000.0f, 50.0f));
-        entities.push_back(new Enemy_Deer(1150.0f, 50.0f));
+        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true));
+        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true));
 
         //Ligne 2 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 180.0f));
-        entities.push_back(new Enemy_Deer(250.f, 180.0f));
-        entities.push_back(new Enemy_Deer(400.f, 180.0f));
-        entities.push_back(new Enemy_Deer(550.0f, 180.0f));
+        entities.push_back(new Enemy_Deer(100.f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(250.f, 180.0f, true));
+        entities.push_back(new Enemy_Deer(400.f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true));
 
-        entities.push_back(new Enemy_Deer(700.0f, 180.0f));
-        entities.push_back(new Enemy_Deer(850.0f, 180.0f));
-        entities.push_back(new Enemy_Deer(1000.0f, 180.0f));
-        entities.push_back(new Enemy_Deer(1150.0f, 180.0f));
+        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true));
+        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true));
         //Ligne 3 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 330.0f));
-        entities.push_back(new Enemy_Deer(250.f, 330.0f));
-        entities.push_back(new Enemy_Deer(400.f, 330.0f));
-        entities.push_back(new Enemy_Deer(550.0f, 330.0f));
+        entities.push_back(new Enemy_Deer(100.f, 330.0f, false));
+        entities.push_back(new Enemy_Deer(250.f, 330.0f, true));
+        entities.push_back(new Enemy_Deer(400.f, 330.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 330.0f, true));
 
-        entities.push_back(new Enemy_Deer(700.0f, 330.0f));
-        entities.push_back(new Enemy_Deer(850.0f, 330.0f));
-        entities.push_back(new Enemy_Deer(1000.0f, 330.0f));
-        entities.push_back(new Enemy_Deer(1150.0f, 330.0f));
+        entities.push_back(new Enemy_Deer(700.0f, 330.0f, false));
+        entities.push_back(new Enemy_Deer(850.0f, 330.0f,true));
+        entities.push_back(new Enemy_Deer(1000.0f, 330.0f,false));
+        entities.push_back(new Enemy_Deer(1150.0f, 330.0f,true));
         //Ligne 4 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 480.0f));
-        entities.push_back(new Enemy_Deer(250.f, 480.0f));
-        entities.push_back(new Enemy_Deer(400.f, 480.0f));
-        entities.push_back(new Enemy_Deer(550.0f, 480.0f));
+        entities.push_back(new Enemy_Deer(100.f, 480.0f,false));
+        entities.push_back(new Enemy_Deer(250.f, 480.0f,true));
+        entities.push_back(new Enemy_Deer(400.f, 480.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 480.0f,true));
 
-        entities.push_back(new Enemy_Deer(700.0f, 480.0f));
-        entities.push_back(new Enemy_Deer(850.0f, 480.0f));
-        entities.push_back(new Enemy_Deer(1000.0f, 480.0f));
-        entities.push_back(new Enemy_Deer(1150.0f, 480.0f));
+        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false));
+        entities.push_back(new Enemy_Deer(850.0f, 480.0f,true));
+        entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false));
+        entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true));
 
         //Timer FPS
         fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
@@ -364,7 +374,7 @@ private:
         TTF_DestroyRendererTextEngine(textEngine);
         TTF_CloseFont(font);
         TTF_CloseFont(BoutonFont);
-        TTF_CloseFont(Credits_Shop_TitleFont);
+        TTF_CloseFont(Credits_Shop_Score_TitleFont);
         TTF_DestroyText(TextStart);
         TTF_DestroyText(TextQuit);
         TTF_DestroyText(TextScore);
@@ -472,12 +482,14 @@ private:
         b = static_cast<Uint8>(std::clamp(std::sin(colorTime + 4.0f) * Amplitude + MidPoint, 0.0f, 255.0f));
     }
 
+    void RenderScoreTitle() {
+        TTF_DrawRendererText(ScoreMenuText, 800, 150);
+    }
     void RenderShopTitle() {
-        TTF_DrawRendererText(ShopMenuText, 700, 150);
-
+        TTF_DrawRendererText(ShopMenuText, 850, 150);
     }
     void RenderCreditsTitle() {
-        TTF_DrawRendererText(CreditsMenuText, 700, 150);
+        TTF_DrawRendererText(CreditsMenuText, 800, 150);
     }
 
 
@@ -586,7 +598,7 @@ private:
         // Mouvement et Détection Des cerfs
         for (auto &ent: entities) {
             ent->MovementUpdate(deltaTime);
-
+            ent->HeightMovement(deltaTime);//Hauteur cerfs
             if (ent->HasComponent(TRANSFORM)) {
                 // Verifie Gauche
                 if (ent->transform.position.x <= 0.0f) {
@@ -716,6 +728,9 @@ private:
         // Rendu du Score
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir
         SDL_RenderClear(renderer);
+        RenderScoreTitle();
+        UpdateBackgroundTint(deltaTime);
+
         if (selectedButtonScore == 0) {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
         }else {

@@ -16,8 +16,15 @@ class Personnages {
 //Cerfs generaux
 class Enemy_Deer : public Entity{
 public:
-    Enemy_Deer(float startX, float startY);
+    Enemy_Deer(float startX, float startY, bool mouvementInverser);
+
+//  MOVEMENT CERFS VERTICAL
+    void HeightMovement(float deltaTime) override;
+    float startY;//depart
+    float timeAlive = 0.f;
+    float multiplicateurDirection = 1.0f;
 };
+
 //Les soigneurs
 class Enemy_HealerDeer : public Entity{
 public:

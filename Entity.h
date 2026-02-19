@@ -39,6 +39,7 @@ public:
     // Systèmes intégrés (Update et Render)
     virtual void MovementUpdate(float deltaTime);
     virtual void RenderUpdate(SDL_Renderer* renderer);
+    virtual void HeightMovement(float deltaTime);
 
     //declaration des etiquettes de chacun pour intégrés les enums EntityType dans chaque entity
     EntityType entityType = EntityType::Enemy;

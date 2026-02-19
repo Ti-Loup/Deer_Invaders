@@ -26,11 +26,11 @@ void Entity::MovementUpdate(float deltaTime) {
     if (HasComponent(TRANSFORM | MOVEMENT)) {
         transform.position.x += movement.velocity.x * deltaTime;
         transform.position.y += movement.velocity.y * deltaTime;
-
-
-
-
     }
+}
+void Entity::HeightMovement(float deltaTime) {
+
+
 }
 
 void Entity::RenderUpdate(SDL_Renderer* renderer) {

@@ -7,12 +7,12 @@
 #include "Components.h"
 
 //enemy_Deer
-Enemy_Deer::Enemy_Deer(float startX, float startY) {
+Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser = false) {
     AddComponent (HEALTH);
     health.max_health = 40;
     health.current_health = 40;
     AddComponent (MOVEMENT);
-    movement.velocity = { 30.0f,0.0f };
+    movement.velocity = { 50.0f,0.0f };
     AddComponent (RENDER);
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
@@ -21,6 +21,13 @@ Enemy_Deer::Enemy_Deer(float startX, float startY) {
 
     //Le type de l'entity
     entityType = EntityType::Enemy;
+    //Position initiale
+    this->startY = startY;
+    if (mouvementInverser) {
+        multiplicateurDirection = -1.0f;
+    }else {
+        multiplicateurDirection = 1.0f;
+    }
 /*
     //Pour que les cerfs bouge légèrement haut et en bas de façon logique
     //Le randomizer <random>
@@ -39,6 +46,19 @@ Enemy_Deer::Enemy_Deer(float startX, float startY) {
     }
     */
 }
+//Ennemi Deer Monte et dessant progressivement
+void Enemy_Deer::HeightMovement(float deltaTime) {
+
+    timeAlive += deltaTime;
+
+    float amplitude = 10.0f; //Amplitude du mouvement
+    float vitesse = 1.5f;
+
+    //nouvelle position Y
+    transform.position.y = startY + (std::sin(timeAlive * vitesse) * amplitude * multiplicateurDirection);
+
+}
+
 
 Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {
     AddComponent (HEALTH);
@@ -58,8 +78,8 @@ Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {
 
 Enemy_Meteor::Enemy_Meteor(float startX, float  startY) {
     AddComponent (HEALTH);
-    health.max_health = 100;
-    health.current_health = 100;
+    health.max_health = 60;
+    health.current_health = 60;
     AddComponent (MOVEMENT);
     movement.velocity = { 30.0f,0.0f };
     AddComponent (RENDER);

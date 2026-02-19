@@ -15,6 +15,7 @@ public:
 void RenderTitle();//Pour mettre un titre
 void RenderCreditsTitle();//Titre Credits
 void RenderShopTitle();//Titre Shop
+void RenderScoreTitle();//Titre Score
 void Game();
 
 
