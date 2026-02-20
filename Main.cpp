@@ -653,12 +653,12 @@ private:
         //vérifier chaque balle pour voir si elle touche un ennemi.
         for (auto &bullet: entities) {
             //Si balle
-            if (bullet->entityType != EntityType::Bullet) {
+            if (bullet->entityType != EntityType::Bullet || bullet->bIsDestroyed) {
                 //non
                 continue;
             }
             for (auto &ennemi: entities) {
-                if (ennemi->entityType == EntityType::Enemy) {
+                if (ennemi->entityType == EntityType::Enemy && !ennemi->bIsDestroyed) {
                     //oui (a coder)
                     //Creation Collision Bullet
                     SDL_FRect rectBullet = {
@@ -686,7 +686,18 @@ private:
                             ennemi->bIsDestroyed = true;
                             SDL_LogWarn(0, "Un cerf est mort");
                         }
+                        break;
                     }
+                }
+            }
+                //Pour Detruire Un objet
+            for (auto enemyEntities = entities.begin(); enemyEntities != entities.end(); ) {
+
+                if ((*enemyEntities)->bIsDestroyed) {
+                    delete *enemyEntities;              // libère memoire
+                    enemyEntities = entities.erase(enemyEntities); // pour retirer les cerfs de la liste pour eviter les troues
+                } else {
+                    ++enemyEntities; // entité suivante
                 }
             }
         }
