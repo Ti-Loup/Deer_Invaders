@@ -76,7 +76,7 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_Point dir) {
 Bullet::Bullet(SDL_FPoint spawn, SDL_Point dir, SDL_Color color) {
     //Constructeur
     AddComponent(MOVEMENT);
-    movement.velocity = (SDL_FPoint){0.f * dir.x, 600.f * dir.y}; //les bullets aillent vers le haut
+    movement.velocity = (SDL_FPoint){0.f * dir.x, 700.f * dir.y}; //les bullets aillent vers le haut
     AddComponent(RENDER);
     render.color = color;
     AddComponent(TRANSFORM);

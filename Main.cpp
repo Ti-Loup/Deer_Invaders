@@ -98,6 +98,8 @@ public:
     TTF_Text *InventoryText = nullptr; // Game + Shop
 
 
+
+
     // -> Score <- Text et Fonts
     TTF_Font *ReturnBoutonFont = nullptr;
     SDL_FRect BoutonQuitRetourMenu = {1600, 900, 200, 100};
@@ -117,9 +119,14 @@ public:
 
     // -> Credits <- Text et Fonts
     TTF_Font *Credits_Shop_Score_TitleFont = nullptr;
+    TTF_Font *CreditsNameFont = nullptr;
+    TTF_Font *CreditsRoleFont = nullptr;
     TTF_Text *CreditsMenuText = nullptr;
-
-
+    TTF_Text *CreditsName1Text = nullptr;
+    TTF_Text *CreditsName2Text = nullptr;
+    TTF_Text *CreditsRoleText = nullptr;
+    TTF_Text *CreditsRoleText2 = nullptr;
+    TTF_Text *CreditsRoleText3 = nullptr;
 
     std::vector<float> frameTimes;
     const size_t MAX_SAMPLES = 100;
@@ -303,6 +310,8 @@ private:
         }
 
         //credits
+        CreditsRoleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 30);//Pour les roles
+        CreditsNameFont = TTF_OpenFont ("assets/Cosmo Corner.ttf", 20);//Pour les noms
         Credits_Shop_Score_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
         CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_TitleFont, "Credits", 25);
         if (CreditsMenuText == nullptr) {
@@ -311,6 +320,42 @@ private:
         if (TTF_SetTextColor(CreditsMenuText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
         }
+        CreditsName1Text = TTF_CreateText(textEngine, CreditsNameFont, "Louis ", 25);
+        if (CreditsName1Text == nullptr) {
+            SDL_LogWarn(0,"Impossible de creer le nom", SDL_GetError());
+        }
+        if (TTF_SetTextColor(CreditsName1Text, 255,255,255,255) == false) {
+            SDL_LogWarn(0,"Couleur pour Nom n'a pas fonctionner");
+        }
+        CreditsName2Text == TTF_CreateText(textEngine, CreditsNameFont,"Nom", 25);
+        if (CreditsName2Text == nullptr){
+            SDL_LogWarn(0,"Impossible de charger le text Nom2", SDL_GetError());
+        }
+        if (TTF_SetTextColor(CreditsName2Text, 255, 255, 255,255) == false) {
+            SDL_LogWarn(0, "Couleur non fonctionnel", SDL_GetError());
+        }
+        CreditsRoleText == TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 1", 25);
+        if (CreditsRoleText == nullptr) {
+            SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
+        }
+        if (TTF_SetTextColor(CreditsRoleText, 255,255,255,255) == false) {
+            SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
+        }
+        CreditsRoleText2 == TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 2", 25);
+        if (CreditsRoleText2 == nullptr) {
+            SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
+        }
+        if (TTF_SetTextColor(CreditsRoleText2, 255,255,255,255) == false) {
+            SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
+        }
+        CreditsRoleText3 == TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 3", 25);
+        if (CreditsRoleText3 == nullptr) {
+            SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
+        }
+        if (TTF_SetTextColor(CreditsRoleText3, 255,255,255,255) == false) {
+            SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
+        }
+
 
         // -> Dans Game <-
 
@@ -680,6 +725,7 @@ private:
                         //detruit la balle au contact d'un cerf
                         bullet->bIsDestroyed = true;
 
+
                         //Pv des ennemies baisses
                         ennemi->health.current_health -= 20;
                         if (ennemi->health.current_health <= 0) {
@@ -690,6 +736,7 @@ private:
                     }
                 }
             }
+
                 //Pour Detruire Un objet
             for (auto enemyEntities = entities.begin(); enemyEntities != entities.end(); ) {
 
