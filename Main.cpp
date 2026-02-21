@@ -96,9 +96,10 @@ public:
     // -> GAME <- Text et Fonts
     TTF_Font *InventoryFont = nullptr; // Game + Shop
     TTF_Text *InventoryText = nullptr; // Game + Shop
-
-
-
+    SDL_Texture *ScoreUI = nullptr;
+    SDL_FRect scoreSize = { 1570.0f, 925.0f, 350.0f, 140.0f };
+    TTF_Text *dynamicscoreText = nullptr;
+    TTF_Font *dynamicscoreFont = nullptr;
 
     // -> Score <- Text et Fonts
     TTF_Font *ReturnBoutonFont = nullptr;
@@ -153,21 +154,24 @@ public:
 
     //CONTROLLER
     SDL_Gamepad* gameController = nullptr; // Manette
-    const Sint16 DEADZONE = 4000;          // Zone morte
+    const Sint16 DEADZONE = 4000;          // Zone morte du gamepad
     //Boutons gbutton
     int selectedButtonMenu = 0;
     int selectedButtonScore = 0;
     int selectedButtonShop = 0;
     int selectedButtonCredits = 0;
 private:
+    //Score Lorsque Cerf Mort
+    int currentScore = 0;
+    int scorePerDeerKilled = 250;
+    //SCORE DU RENDER JEU
+    int lastScore = -1;
+
+
     GameApp() //Constructeur
     {
         //initionalisation du GAMEPAD
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) == false) {
-            SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
-            abort();
-        }
-        if (SDL_Init(SDL_INIT_VIDEO) == false) {
             SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
             abort();
         }
@@ -182,6 +186,7 @@ private:
             SDL_LogCritical(1, "SDL failed to create renderer! %s", SDL_GetError());
             abort();
         }
+
         //Le fullscreen renderer qui s'adapte entre WindowMode et FullScreen
         SDL_SetRenderLogicalPresentation(renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_LETTERBOX); //4 parameters
 
@@ -196,6 +201,15 @@ private:
             SDL_LogCritical(1, "SDL_ttf failed to initialize! %s", SDL_GetError());
             abort();
         }
+        ScoreUI = IMG_LoadTexture(renderer, "assets/ScoreUI.png");
+        if (ScoreUI == nullptr) {
+            SDL_LogWarn(0, "SDL_IMAGE FAILED TO LOAD TEXTURE ", "assets/spritesheet.png", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(ScoreUI, SDL_SCALEMODE_NEAREST);
+
+
+
+
         textEngine = TTF_CreateRendererTextEngine(renderer);
         if (textEngine == nullptr) {
             SDL_LogCritical(1, "SDL_ttf failed to create text engine!! %s", SDL_GetError());
@@ -288,6 +302,11 @@ private:
         if (TTF_SetTextColor(TextQuitReturnMenu, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
         }
+        //DANS GAME
+        dynamicscoreFont = TTF_OpenFont("assets/font.ttf", 40);
+        dynamicscoreText = TTF_CreateText(textEngine, dynamicscoreFont, "Score", 25);
+        //r g b mis dans la fonction Game
+
         //FONT POUR TITRE SCORE, SHOP, CREDITS
         Credits_Shop_Score_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
 
@@ -328,27 +347,27 @@ private:
             SDL_LogWarn(0,"Couleur pour Nom n'a pas fonctionner");
         }
         CreditsName2Text == TTF_CreateText(textEngine, CreditsNameFont,"Nom", 25);
-        if (CreditsName2Text == nullptr){
+        if (CreditsName2Text = nullptr){
             SDL_LogWarn(0,"Impossible de charger le text Nom2", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsName2Text, 255, 255, 255,255) == false) {
             SDL_LogWarn(0, "Couleur non fonctionnel", SDL_GetError());
         }
-        CreditsRoleText == TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 1", 25);
+        CreditsRoleText = TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 1", 25);
         if (CreditsRoleText == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsRoleText, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
-        CreditsRoleText2 == TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 2", 25);
+        CreditsRoleText2 = TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 2", 25);
         if (CreditsRoleText2 == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsRoleText2, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
-        CreditsRoleText3 == TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 3", 25);
+        CreditsRoleText3 = TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 3", 25);
         if (CreditsRoleText3 == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
@@ -364,7 +383,7 @@ private:
 
         entities.push_back(player);
 
-        //Ligne 1 de cerf
+        //CERFS WAVE 1
 
         entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
         entities.push_back(new Enemy_Deer(250.f, 50.0f, true));
@@ -407,6 +426,8 @@ private:
         entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false));
         entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true));
 
+        //CERFS WAVE 1
+
         //Timer FPS
         fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
     }
@@ -423,10 +444,10 @@ private:
         TTF_DestroyText(TextStart);
         TTF_DestroyText(TextQuit);
         TTF_DestroyText(TextScore);
-        TTF_DestroyText(TextQuit);
         TTF_DestroyText(CreditsMenuText);
         TTF_CloseFont(MenuSpecialFont);
         SDL_DestroyTexture(spritesheet);
+        SDL_DestroyTexture(ScoreUI);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         TTF_Quit();
@@ -434,6 +455,11 @@ private:
         if (gameController) {
             SDL_CloseGamepad(gameController);
         }
+        for (auto& ent : entities)
+        {
+            delete ent;
+        }
+        entities.clear();
     }
 
     void CalculateFPS(const float deltaTime) {
@@ -621,6 +647,14 @@ private:
     // La fonction Game ne boucle
     void Game(float deltaTime) {
         SDL_Event GameEvents;
+
+        //Ajout de la fonction UpdateBackgroundTint pour avoir le rgb
+        //mis sur le text dynamicscoreText -> UpdateText avec TTF
+        UpdateBackgroundTint(deltaTime);
+        TTF_SetTextColor(dynamicscoreText, r, g, b, 255);
+        TTF_UpdateText(dynamicscoreText);
+
+
         /*
     *Plus besoin des SDL_PoolEvent dans chaque classe
     while (SDL_PollEvent(&GameEvents)) {
@@ -634,6 +668,17 @@ private:
         if (player != nullptr) {
             player->UpdatePhysics(deltaTime);
             player->ShootUpdate(entities, (SDL_Point){0, -1}, deltaTime);
+
+            //Bordure d'ecran du joueur different des ennemies
+            if (player->HasComponent(TRANSFORM)) {
+                if (player->transform.position.x <= 0.0f) {
+                    player->transform.position.x = 0.0f;
+                }
+                //- sa size
+                else if (player->transform.position.x + player->transform.size.x > 1920.0f) {
+                    player->transform.position.x = 1920.0f - player->transform.size.x;
+                }
+            }
         }
         //Variables de Detection des cerfs et murs
         bool ToucheMurGauche = false;
@@ -644,29 +689,32 @@ private:
         for (auto &ent: entities) {
             ent->MovementUpdate(deltaTime);
             ent->HeightMovement(deltaTime);//Hauteur cerfs
-            if (ent->HasComponent(TRANSFORM)) {
-                // Verifie Gauche
-                if (ent->transform.position.x <= 0.0f) {
-                    ToucheMurGauche = true;
+            //On verifie que seulement les ennemies bougent pas joueur !@!@
+            if (ent->entityType == EntityType::Enemy) {
+                if (ent->HasComponent(TRANSFORM)) {
+                    // Verifie Gauche
+                    if (ent->transform.position.x <= 0.0f) {
+                        ToucheMurGauche = true;
 
-                    // Calcul Combien le cerf est dans la bourdure
-                    float deerInBorder = -ent->transform.position.x;
+                        // Calcul Combien le cerf est dans la bourdure
+                        float deerInBorder = -ent->transform.position.x;
 
 
-                    // Si le cerf est plus en dehors du screen c'est lui qui devient le lead
-                    if (deerInBorder > MaxPushBack) {
-                        MaxPushBack = deerInBorder;
+                        // Si le cerf est plus en dehors du screen c'est lui qui devient le lead
+                        if (deerInBorder > MaxPushBack) {
+                            MaxPushBack = deerInBorder;
+                        }
                     }
-                }
-                // Verifie Droite
-                else if ((ent->transform.position.x + ent->transform.size.x) >= 1920.0f) {
-                    ToucheMurDroit = true;
+                    // Verifie Droite
+                    else if ((ent->transform.position.x + ent->transform.size.x) >= 1920.0f) {
+                        ToucheMurDroit = true;
 
-                    float depassement = ent->transform.position.x + ent->transform.size.x - 1920.0f;
+                        float depassement = ent->transform.position.x + ent->transform.size.x - 1920.0f;
 
-                    // Pareil pour la droite, on garde le plus grand dépassement
-                    if (depassement > MaxPushBack) {
-                        MaxPushBack = depassement;
+                        // Pareil pour la droite, on garde le plus grand dépassement
+                        if (depassement > MaxPushBack) {
+                            MaxPushBack = depassement;
+                        }
                     }
                 }
             }
@@ -676,7 +724,8 @@ private:
         // touché à Gauche -> force vers la Droite
         if (ToucheMurGauche) {
             for (auto &ent: entities) {
-                if (ent->HasComponent(TRANSFORM)) {
+                //Verifie que c'est bien seulement les ennemis qui ont la correction
+                if (ent->entityType == EntityType::Enemy && ent->HasComponent(TRANSFORM)) {
                     //vitesse en positif std::abs (droite)
                     ent->movement.velocity.x = std::abs(ent->movement.velocity.x);
                     ent->transform.position.x += (MaxPushBack + 1.0f);
@@ -686,7 +735,8 @@ private:
         // touché à Droite -> force vers la Gauche
         else if (ToucheMurDroit) {
             for (auto &ent: entities) {
-                if (ent->HasComponent(TRANSFORM)) {
+                //Verifie que c'est bien seulement les ennemis qui ont la correction
+                if (ent->entityType == EntityType::Enemy && ent->HasComponent(TRANSFORM)) {
                     // vitesse en Negatif -std::abs (gauche)
                     ent->movement.velocity.x = -std::abs(ent->movement.velocity.x);
                     ent->transform.position.x -= (MaxPushBack + 1.0f);
@@ -728,9 +778,15 @@ private:
 
                         //Pv des ennemies baisses
                         ennemi->health.current_health -= 20;
+                        //si heal plus petit que 0 alors le cerf est detruit + score totaux
                         if (ennemi->health.current_health <= 0) {
                             ennemi->bIsDestroyed = true;
                             SDL_LogWarn(0, "Un cerf est mort");
+
+                            //Ajout score
+                            currentScore += scorePerDeerKilled;
+                            SDL_LogWarn(0, "Le score est de %d", currentScore);
+
                         }
                         break;
                     }
@@ -748,11 +804,24 @@ private:
                 }
             }
         }
-
+        //Pour afficher le score
+        if (currentScore != lastScore) {
+            std::string scoreStr = std::to_string(currentScore);
+            TTF_SetTextString(dynamicscoreText, scoreStr.c_str(), 0);
+            lastScore = currentScore;
+        }
 
         // Rendu du jeu
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir pour le jeu
         SDL_RenderClear(renderer);
+        SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
+        //Mis a jour du score rendu
+        if (dynamicscoreText) {
+            int tw, th;
+            TTF_GetTextSize(dynamicscoreText, &tw, &th);
+            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - tw)/2, scoreSize.y + (scoreSize.h - th)- 20);
+        }
 
         // Dessiner toutes les entités
         for (auto &ent: entities) {
@@ -761,6 +830,7 @@ private:
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 
         SDL_RenderPresent(renderer);
+
     }
 
     //fonction pour la section score

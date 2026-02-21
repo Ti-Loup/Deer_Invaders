@@ -37,8 +37,8 @@ Player::~Player() {
 //Pour modifier Sa vitesse, le freinage et Sa vitesse maximale
 void Player::UpdatePhysics(float deltaTime) {
     float acceleration = 1000.0f; //acceleration vers -> MaxSpeed
-    float friction = 800.0f; //Temps que le personnage va continuer a bouger apres avoir relacher la touche clavier
-    float maxSpeed = 500.0f; //Speed Max apres l'acceleration
+    float friction = 1500.0f; //Temps que le personnage va continuer a bouger apres avoir relacher la touche clavier
+    float maxSpeed = 700.0f; //Speed Max apres l'acceleration
 
     //acceleration
     if (bIsMovingRight) {
