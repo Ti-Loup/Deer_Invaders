@@ -154,7 +154,7 @@ public:
 
     //CONTROLLER
     SDL_Gamepad* gameController = nullptr; // Manette
-    const Sint16 DEADZONE = 4000;          // Zone morte du gamepad
+    const Sint16 DEADZONE = 8000;          // Zone morte du gamepad
     //Boutons gbutton
     int selectedButtonMenu = 0;
     int selectedButtonScore = 0;
@@ -168,6 +168,7 @@ private:
     int lastScore = -1;
 
 
+private:
     GameApp() //Constructeur
     {
         //initionalisation du GAMEPAD
@@ -680,6 +681,10 @@ private:
                 }
             }
         }
+        //FONCTION MOUVEMENT MEAT
+            for (auto& meatEntity : entities) {
+                meatEntity->Update(deltaTime);
+            }
         //Variables de Detection des cerfs et murs
         bool ToucheMurGauche = false;
         bool ToucheMurDroit = false;
@@ -787,13 +792,19 @@ private:
                             currentScore += scorePerDeerKilled;
                             SDL_LogWarn(0, "Le score est de %d", currentScore);
 
+                            // On drop un collectible a collecter
+                            //Creation Collision Bullet Entity
+                            float spawnX = ennemi->transform.position.x + (ennemi->transform.size.x / 3);
+                            float spawnY = ennemi->transform.position.y + (ennemi->transform.size.y / 3);
+                            // On CREE LE COLLECTIBLE
+                            entities.push_back(new Collectible_Meat(spawnX, spawnY));
                         }
                         break;
                     }
-                }
-            }
 
-                //Pour Detruire Un objet
+            }
+        }
+            //Pour Detruire Un objet après détruit
             for (auto enemyEntities = entities.begin(); enemyEntities != entities.end(); ) {
 
                 if ((*enemyEntities)->bIsDestroyed) {
@@ -805,6 +816,7 @@ private:
             }
         }
         //Pour afficher le score
+        //Meme principe que pour le fps dynamic a afficher
         if (currentScore != lastScore) {
             std::string scoreStr = std::to_string(currentScore);
             TTF_SetTextString(dynamicscoreText, scoreStr.c_str(), 0);
@@ -1352,7 +1364,7 @@ int main(int argc, char *argv[])
 	// instance unique du Singleton
 	GameApp::GetInstance().Run();
 
-	return 0;
+l	return 0;
 }
 */
 

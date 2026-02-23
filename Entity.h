@@ -23,6 +23,15 @@ class Entity {
 public:
     Entity() = default;
     virtual ~Entity() = default;//destruction
+    //Pour la fonction update
+    virtual void Update(float deltaTime) {}
+    // Constructeur des EntityType
+    //Collectible
+    Entity(EntityType Collectible) : entityType(Collectible) {
+
+    }
+
+
 
     // Les instances des componants
     //Les fonctions dans Components.h
@@ -46,6 +55,7 @@ public:
 
     //Bool pour savoir si un object est detruit ou non
     bool bIsDestroyed = false;
+
 
 
 };

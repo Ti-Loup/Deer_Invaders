@@ -114,17 +114,43 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY) {
 //  COLLECTIBLES
 
 Collectible_Meat::Collectible_Meat(float startX, float startY) {
-    AddComponent (HEALTH);
-    health.max_health = 100;
-    health.current_health = 100;
     AddComponent (MOVEMENT);
-    movement.velocity = { 30.0f,0.0f };
+    movement.velocity = { 0.0f,0.0f };
     AddComponent (RENDER);
-    render.color = { 139, 69, 19, 255 };//couleur brun
+    render.color = { 255, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
-    transform.size = { 80.f, 80.f };
+    transform.size = { 18.f, 18.f };
+
 
     //Le type d'entity
     entityType = EntityType::Collectable;
+}
+//MOUVEMENT DU COLLECTIBLE MEAT
+void Collectible_Meat::Update(float deltaTime) {
+    const float gravity = 200.0f;
+    const float floorY = 1050.0f; // adapte à ton sol réel
+
+    // Appliquer gravité
+    movement.velocity.y += gravity * deltaTime;
+
+    // Appliquer mouvement
+    MovementUpdate(deltaTime);
+
+    // Collision sol
+    if (transform.position.y >= floorY)
+    {
+        transform.position.y = floorY;
+
+        if (!bMeatHasTouchedGround)
+        {
+            movement.velocity.y = -250.0f; // rebond
+            bMeatHasTouchedGround = true;
+        }
+        else
+        {
+            movement.velocity.y = 0.0f; // stop complet
+        }
+    }
+    printf("Update Meat\n");
 }

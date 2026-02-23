@@ -50,6 +50,13 @@ public:
 class Collectible_Meat : public Entity {
 public:
     Collectible_Meat(float floatX, float floatY);
+    //Update
+    void Update(float deltaTime) override;
+    //bool pour faire spawn un meatCollectible apres mort d'un cerf
+    bool bMeatCollectibleCanSpawn = false;
+
+    //bool pour savoir si chaque entity de CollectibleMeat touche le sol
+    bool bMeatHasTouchedGround = false;
 
 };
 
