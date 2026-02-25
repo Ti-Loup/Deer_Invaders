@@ -60,6 +60,4 @@ public:
 
 };
 
-
-
 #endif //DEER_INVADERS_PERSONNAGES_H

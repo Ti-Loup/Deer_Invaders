@@ -3,7 +3,8 @@
 //
 #include <random>
 #include "Personnages.h"
-
+#include <cstdlib>
+#include <random>
 #include "Components.h"
 
 //enemy_Deer
@@ -125,11 +126,14 @@ Collectible_Meat::Collectible_Meat(float startX, float startY) {
 
     //Le type d'entity
     entityType = EntityType::Collectable;
+
 }
 //MOUVEMENT DU COLLECTIBLE MEAT
 void Collectible_Meat::Update(float deltaTime) {
     const float gravity = 200.0f;
     const float floorY = 1050.0f; // adapte à ton sol réel
+    static std::random_device rd;
+    static std::mt19937 gen(rd());//Pour un rebond random sur l'axe des x (PEUT ETRE NEGATIF ET POSITIF )
 
     // Appliquer gravité
     movement.velocity.y += gravity * deltaTime;
@@ -144,7 +148,20 @@ void Collectible_Meat::Update(float deltaTime) {
 
         if (!bMeatHasTouchedGround)
         {
-            movement.velocity.y = -250.0f; // rebond
+            std::uniform_real_distribution<float> dis(-45.0f, 45.0f);
+
+            // 3. On génère le nombre
+            movement.velocity.x = dis(gen);
+
+            /*
+            //Rajoue une petite velosité sur l'axe des x seulement negatif ou positif
+            float randomMouvementX = -15.0f - (static_cast<float>(rand() % 30));
+
+            movement.velocity.x = randomMouvementX;
+            */
+            //Rajoue un bon random
+            float randomBounce = -100.0f - (static_cast<float>(rand() % 200));
+            movement.velocity.y = randomBounce; // rebond
             bMeatHasTouchedGround = true;
         }
         else
@@ -152,5 +169,4 @@ void Collectible_Meat::Update(float deltaTime) {
             movement.velocity.y = 0.0f; // stop complet
         }
     }
-    printf("Update Meat\n");
 }

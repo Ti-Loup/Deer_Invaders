@@ -527,7 +527,7 @@ private:
 
     //Boutons
     void RenderBoutons(const SDL_FRect &rect, TTF_Text *buttonText, Uint8 buttonr, Uint8 buttong, Uint8 buttonb) {
-        SDL_SetRenderDrawColor(renderer, buttonr, buttong, buttong, 255);
+        SDL_SetRenderDrawColor(renderer, buttonr, buttong, buttonb, 255);
         SDL_RenderFillRect(renderer, &rect);
         //Dessiner Texte au centre du boutton
         if (buttonText != nullptr) {
