@@ -7,6 +7,7 @@
 #include <random>
 #include "Components.h"
 
+
 //enemy_Deer
 Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser = false) {
     AddComponent (HEALTH);
@@ -142,7 +143,7 @@ void Collectible_Meat::Update(float deltaTime) {
     MovementUpdate(deltaTime);
 
     // Collision sol
-    if (transform.position.y >= floorY)
+    if (transform.position.y >= floorY && movement.velocity.y > 0.0f)
     {
         transform.position.y = floorY;
 
@@ -150,7 +151,7 @@ void Collectible_Meat::Update(float deltaTime) {
         {
             std::uniform_real_distribution<float> dis(-45.0f, 45.0f);
 
-            // 3. On génère le nombre
+            //génère le nombre
             movement.velocity.x = dis(gen);
 
             /*
@@ -162,11 +163,13 @@ void Collectible_Meat::Update(float deltaTime) {
             //Rajoue un bon random
             float randomBounce = -100.0f - (static_cast<float>(rand() % 200));
             movement.velocity.y = randomBounce; // rebond
-            bMeatHasTouchedGround = true;
-        }
-        else
+             bMeatHasTouchedGround = true;
+
+        }else
         {
-            movement.velocity.y = 0.0f; // stop complet
+            // Deuxième contact avec le sol → on arrête tout
+            movement.velocity.y = 0.0f;
+            movement.velocity.x = 0.0f;
         }
     }
 }

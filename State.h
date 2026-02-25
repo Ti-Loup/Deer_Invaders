@@ -14,6 +14,7 @@ Game,
 ScoreBoard,
 Shop,
 Credits,
+Pause,
 Quit,
 };
 

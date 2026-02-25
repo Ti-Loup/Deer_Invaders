@@ -101,6 +101,12 @@ public:
     TTF_Text *dynamicscoreText = nullptr;
     TTF_Font *dynamicscoreFont = nullptr;
 
+    // ->  PAUSE <-
+    SDL_FRect BoutonResume = {850,500,250,80};
+    SDL_FRect BoutonReturnMenu = {850,700,250,80};
+    TTF_Text *TextResume = nullptr;
+    TTF_Text *TextReturnMenuPause = nullptr;
+
     // -> Score <- Text et Fonts
     TTF_Font *ReturnBoutonFont = nullptr;
     SDL_FRect BoutonQuitRetourMenu = {1600, 900, 200, 100};
@@ -160,6 +166,7 @@ public:
     int selectedButtonScore = 0;
     int selectedButtonShop = 0;
     int selectedButtonCredits = 0;
+    int selectedButtonPause = 0;
 private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
@@ -330,8 +337,8 @@ private:
         }
 
         //credits
-        CreditsRoleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 30);//Pour les roles
-        CreditsNameFont = TTF_OpenFont ("assets/Cosmo Corner.ttf", 20);//Pour les noms
+        CreditsRoleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 50);//Pour les roles
+        CreditsNameFont = TTF_OpenFont ("assets/Cosmo Corner.ttf", 40);//Pour les noms
         Credits_Shop_Score_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
         CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_TitleFont, "Credits", 25);
         if (CreditsMenuText == nullptr) {
@@ -348,27 +355,27 @@ private:
             SDL_LogWarn(0,"Couleur pour Nom n'a pas fonctionner");
         }
         CreditsName2Text == TTF_CreateText(textEngine, CreditsNameFont,"Nom", 25);
-        if (CreditsName2Text = nullptr){
+        if (CreditsName2Text == nullptr){
             SDL_LogWarn(0,"Impossible de charger le text Nom2", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsName2Text, 255, 255, 255,255) == false) {
             SDL_LogWarn(0, "Couleur non fonctionnel", SDL_GetError());
         }
-        CreditsRoleText = TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 1", 25);
+        CreditsRoleText = TTF_CreateText(textEngine, CreditsRoleFont, "Role Patate : ", 25);
         if (CreditsRoleText == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsRoleText, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
-        CreditsRoleText2 = TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 2", 25);
+        CreditsRoleText2 = TTF_CreateText(textEngine, CreditsRoleFont, "Role Pomme : ", 25);
         if (CreditsRoleText2 == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsRoleText2, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
-        CreditsRoleText3 = TTF_CreateText(textEngine, CreditsRoleFont, "ROLE 3", 25);
+        CreditsRoleText3 = TTF_CreateText(textEngine, CreditsRoleFont, "Role Fraiche : ", 25);
         if (CreditsRoleText3 == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
@@ -932,16 +939,57 @@ private:
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
         }else {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255, 255, 255);
-
         }
 
 
         //Fonts
         TTF_DrawRendererText(fpsText, 1800, 10);
-
-
+        TTF_DrawRendererText(CreditsName1Text, 120,120);
+        TTF_DrawRendererText(CreditsName2Text, 140,160);
+        TTF_DrawRendererText(CreditsRoleText, 400,400);
+        TTF_DrawRendererText(CreditsRoleText2, 400, 450);
+        TTF_DrawRendererText(CreditsRoleText3, 400, 500);
         SDL_RenderPresent(renderer);
     }
+
+
+    //Fonction pour mettre en pause le jeu
+    void PauseSystem(float deltaTime) {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        //On dessine les entities et UI sans les faire bouger
+        SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
+        for (auto &ent: entities) {
+            ent->RenderUpdate(renderer);
+        }
+        //Légé changement à l'image
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);//Peux d'opaciter
+        SDL_FRect screenRect = {0, 0, 1920, 1080};
+        SDL_RenderFillRect(renderer, &screenRect);
+
+        UpdateBackgroundTint(deltaTime);
+
+        // A FAIRE LES BOUTONS
+        if (selectedButtonPause == 0) {
+            RenderBoutons(BoutonResume, TextResume, r, g, b);
+        } else {
+            RenderBoutons(BoutonResume, TextResume, 255, 255, 255);
+        }
+
+
+        if (selectedButtonPause == 1) {
+            RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, r, g, b);
+        } else {
+            RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, 255, 255, 255);
+        }
+
+        SDL_RenderPresent(renderer);
+
+    }
+
+
 
     //L'execution cera appeler par SDL a chaque frame au lieu du main ou on devait faire une boucle while pour faire la boucle Run a l'infini
 public:
@@ -976,6 +1024,9 @@ public:
             //Pour ouvrir Credits
             case State::Credits:
                 Credits(deltaTime);
+                break;
+            case State::Pause:
+                PauseSystem(deltaTime);
                 break;
 
             case State::Quit:
@@ -1286,7 +1337,18 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     //PRESS DOWN
     if (event->type == SDL_EVENT_KEY_DOWN) {
         //Si on est dans notre jeu alors on peut appuyer pour bouger notre personnage
+        if (event->key.scancode == SDL_SCANCODE_P) {
+            if (app.StateActuel==State::Game) {
+                app.StateActuel = State::Pause;
+            }
+            else if (app.StateActuel == State::Pause) {
+                app.StateActuel = State::Game;
+            }
+
+        }
+
         if (app.StateActuel == State::Game) {
+
             if (event->key.scancode == SDL_SCANCODE_D) {
                 player->bIsMovingRight = true;
             }
@@ -1325,6 +1387,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     if (event->type == SDL_EVENT_KEY_UP) {
         //Si on est dans notre jeu alors on peut relacher les touches de notre personnage
         if (app.StateActuel == State::Game) {
+
             //Relache D
             if (event->key.scancode == SDL_SCANCODE_D) {
                 player->bIsMovingRight = false;
