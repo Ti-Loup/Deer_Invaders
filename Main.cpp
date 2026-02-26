@@ -102,8 +102,9 @@ public:
     TTF_Font *dynamicscoreFont = nullptr;
 
     // ->  PAUSE <-
-    SDL_FRect BoutonResume = {850,500,250,80};
-    SDL_FRect BoutonReturnMenu = {850,700,250,80};
+    SDL_FRect BoutonResume = {850,500,300,80};
+    SDL_FRect BoutonReturnMenu = {850,700,300,80};
+    TTF_Font *FontPause = nullptr;
     TTF_Text *TextResume = nullptr;
     TTF_Text *TextReturnMenuPause = nullptr;
 
@@ -134,6 +135,7 @@ public:
     TTF_Text *CreditsRoleText = nullptr;
     TTF_Text *CreditsRoleText2 = nullptr;
     TTF_Text *CreditsRoleText3 = nullptr;
+
 
     std::vector<float> frameTimes;
     const size_t MAX_SAMPLES = 100;
@@ -313,11 +315,34 @@ private:
         //DANS GAME
         dynamicscoreFont = TTF_OpenFont("assets/font.ttf", 40);
         dynamicscoreText = TTF_CreateText(textEngine, dynamicscoreFont, "Score", 25);
+        if (dynamicscoreText == nullptr) {
+            SDL_LogWarn(0, "failed to set the text of the dynamicscoreText", SDL_GetError());
+        }
         //r g b mis dans la fonction Game
+
+        //POUR PAUSE
+        FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
+        if (FontPause == nullptr) {
+            SDL_LogWarn(0, "failed to set the font: FontPause ", SDL_GetError());
+        }
+        TextResume = TTF_CreateText(textEngine, FontPause, "Resume", 25);
+        if (TextResume == nullptr) {
+            SDL_LogWarn(0, "failed to set the text: TextResume", SDL_GetError());
+        }
+        if (TTF_SetTextColor(TextResume, 0, 0, 0, 255) == false) {
+            SDL_LogWarn(0, "SDL_ttf failed to set the color of: TextResume", SDL_GetError());
+        }
+        TextReturnMenuPause = TTF_CreateText(textEngine, FontPause, "Return Menu", 25);
+        if (TextReturnMenuPause == nullptr) {
+            SDL_LogWarn(0, "SDL_ttf failed to set TextReturnMenuPause text", SDL_GetError());
+        }
+        if (TTF_SetTextColor(TextReturnMenuPause, 0, 0, 0, 255 ) == false) {
+            SDL_LogWarn(0, "failed to set the color of: TextReturnMenuPause ", SDL_GetError());
+        }
+
 
         //FONT POUR TITRE SCORE, SHOP, CREDITS
         Credits_Shop_Score_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
-
         //Score
         ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_TitleFont, "Score", 25);
         if (ScoreMenuText == nullptr) {
@@ -449,10 +474,13 @@ private:
         TTF_CloseFont(font);
         TTF_CloseFont(BoutonFont);
         TTF_CloseFont(Credits_Shop_Score_TitleFont);
+        TTF_CloseFont(FontPause);
         TTF_DestroyText(TextStart);
         TTF_DestroyText(TextQuit);
         TTF_DestroyText(TextScore);
         TTF_DestroyText(CreditsMenuText);
+        TTF_DestroyText(TextResume);
+        TTF_DestroyText(TextReturnMenuPause);
         TTF_CloseFont(MenuSpecialFont);
         SDL_DestroyTexture(spritesheet);
         SDL_DestroyTexture(ScoreUI);
@@ -960,6 +988,18 @@ private:
 
         //On dessine les entities et UI sans les faire bouger
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
+        //Rajouter le score dynamique lors du Pause
+        if (currentScore != lastScore) {
+            std::string scoreStr = std::to_string(currentScore);
+            TTF_SetTextString(dynamicscoreText, scoreStr.c_str(), 0);
+            lastScore = currentScore;
+        }
+        if (dynamicscoreText) {
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
+        }
+
         for (auto &ent: entities) {
             ent->RenderUpdate(renderer);
         }
@@ -1074,7 +1114,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
                 SDL_Log("Button Down");
                 //POWER UP
-
+            }
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_START) {
+                app.StateActuel = State::Pause;
             }
         }
         //GERER SELECTION MENU AVEC GAMEPAD
@@ -1124,6 +1166,39 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 
         }
+
+        else if (app.StateActuel == State::Pause) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
+                app.selectedButtonPause++;
+                if (app.selectedButtonPause > 1) {
+                    app.selectedButtonPause = 0;//Retourne au premier
+                }
+            }
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
+                app.selectedButtonPause--;
+                if (app.selectedButtonPause < 0) {
+                    app.selectedButtonPause = 1;//retourne au dernier
+                }
+            }
+
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("Button A Down");
+                //SwitchCase
+                switch (app.selectedButtonPause) {
+                    case 0:
+                        //Resume
+                        //Rien Encore Pour L'upgrade
+                        SDL_Log("Retour Menu");
+                        app.StateActuel = State::Game;
+                        break;
+                    case 1:
+                        //Return Menu
+                        SDL_Log("Retour Menu");
+                        app.StateActuel = State::Menu;
+                }
+            }
+        }
+
         //GERER SELECTION SCORE AVEC GAMEPAD
         else if (app.StateActuel == State::ScoreBoard) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
@@ -1213,6 +1288,22 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
         }
+
+        //PLEIN ECRAN MANETTE
+        if (event->gbutton.button == SDL_GAMEPAD_BUTTON_BACK) {
+            //flag
+            Uint32 FullScreenflag = SDL_GetWindowFlags(app.window);
+
+            //si on est en plein ecran alors on retourne en fenetrer
+            if (FullScreenflag & SDL_WINDOW_FULLSCREEN) {
+                SDL_SetWindowFullscreen(app.window, 0); //0 -> fenetrer
+            }
+            //Sinon on va en fullscreen
+            else {
+                SDL_SetWindowFullscreen(app.window, SDL_WINDOW_FULLSCREEN);
+            }
+        }
+
 
     }
     // BOUTON MANETTE UP
@@ -1306,6 +1397,17 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.StateActuel = State::Quit;
             }
         }
+        //Dans Le Pause
+        else if (app.StateActuel == State::Pause) {
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonResume)) {
+                app.StateActuel = State::Game;
+            }
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonReturnMenu)) {
+                app.StateActuel = State::Menu;
+            }
+        }
+
+
         // Dans le Score
         else if (app.StateActuel == State::ScoreBoard) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
