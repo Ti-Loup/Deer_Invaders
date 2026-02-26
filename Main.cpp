@@ -118,12 +118,26 @@ public:
     // -> Shop <- Text et Fonts
     //Fonts
     TTF_Font *BoutonUpgradeFont = nullptr;
+    TTF_Font *ArmeDescriptionFont = nullptr;
+    TTF_Font *currentMeatShopFont = nullptr;
     //Texts
     TTF_Text *BoutonUpgradeText = nullptr;
     TTF_Text *BoutonHPUpgradeText = nullptr;
+    TTF_Text *ArmeFireText = nullptr;
+    TTF_Text *ArmeIceText = nullptr;
+    TTF_Text *ArmeTBDText = nullptr;
+    //Pour faciliter le joueur a savoir si il peut en acheter un ou non
+    TTF_Text *statusFire = nullptr;
+    TTF_Text *statusIce = nullptr;
+    TTF_Text *statusTbd = nullptr;
+    TTF_Text *currentMeatShop = nullptr;//savoir combien de meat on a en ce moment
+
+    //rectangle
+    SDL_FRect MeatInventoryShop ={200.0f, 500.0f, 50.0f,50.0f};
+
     //Boutons
-    SDL_FRect BoutonUpgrade = {300, 800, 125, 100};
-    SDL_FRect BoutonHPUpgrade = {500, 800, 125, 100};
+    SDL_FRect BoutonUpgrade = {800, 800, 125, 100};
+    SDL_FRect BoutonHPUpgrade = {1000, 800, 125, 100};
 
     TTF_Text *ShopMenuText = nullptr;
 
@@ -181,8 +195,9 @@ public:
     int lastMeat = -1;
 
     //Pour les armes
+    //Pour shop,
     int currentWeaponLevel = 0;
-
+    int globalWeaponLevel = 0;
 private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
@@ -379,6 +394,51 @@ private:
         }
         if (TTF_SetTextColor(ShopMenuText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(2,"Erreur de couleur pour le titre de Shop -> Shop", SDL_GetError());
+        }
+        ArmeDescriptionFont = TTF_OpenFont("assets/font.ttf", 40);
+        if (ArmeDescriptionFont == nullptr) {
+            SDL_LogWarn(0,"failed to implement the font ArmeDescriptionFont", SDL_GetError());
+        }
+        ArmeFireText = TTF_CreateText(textEngine, ArmeDescriptionFont, "Weapon Fire - 10 Meats -", 25);
+        if (ArmeFireText == nullptr) {
+            SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
+        }
+        if (TTF_SetTextColor(ArmeFireText, 247, 65, 27, 255) == false) {
+            SDL_LogWarn(2,"failed to put the color of ArmeFireText",SDL_GetError());
+        }
+        ArmeIceText = TTF_CreateText(textEngine, ArmeDescriptionFont, "Weapon Ice - 50 Meats -", 25);
+        if (ArmeIceText == nullptr) {
+            SDL_LogWarn(1, "failed to set the ArmeIceText ", SDL_GetError());
+        }
+        if (TTF_SetTextColor(ArmeIceText, 173, 216, 216, 230) == false) {
+            SDL_LogWarn(2,"failed to put the color of ArmeIceText",SDL_GetError());
+        }
+        ArmeTBDText = TTF_CreateText(textEngine, ArmeDescriptionFont, "Arme TBD - 100 Meats -", 25);
+        if (ArmeTBDText == nullptr) {
+            SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
+        }
+        if (TTF_SetTextColor(ArmeTBDText, 255, 255, 255, 255) == false) {
+            SDL_LogWarn(2,"failed to put the color of ArmeTBDText",SDL_GetError());
+        }
+        statusFire = TTF_CreateText(textEngine, ArmeDescriptionFont, "LEVEL 2", 25);
+        if (statusFire == nullptr) {
+            SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
+        }
+        statusIce = TTF_CreateText(textEngine, ArmeDescriptionFont, "LEVEL 3", 25);
+        if (statusIce == nullptr) {
+            SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
+        }
+        statusTbd = TTF_CreateText(textEngine, ArmeDescriptionFont, "LEVEL 4", 25);
+        if (statusTbd == nullptr) {
+            SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
+        }
+        currentMeatShopFont = TTF_OpenFont("assets/font.ttf", 60);
+        currentMeatShop = TTF_CreateText(textEngine, currentMeatShopFont, "0", 25);
+        if (currentMeatShop == nullptr) {
+            SDL_LogWarn(1, "failed to set the currentMeatShop", SDL_GetError());
+        }
+        if (TTF_SetTextColor(currentMeatShop, 255, 255, 255, 255) == false) {
+            SDL_LogWarn(1, "failed to set the color of currentMeatShop", SDL_GetError());
         }
 
         //credits
@@ -625,6 +685,32 @@ private:
     void RenderCreditsTitle() {
         TTF_DrawRendererText(CreditsMenuText, 800, 150);
     }
+
+    //La fonction du dessin de la barre de progression des armes a amiliorer
+    void RenderGlobalWeaponProgresBar(float startX, float startY) {
+        //pour un petit rectangle
+        int segmentWidth = 110;
+        int segmentHeight = 30;
+        int espace = 12;
+
+        //3 armes
+        for (int i = 0; i< 3; i++) {
+            SDL_FRect segment = {startX, startY - (i * (segmentHeight + espace)), (float)segmentWidth, (float)segmentHeight};
+
+            if (i < globalWeaponLevel) {
+                // Segment rempli
+                if (i == 0) SDL_SetRenderDrawColor(renderer, 255, 100, 0, 255); // Orange pour Fire
+                if (i == 1) SDL_SetRenderDrawColor(renderer, 0, 200, 255, 255); // Bleu pour Ice
+                if (i == 2) SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255); // Gris pour TBD
+            } else {
+                // Segment vide
+                SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+            }
+            SDL_RenderFillRect(renderer, &segment);
+        }
+
+    }
+
 
 
     //Menu du jeu qui run
@@ -996,6 +1082,10 @@ private:
     //Avoir un shop pour acheter des skins -> amilioration d'arme
     void Shop(float deltaTime) {
         SDL_Event ShopEvents;
+
+
+
+
         //Render
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //Fond noir
        //clean
@@ -1003,6 +1093,8 @@ private:
         //Render
         RenderShopTitle();
         UpdateBackgroundTint(deltaTime);//Le rgb
+        RenderGlobalWeaponProgresBar(805, 750);
+
         if (selectedButtonShop == 0) {
             RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
         }else {
@@ -1021,9 +1113,75 @@ private:
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255, 255, 255);
         }
 
-        //Fonts
-        TTF_DrawRendererText(fpsText, 1800, 10);
+        //RENDER Fonts
+        //pour actualiser le current meat
+        std::string meatStr = " " + std::to_string(currentMeat);
+        TTF_SetTextString(currentMeatShop, meatStr.c_str(), 0);
+        TTF_DrawRendererText(currentMeatShop, 270, 500);
 
+        TTF_DrawRendererText(fpsText, 1800, 10);
+        TTF_DrawRendererText(ArmeFireText, 100,750);
+        TTF_DrawRendererText(ArmeIceText, 100,850);
+        TTF_DrawRendererText(ArmeTBDText, 100,950);
+        //Fire
+        if (globalWeaponLevel >= 1) {
+            // possece deja l'arme
+            TTF_SetTextString(statusFire, "EQUIPE", 0);
+            TTF_SetTextColor(statusFire, 0, 255, 0, 255); // reste vert
+        }
+        else if (currentMeat >= 10) {
+
+            TTF_SetTextString(statusFire, "AVAILABLE", 0);
+            TTF_SetTextColor(statusFire, 0, 255, 0, 255); // VERT (Achetable)
+        }
+        else {
+
+            TTF_SetTextString(statusFire, "LEVEL 2", 0);
+            TTF_SetTextColor(statusFire, 255, 0, 0, 255); // ROUGE
+        }
+        TTF_DrawRendererText(statusFire, 100, 750 + 40);
+
+        // Ice
+        if (globalWeaponLevel >= 2) {
+            //possede deja l'arme
+            TTF_SetTextString(statusIce, "EQUIPPED", 0);
+            TTF_SetTextColor(statusIce, 0, 255, 0, 255); // Reste VERT car acquis
+        }
+        else if (currentMeat >= 50) {
+
+            TTF_SetTextString(statusIce, "AVAILABLE", 0);
+            TTF_SetTextColor(statusIce, 0, 255, 0, 255); // VERT (Achetable)
+        }
+        else {
+
+            TTF_SetTextString(statusIce, "LEVEL 3", 0); // ou ton texte par défaut
+            TTF_SetTextColor(statusIce, 255, 0, 0, 255); // ROUGE
+        }
+        TTF_DrawRendererText(statusIce, 100, 850 + 40);
+
+        //WEAPON TBD
+        if (globalWeaponLevel >= 3) {
+            //Possede deja l'arme
+            TTF_SetTextString(statusTbd, "EQUIPEED", 0);
+            TTF_SetTextColor(statusTbd, 0, 255, 0, 255); // Reste VERT car acquis
+        }
+        else if (currentMeat >= 100) {
+
+            TTF_SetTextString(statusTbd, "AVAILABLE", 0);
+            TTF_SetTextColor(statusTbd, 0, 255, 0, 255); // VERT (Achetable)
+        }
+        else {
+
+            TTF_SetTextString(statusTbd, "LEVEL 4", 0); // ou ton texte par défaut
+            TTF_SetTextColor(statusTbd, 255, 0, 0, 255); // ROUGE
+        }
+        TTF_DrawRendererText(statusFire, 100, 750 + 40);
+        // On l'affiche juste en dessous de ta ligne
+        TTF_DrawRendererText(statusTbd, 100, 950 + 40);
+
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
+        SDL_RenderFillRect(renderer, &MeatInventoryShop);
+        SDL_RenderTexture(renderer,MeatInventoryTexture, nullptr, &MeatInventoryShop);
 
         SDL_RenderPresent(renderer);
     }
@@ -1340,6 +1498,22 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     case 0:
                         //Rien Encore Pour L'upgrade
                         SDL_Log("Weapon Upgrade");
+                        // player->ArmeUpgrade();
+                        if (app.currentWeaponLevel == 0) {
+                            if (player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
+                                app.currentWeaponLevel = 1;// on achete la prochaine arme
+                            }
+                        }
+                        else if (app.currentWeaponLevel == 1){
+                            if (player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
+                                app.currentWeaponLevel = 2;
+                            }
+                        }
+                        else if (app.currentWeaponLevel == 2) {
+                            if (player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                                app.currentWeaponLevel = 3;
+                            }
+                        }
                         break;
                     case 1:
                         //Rien Encore Pour Upgrade HP
@@ -1517,16 +1691,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 if (app.currentWeaponLevel == 0) {
                     if (player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
                         app.currentWeaponLevel = 1;// on achete la prochaine arme
+                        app.globalWeaponLevel = 1;
                     }
                 }
                 else if (app.currentWeaponLevel == 1){
                     if (player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
                         app.currentWeaponLevel = 2;
+                        app.globalWeaponLevel = 2;
                     }
                 }
                 else if (app.currentWeaponLevel == 2) {
                     if (player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
                         app.currentWeaponLevel = 3;
+                        app.globalWeaponLevel = 3;
                     }
                 }
             }
