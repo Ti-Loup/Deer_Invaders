@@ -3,6 +3,7 @@
 //
 
 #include "Player.h"
+#include "State.h"
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_timer.h"
 
@@ -100,4 +101,50 @@ void Player::ShootUpdate(std::vector<Entity *> &entity, SDL_Point dir, float del
     } else {
         ShootCooldown -= deltaTime *150.f;
     }
+}
+
+bool Player::ArmeUpgrade(ArmeNiveau type, int &meatCount){
+int weaponPrice = 0;
+
+    switch (type) {
+        case ArmeNiveau::Fire: weaponPrice = 10;
+        break;
+        case ArmeNiveau::Ice: weaponPrice = 50;
+            break;
+        case ArmeNiveau::Tbd: weaponPrice = 100;
+            break;
+        case ArmeNiveau::Classic: weaponPrice = 0;
+            break;
+        default: weaponPrice = 0;
+            break;
+    }
+    //si pas asser de viande alors on quitte
+    if (meatCount < weaponPrice) {
+        SDL_Log("Pas asser de viande !");
+        return false;//fin fonction bool
+    }
+    //Si on a deja une arme on la supprime pour en mettre une autre
+    if (currentWeapon != nullptr) {
+        delete currentWeapon;
+    }
+    //On met l'etat qui correspond a l'enum
+    switch (type) {
+        case ArmeNiveau::Classic:
+            currentWeapon = new ClassicBulletType();
+            break;
+        case ArmeNiveau::Fire:
+            currentWeapon = new FireBulletType();
+            break;
+        case ArmeNiveau::Ice:
+            currentWeapon = new IceBulletType();
+            break;
+        case ArmeNiveau::Tbd:
+            currentWeapon = new TBDBulletType();
+            break;
+    }
+
+    //On fait la soustraction du nombre de viande Total - viande restante
+    meatCount -= weaponPrice;
+    SDL_Log("Nouvelle Arme debloquer");
+    return true;//fin fonction bool
 }

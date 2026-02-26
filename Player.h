@@ -32,6 +32,8 @@ public:
     void Shoot(std::vector<Entity *> &entity, SDL_Point dir);
 
     void ShootUpdate (std::vector<Entity *> &entity, SDL_Point dir,float deltaTime);
+
+    bool ArmeUpgrade(ArmeNiveau type, int &meatCount);
 };
 
 //Pour que le joueur puisse tirer

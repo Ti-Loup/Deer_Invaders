@@ -134,6 +134,7 @@ public:
     TTF_Text *CreditsMenuText = nullptr;
     TTF_Text *CreditsName1Text = nullptr;
     TTF_Text *CreditsName2Text = nullptr;
+    TTF_Text *CreditsName3Text = nullptr;
     TTF_Text *CreditsRoleText = nullptr;
     TTF_Text *CreditsRoleText2 = nullptr;
     TTF_Text *CreditsRoleText3 = nullptr;
@@ -171,18 +172,23 @@ public:
     int selectedButtonShop = 0;
     int selectedButtonCredits = 0;
     int selectedButtonPause = 0;
+
+    //Point Meat
+
+    int currentMeat = 0;
+    int meatGrab = 1;
+    //Meat Rendu
+    int lastMeat = -1;
+
+    //Pour les armes
+    int currentWeaponLevel = 0;
+
 private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
     int scorePerDeerKilled = 250;
     //SCORE DU RENDER JEU
     int lastScore = -1;
-
-    //Point Meat
-    int currentMeat = 0;
-    int meatGrab = 1;
-    //Meat Rendu
-    int lastMeat = -1;
 
 
     GameApp() //Constructeur
@@ -393,11 +399,18 @@ private:
         if (TTF_SetTextColor(CreditsName1Text, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Couleur pour Nom n'a pas fonctionner");
         }
-        CreditsName2Text == TTF_CreateText(textEngine, CreditsNameFont,"Nom", 25);
+        CreditsName2Text = TTF_CreateText(textEngine, CreditsNameFont,"Nom", 25);
         if (CreditsName2Text == nullptr){
             SDL_LogWarn(0,"Impossible de charger le text Nom2", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsName2Text, 255, 255, 255,255) == false) {
+            SDL_LogWarn(0, "Couleur non fonctionnel", SDL_GetError());
+        }
+        CreditsName3Text = TTF_CreateText(textEngine, CreditsNameFont,"Nom", 25);
+        if (CreditsName3Text == nullptr){
+            SDL_LogWarn(0,"Impossible de charger le text Nom2", SDL_GetError());
+        }
+        if (TTF_SetTextColor(CreditsName3Text, 255, 255, 255,255) == false) {
             SDL_LogWarn(0, "Couleur non fonctionnel", SDL_GetError());
         }
         CreditsRoleText = TTF_CreateText(textEngine, CreditsRoleFont, "Role Patate : ", 25);
@@ -907,7 +920,7 @@ private:
         if (currentMeat != lastMeat) {
             std::string meatStr = std::to_string(currentMeat);
             TTF_SetTextString(InventoryText, meatStr.c_str(), 0);
-            lastScore = currentScore;
+            lastMeat = currentMeat;
         }
         // Rendu du jeu
 
@@ -983,7 +996,6 @@ private:
     //Avoir un shop pour acheter des skins -> amilioration d'arme
     void Shop(float deltaTime) {
         SDL_Event ShopEvents;
-
         //Render
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //Fond noir
        //clean
@@ -1035,11 +1047,12 @@ private:
 
         //Fonts
         TTF_DrawRendererText(fpsText, 1800, 10);
-        TTF_DrawRendererText(CreditsName1Text, 120,120);
-        TTF_DrawRendererText(CreditsName2Text, 140,160);
-        TTF_DrawRendererText(CreditsRoleText, 400,400);
-        TTF_DrawRendererText(CreditsRoleText2, 400, 450);
-        TTF_DrawRendererText(CreditsRoleText3, 400, 500);
+        TTF_DrawRendererText(CreditsName1Text, 950,450);
+        TTF_DrawRendererText(CreditsName2Text, 500,650);
+        TTF_DrawRendererText(CreditsName3Text, 1400,650);
+        TTF_DrawRendererText(CreditsRoleText, 850,350);
+        TTF_DrawRendererText(CreditsRoleText2, 400, 550);
+        TTF_DrawRendererText(CreditsRoleText3, 1300, 550);
         SDL_RenderPresent(renderer);
     }
 
@@ -1070,8 +1083,21 @@ private:
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);//Peux d'opaciter
         SDL_FRect screenRect = {0, 0, 1920, 1080};
+        //Carre rouge pour viande
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
+        SDL_RenderFillRect(renderer, &MeatInventory);
+        SDL_RenderTexture(renderer,MeatInventoryTexture, nullptr, &MeatInventory);
+        //On remet en noir l'ecran ->
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
         SDL_RenderFillRect(renderer, &screenRect);
-
+        //Mise a jour du Meat rendu
+        if (InventoryText) {
+            int longeurL, largeurH;
+            TTF_GetTextSize(InventoryText, &longeurL, &largeurH);
+            float posX = MeatInventory.x + MeatInventory.w + 10.0f;
+            float posY = MeatInventory.y + (MeatInventory.h - largeurH) / 4.0f;
+            TTF_DrawRendererText(InventoryText, posX, posY);
+        }
         UpdateBackgroundTint(deltaTime);
 
         // A FAIRE LES BOUTONS
@@ -1087,6 +1113,7 @@ private:
         } else {
             RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, 255, 255, 255);
         }
+        TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 
         SDL_RenderPresent(renderer);
 
@@ -1486,8 +1513,24 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             // Bouton Upgrade Arme
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonUpgrade)) {
                 SDL_Log("Achat Upgrade Arme");
-                // player->UpgradeWeapon();
+                // player->ArmeUpgrade();
+                if (app.currentWeaponLevel == 0) {
+                    if (player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
+                        app.currentWeaponLevel = 1;// on achete la prochaine arme
+                    }
+                }
+                else if (app.currentWeaponLevel == 1){
+                    if (player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
+                        app.currentWeaponLevel = 2;
+                    }
+                }
+                else if (app.currentWeaponLevel == 2) {
+                    if (player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                        app.currentWeaponLevel = 3;
+                    }
+                }
             }
+
 
             // Bouton Upgrade HP
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonHPUpgrade)) {

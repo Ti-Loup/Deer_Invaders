@@ -18,6 +18,13 @@ Pause,
 Quit,
 };
 
+enum class ArmeNiveau {
+    Classic,
+    Fire,
+    Ice,
+    Tbd,
+};
+
 //Le type de Bullet
 class BulletType{
 public:
