@@ -96,6 +96,8 @@ public:
     // -> GAME <- Text et Fonts
     TTF_Font *InventoryFont = nullptr; // Game + Shop
     TTF_Text *InventoryText = nullptr; // Game + Shop
+    SDL_FRect MeatInventory ={1700.0f, 10.0f, 25.0f,25.0f};
+    SDL_Texture *MeatInventoryTexture = nullptr;
     SDL_Texture *ScoreUI = nullptr;
     SDL_FRect scoreSize = { 1570.0f, 925.0f, 350.0f, 140.0f };
     TTF_Text *dynamicscoreText = nullptr;
@@ -176,8 +178,13 @@ private:
     //SCORE DU RENDER JEU
     int lastScore = -1;
 
+    //Point Meat
+    int currentMeat = 0;
+    int meatGrab = 1;
+    //Meat Rendu
+    int lastMeat = -1;
 
-private:
+
     GameApp() //Constructeur
     {
         //initionalisation du GAMEPAD
@@ -319,6 +326,13 @@ private:
             SDL_LogWarn(0, "failed to set the text of the dynamicscoreText", SDL_GetError());
         }
         //r g b mis dans la fonction Game
+
+        InventoryFont = TTF_OpenFont("assets/font.ttf", 40);
+        InventoryText = TTF_CreateText(textEngine, InventoryFont, " 0 ", 25);
+        if (InventoryText == nullptr) {
+            SDL_LogWarn(0, "SDL_ttf failed to set the inventory text", SDL_GetError());
+        }
+
 
         //POUR PAUSE
         FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
@@ -688,8 +702,9 @@ private:
         //mis sur le text dynamicscoreText -> UpdateText avec TTF
         UpdateBackgroundTint(deltaTime);
         TTF_SetTextColor(dynamicscoreText, r, g, b, 255);
+        TTF_SetTextColor(InventoryText, 255, 255, 255, 255);
         TTF_UpdateText(dynamicscoreText);
-
+        TTF_UpdateText(InventoryText);
 
         /*
     *Plus besoin des SDL_PoolEvent dans chaque classe
@@ -719,7 +734,39 @@ private:
         //FONCTION MOUVEMENT MEAT
             for (auto& meatEntity : entities) {
                 meatEntity->Update(deltaTime);
+
+
+                //SI COLLISION ENTRE MEAT ET PLAYER -> AJOUTE MEAT INVENTAIRE ++
+                // On ne traite que les collectibles qui ne sont pas encore détruits
+                if (meatEntity->entityType == EntityType::Collectable && !meatEntity->bIsDestroyed) {
+
+                    //Creation Collision joueur
+                    SDL_FRect rectPlayer = {
+                        player->transform.position.x,
+                        player->transform.position.y,
+                        player->transform.size.x,
+                        player->transform.size.y
+                    };
+
+                    //Creation Collision Meat
+                    SDL_FRect rectMeat = {
+                        meatEntity->transform.position.x,
+                        meatEntity->transform.position.y,
+                        meatEntity->transform.size.x,
+                        meatEntity->transform.size.y
+                    };
+
+                    // Collision entre Meat et Player ce fait
+                    if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectMeat)) {
+                        SDL_Log("Viande collectée -> +1");
+
+                        meatEntity->bIsDestroyed = true; // Sera supprimé par ton système de nettoyage plus bas
+                        currentMeat++;  //Nombre de viande ++
+                    }
+                }
             }
+
+
         //Variables de Detection des cerfs et murs
         bool ToucheMurGauche = false;
         bool ToucheMurDroit = false;
@@ -787,7 +834,7 @@ private:
         //L'algorithme de collision
         //vérifier chaque balle pour voir si elle touche un ennemi.
         for (auto &bullet: entities) {
-            //Si balle
+            //recherche entiter qui est pas une balle
             if (bullet->entityType != EntityType::Bullet || bullet->bIsDestroyed) {
                 //non
                 continue;
@@ -836,7 +883,6 @@ private:
                         }
                         break;
                     }
-
             }
         }
             //Pour Detruire Un objet après détruit
@@ -857,17 +903,34 @@ private:
             TTF_SetTextString(dynamicscoreText, scoreStr.c_str(), 0);
             lastScore = currentScore;
         }
-
+        //Pour afficher le nombre de Meat Dans Game
+        if (currentMeat != lastMeat) {
+            std::string meatStr = std::to_string(currentMeat);
+            TTF_SetTextString(InventoryText, meatStr.c_str(), 0);
+            lastScore = currentScore;
+        }
         // Rendu du jeu
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir pour le jeu
         SDL_RenderClear(renderer);
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
+        //Carre rouge pour viande
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
+        SDL_RenderFillRect(renderer, &MeatInventory);
+        SDL_RenderTexture(renderer,MeatInventoryTexture, nullptr, &MeatInventory);
         //Mis a jour du score rendu
         if (dynamicscoreText) {
-            int tw, th;
-            TTF_GetTextSize(dynamicscoreText, &tw, &th);
-            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - tw)/2, scoreSize.y + (scoreSize.h - th)- 20);
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
+        }
+        //Mise a jour du Meat rendu
+        if (InventoryText) {
+            int longeurL, largeurH;
+            TTF_GetTextSize(InventoryText, &longeurL, &largeurH);
+            float posX = MeatInventory.x + MeatInventory.w + 10.0f;
+            float posY = MeatInventory.y + (MeatInventory.h - largeurH) / 4.0f;
+            TTF_DrawRendererText(InventoryText, posX, posY);
         }
 
         // Dessiner toutes les entités
@@ -1188,13 +1251,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     case 0:
                         //Resume
                         //Rien Encore Pour L'upgrade
-                        SDL_Log("Retour Menu");
+                        SDL_Log("Resume");
                         app.StateActuel = State::Game;
                         break;
                     case 1:
                         //Return Menu
                         SDL_Log("Retour Menu");
                         app.StateActuel = State::Menu;
+                        app.selectedButtonPause = 0; // Pour que le selectedButton commence toujours par 0 -> Resume
                 }
             }
         }
@@ -1345,7 +1409,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         else if (event->gaxis.axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
             Sint16 triggerValue = event->gaxis.value;
 
-            if (triggerValue > 3000) { // > deadZone
+            if (triggerValue > 3000) { // > deadZone Du Trigger
                 if (app.StateActuel == State::Game) {
                     player->isCurrentlyShooting = true;
                 }
