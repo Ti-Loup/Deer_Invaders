@@ -104,10 +104,12 @@ public:
     TTF_Font *dynamicscoreFont = nullptr;
 
     // ->  PAUSE <-
-    SDL_FRect BoutonResume = {850,500,300,80};
-    SDL_FRect BoutonReturnMenu = {850,700,300,80};
+    SDL_FRect BoutonResume = {850,490,300,80};
+    SDL_FRect BoutonGoShop = {850, 600, 300, 80};
+    SDL_FRect BoutonReturnMenu = {850,710,300,80};
     TTF_Font *FontPause = nullptr;
     TTF_Text *TextResume = nullptr;
+    TTF_Text *TextPauseGoShop = nullptr;
     TTF_Text *TextReturnMenuPause = nullptr;
 
     // -> Score <- Text et Fonts
@@ -367,6 +369,16 @@ private:
         if (TTF_SetTextColor(TextResume, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set the color of: TextResume", SDL_GetError());
         }
+        TextPauseGoShop = TTF_CreateText(textEngine, FontPause, "Shop", 25);
+        if (TextPauseGoShop == nullptr) {
+            SDL_LogWarn(0, "failed to set the text: TextResume", SDL_GetError());
+        }
+        if (TTF_SetTextColor(TextPauseGoShop, 0, 0, 0, 255) == false) {
+            SDL_LogWarn(0, "SDL_ttf failed to set the color of: TextResume", SDL_GetError());
+        }
+
+
+
         TextReturnMenuPause = TTF_CreateText(textEngine, FontPause, "Return Menu", 25);
         if (TextReturnMenuPause == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set TextReturnMenuPause text", SDL_GetError());
@@ -1258,15 +1270,21 @@ private:
         }
         UpdateBackgroundTint(deltaTime);
 
-        // A FAIRE LES BOUTONS
+        //Boutons de Pause
         if (selectedButtonPause == 0) {
             RenderBoutons(BoutonResume, TextResume, r, g, b);
         } else {
             RenderBoutons(BoutonResume, TextResume, 255, 255, 255);
         }
-
-
         if (selectedButtonPause == 1) {
+            RenderBoutons(BoutonGoShop, TextPauseGoShop, r,g,b);
+        }
+        else {
+            RenderBoutons(BoutonGoShop, TextPauseGoShop, 255,255,255);
+
+        }
+
+        if (selectedButtonPause == 2) {
             RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, r, g, b);
         } else {
             RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, 255, 255, 255);
@@ -1418,14 +1436,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         else if (app.StateActuel == State::Pause) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
                 app.selectedButtonPause++;
-                if (app.selectedButtonPause > 1) {
+                if (app.selectedButtonPause > 2) {
                     app.selectedButtonPause = 0;//Retourne au premier
                 }
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
                 app.selectedButtonPause--;
                 if (app.selectedButtonPause < 0) {
-                    app.selectedButtonPause = 1;//retourne au dernier
+                    app.selectedButtonPause = 2;//retourne au dernier
                 }
             }
 
@@ -1440,10 +1458,17 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.StateActuel = State::Game;
                         break;
                     case 1:
+                        //Return Shop
+                        SDL_Log("Go dans le shop");
+                        app.StateActuel = State::Shop;
+                        app.selectedButtonPause = 0; // Pour que le selectedButton commence toujours par 0 -> Resume
+                        break;
+                    case 2:
                         //Return Menu
                         SDL_Log("Retour Menu");
                         app.StateActuel = State::Menu;
                         app.selectedButtonPause = 0; // Pour que le selectedButton commence toujours par 0 -> Resume
+                        break;
                 }
             }
         }
@@ -1670,6 +1695,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonResume)) {
                 app.StateActuel = State::Game;
             }
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonGoShop)) {
+                app.StateActuel = State::Shop;
+            }
+
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonReturnMenu)) {
                 app.StateActuel = State::Menu;
             }
