@@ -30,6 +30,8 @@ Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser = fals
     }else {
         multiplicateurDirection = 1.0f;
     }
+    //temps avant de lancer leur premiere fraise
+    this->strawberryCooldown = 1.0f + (static_cast<float>(rand() %9000) / 100.0f);
 /*
     //Pour que les cerfs bouge légèrement haut et en bas de façon logique
     //Le randomizer <random>
@@ -60,6 +62,27 @@ void Enemy_Deer::HeightMovement(float deltaTime) {
     transform.position.y = startY + (std::sin(timeAlive * vitesse) * amplitude * multiplicateurDirection);
 
 }
+//Methode Update Method de EnemyDeer
+void Enemy_Deer::Update(float deltaTime,std::vector<Entity*> &entities) {
+    HeightMovement(deltaTime);
+    //timer pour tier
+    strawberryCooldown -= deltaTime;
+    //Quand timer == 0
+    if (strawberryCooldown <= 0.0f) {
+        StrawberryShoot(entities, {0,-1});
+        //Temps avant qu'un cerf lance une fraise de nouveau
+    this->strawberryCooldown = 8.0f + (static_cast<float>(rand() % 300) / 100.0f);
+    }
+
+}
+
+//Nouvelle fonction pour faire tirer les fraises des cerfs vers le Joueur
+void Enemy_Deer::StrawberryShoot(std::vector<Entity *> &entity, SDL_Point dir ) {
+    float spawnX = transform.position.x + (transform.size.x / 2.0f) - 10.0f;
+    float spawnY = transform.position.y + transform.size.y;
+    SDL_FPoint spawnPoint = {spawnX, spawnY};
+    entity.push_back(new BulletStrawberry(spawnPoint, dir));
+}
 
 
 Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {
@@ -67,7 +90,7 @@ Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {
     health.max_health = 100;
     health.current_health = 100;
     AddComponent (MOVEMENT);
-    movement.velocity = { 30.0f,0.0f };
+    movement.velocity = { 40.0f,0.0f };
     AddComponent (RENDER);
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
@@ -110,6 +133,18 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY) {
 
     //Le type d'entity
     entityType = EntityType::Enemy;
+}
+
+//Bullets
+BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir) {
+    AddComponent (MOVEMENT);
+    movement.velocity = { 0.0f * dir.x,- 400.0f * dir.y };// les fraises vont vers le bas
+    AddComponent (RENDER);
+    render.color = { 255, 182, 193, 255 };//Pink for strawberry
+    AddComponent (TRANSFORM);
+    transform.position = spawn;
+    transform.size = (SDL_FPoint){ 20.f, 20.f };
+    entityType = EntityType::EnemyBullet;
 }
 
 

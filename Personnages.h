@@ -18,11 +18,17 @@ class Enemy_Deer : public Entity{
 public:
     Enemy_Deer(float startX, float startY, bool mouvementInverser);
 
+    void Update(float deltaTime, std::vector<Entity*> &entities);
 //  MOVEMENT CERFS VERTICAL
     void HeightMovement(float deltaTime) override;
+//  CERFS TIRE DES FRAISES
+    void StrawberryShoot(std::vector<Entity *> &entity, SDL_Point dir );
+
     float startY;//depart
     float timeAlive = 0.f;
     float multiplicateurDirection = 1.0f;
+    //Cooldown de fraises qui ce fait lacher par Cerf
+    float strawberryCooldown = 2.0f;
 };
 
 //Les soigneurs
@@ -40,11 +46,16 @@ public:
 //Bosses
 class Enemy_FraiseBoss : public Entity {
 public:
-    Enemy_FraiseBoss(float floatX, float floatY);
+    Enemy_FraiseBoss(float startX, float startY);
 
 };
 
+//Bullets
+class BulletStrawberry : public Entity {
+     public:
+        BulletStrawberry(SDL_FPoint spawn, SDL_Point dir);
 
+};
 
 //COLLECTIBLES
 class Collectible_Meat : public Entity {

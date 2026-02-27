@@ -13,7 +13,8 @@ enum class EntityType {
 Player,//0
 Enemy,//1
 Bullet,//2
-Collectable,//3
+EnemyBullet,//3
+Collectable,//4
 };
 
 class Entity {

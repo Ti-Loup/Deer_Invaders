@@ -70,7 +70,6 @@ void Player::UpdatePhysics(float deltaTime) {
 //Pour tirer
 void Player::Shoot(std::vector<Entity *> &entity, SDL_Point dir) {
     SDL_Color BulletColor = currentWeapon->GetColor(); //Prend la couleur de l'arme actuel
-    // 1. On calcule le centre comme d'habitude
     float centerX = transform.position.x + (transform.size.x / 2.0f) - 8.0f;
     float bulletY = transform.position.y - 16.0f;
 

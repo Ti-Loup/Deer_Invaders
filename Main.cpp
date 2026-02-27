@@ -842,41 +842,45 @@ private:
                 }
             }
         }
-        //FONCTION MOUVEMENT MEAT
-            for (auto& meatEntity : entities) {
-                meatEntity->Update(deltaTime);
+        //FONCTION COLLISION ENTRE ENTITITY ET JOUEUR
+        for (auto& entity : entities) {
+            if (entity->bIsDestroyed) continue; // ignore ce qui est mort
 
+            entity->Update(deltaTime);
 
-                //SI COLLISION ENTRE MEAT ET PLAYER -> AJOUTE MEAT INVENTAIRE ++
-                // On ne traite que les collectibles qui ne sont pas encore détruits
-                if (meatEntity->entityType == EntityType::Collectable && !meatEntity->bIsDestroyed) {
-
-                    //Creation Collision joueur
-                    SDL_FRect rectPlayer = {
-                        player->transform.position.x,
-                        player->transform.position.y,
-                        player->transform.size.x,
-                        player->transform.size.y
-                    };
-
-                    //Creation Collision Meat
-                    SDL_FRect rectMeat = {
-                        meatEntity->transform.position.x,
-                        meatEntity->transform.position.y,
-                        meatEntity->transform.size.x,
-                        meatEntity->transform.size.y
-                    };
-
-                    // Collision entre Meat et Player ce fait
-                    if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectMeat)) {
-                        SDL_Log("Viande collectée -> +1");
-
-                        meatEntity->bIsDestroyed = true; // Sera supprimé par ton système de nettoyage plus bas
-                        currentMeat++;  //Nombre de viande ++
-                    }
+            // Si c'est un ennemi
+            if (entity->entityType == EntityType::Enemy) {
+                Enemy_Deer* deer = dynamic_cast<Enemy_Deer*>(entity);
+                if (deer != nullptr) {
+                    deer->Update(deltaTime, entities); // Gère son tir et son mouvement
                 }
             }
 
+            // Si fraise (EnemyBullet) ou Viande (Collectable)
+            if (entity->entityType == EntityType::Collectable || entity->entityType == EntityType::EnemyBullet) {
+
+                // On crée les Rects pour la collision
+                SDL_FRect rectPlayer = { player->transform.position.x, player->transform.position.y, player->transform.size.x, player->transform.size.y };
+                SDL_FRect rectEnt = { entity->transform.position.x, entity->transform.position.y, entity->transform.size.x, entity->transform.size.y };
+
+                //si collision
+                if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectEnt)) {
+
+                    // -Si c'est une viante
+                    if (entity->entityType == EntityType::Collectable) {
+                        SDL_Log("Viande collectée -> +1");
+                        currentMeat++;
+                    }
+                    // si Fraise
+                    else if (entity->entityType == EntityType::EnemyBullet) {
+                        SDL_Log("Touché par une fraise !");
+                        player->health.current_health -= 10;
+                    }
+
+                    entity->bIsDestroyed = true; // Dans les deux cas, l'objet disparaît
+                }
+            }
+        }
 
         //Variables de Detection des cerfs et murs
         bool ToucheMurGauche = false;
@@ -886,6 +890,7 @@ private:
         // Mouvement et Détection Des cerfs
         for (auto &ent: entities) {
             ent->MovementUpdate(deltaTime);
+
             ent->HeightMovement(deltaTime);//Hauteur cerfs
             //On verifie que seulement les ennemies bougent pas joueur !@!@
             if (ent->entityType == EntityType::Enemy) {
@@ -996,17 +1001,18 @@ private:
                     }
             }
         }
-            //Pour Detruire Un objet après détruit
-            for (auto enemyEntities = entities.begin(); enemyEntities != entities.end(); ) {
+        }
+        //Pour Detruire Un objet après détruit
+        for (auto enemyEntities = entities.begin(); enemyEntities != entities.end(); ) {
 
-                if ((*enemyEntities)->bIsDestroyed) {
-                    delete *enemyEntities;              // libère memoire
-                    enemyEntities = entities.erase(enemyEntities); // pour retirer les cerfs de la liste pour eviter les troues
-                } else {
-                    ++enemyEntities; // entité suivante
-                }
+            if ((*enemyEntities)->bIsDestroyed) {
+                delete *enemyEntities;              // libère memoire
+                enemyEntities = entities.erase(enemyEntities); // pour retirer les cerfs de la liste pour eviter les troues
+            } else {
+                ++enemyEntities; // entité suivante
             }
         }
+
         //Pour afficher le score
         //Meme principe que pour le fps dynamic a afficher
         if (currentScore != lastScore) {
