@@ -1502,16 +1502,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         if (app.currentWeaponLevel == 0) {
                             if (player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
                                 app.currentWeaponLevel = 1;// on achete la prochaine arme
+                                app.globalWeaponLevel = 1;
                             }
                         }
                         else if (app.currentWeaponLevel == 1){
                             if (player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
                                 app.currentWeaponLevel = 2;
+                                app.globalWeaponLevel = 2;
                             }
                         }
                         else if (app.currentWeaponLevel == 2) {
                             if (player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
                                 app.currentWeaponLevel = 3;
+                                app.globalWeaponLevel = 3;
                             }
                         }
                         break;
