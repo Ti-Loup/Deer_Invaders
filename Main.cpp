@@ -1138,7 +1138,7 @@ private:
         //Fire
         if (globalWeaponLevel >= 1) {
             // possece deja l'arme
-            TTF_SetTextString(statusFire, "EQUIPE", 0);
+            TTF_SetTextString(statusFire, "EQUIPPED", 0);
             TTF_SetTextColor(statusFire, 0, 255, 0, 255); // reste vert
         }
         else if (currentMeat >= 10) {

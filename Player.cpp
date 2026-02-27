@@ -70,8 +70,32 @@ void Player::UpdatePhysics(float deltaTime) {
 //Pour tirer
 void Player::Shoot(std::vector<Entity *> &entity, SDL_Point dir) {
     SDL_Color BulletColor = currentWeapon->GetColor(); //Prend la couleur de l'arme actuel
-    //ce qui spawn
-    entity.push_back(new Bullet(transform.position, dir, BulletColor));
+    // 1. On calcule le centre comme d'habitude
+    float centerX = transform.position.x + (transform.size.x / 2.0f) - 8.0f;
+    float bulletY = transform.position.y - 16.0f;
+
+    if (dynamic_cast<FireBulletType*>(currentWeapon)) {
+        // ARME FIRE Double Cannon
+        float decalage = 20.0f; //decalage pour tirer d'un autre angle
+        // balle de gauche
+        SDL_FPoint spawnGauche = { centerX - decalage, bulletY };
+        entity.push_back(new Bullet(spawnGauche, dir, BulletColor));
+
+        // balle de droite
+        SDL_FPoint spawnDroite = { centerX + decalage, bulletY };
+        entity.push_back(new Bullet(spawnDroite, dir, BulletColor));
+    }//Pour ICE
+    else if (dynamic_cast<IceBulletType*>(currentWeapon)) {
+        //code
+    }
+    else if (dynamic_cast<TBDBulletType*>(currentWeapon)) {
+        //code
+    }
+    else {
+        // arme de base
+        SDL_FPoint spawnPoint = { centerX, bulletY };
+        entity.push_back(new Bullet(spawnPoint, dir, BulletColor));
+    }
 }
 
 Bullet::Bullet(SDL_FPoint spawn, SDL_Point dir, SDL_Color color) {

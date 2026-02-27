@@ -27,6 +27,7 @@ SDL_Color ClassicBulletType::GetColor () {
 //Bullet Niveau 2(Amélioration -> Shop)
 void FireBulletType::Affect(Entity *entity) {
     BulletType::Affect(entity);
+
 }
 SDL_Color FireBulletType::GetColor () {
     return (SDL_Color){255, 0, 0, 255};
@@ -35,6 +36,7 @@ SDL_Color FireBulletType::GetColor () {
 //Bullet Niveau 3(Amélioration -> Shop)
 void IceBulletType::Affect(Entity *entity) {
     BulletType::Affect(entity);
+
 }
 SDL_Color IceBulletType::GetColor () {
     return (SDL_Color){175, 238, 238, 255};

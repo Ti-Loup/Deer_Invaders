@@ -7,6 +7,7 @@
 #include <SDL3/SDL_pixels.h>
 class Entity;
 
+
 //state machine
 enum class State {
 Menu,
