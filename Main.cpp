@@ -99,9 +99,13 @@ public:
     SDL_FRect MeatInventory ={1700.0f, 10.0f, 25.0f,25.0f};
     SDL_Texture *MeatInventoryTexture = nullptr;
     SDL_Texture *ScoreUI = nullptr;
+    SDL_Texture *HealUI = nullptr;
     SDL_FRect scoreSize = { 1570.0f, 925.0f, 350.0f, 140.0f };
+    SDL_FRect healSize = {50.0f,1000.0f,250.0f,100.0f};
     TTF_Text *dynamicscoreText = nullptr;
     TTF_Font *dynamicscoreFont = nullptr;
+    TTF_Text *dynamicPlayerHeal = nullptr;
+    TTF_Font *dynamicPlayerHealFont = nullptr;
 
     // ->  PAUSE <-
     SDL_FRect BoutonResume = {850,490,300,80};
@@ -196,6 +200,10 @@ public:
     //Meat Rendu
     int lastMeat = -1;
 
+    //Point HP
+    int currentHP = 150;
+    int lastHP = 1;
+
     //Pour les armes
     //Pour shop,
     int currentWeaponLevel = 0;
@@ -204,6 +212,8 @@ private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
     int scorePerDeerKilled = 250;
+
+
     //SCORE DU RENDER JEU
     int lastScore = -1;
 
@@ -246,7 +256,11 @@ private:
             SDL_LogWarn(0, "SDL_IMAGE FAILED TO LOAD TEXTURE ", "assets/spritesheet.png", SDL_GetError());
         }
         SDL_SetTextureScaleMode(ScoreUI, SDL_SCALEMODE_NEAREST);
-
+        HealUI = IMG_LoadTexture(renderer, "assets/HealUI.png");
+        if (HealUI == nullptr) {
+            SDL_LogWarn(0, "SDL_IMAGE FAILED TO LOAD TEXTURE ", "assets/spritesheet.png", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(HealUI, SDL_SCALEMODE_NEAREST);
 
 
 
@@ -355,6 +369,15 @@ private:
         if (InventoryText == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set the inventory text", SDL_GetError());
         }
+        dynamicPlayerHealFont = TTF_OpenFont("assets/font.ttf", 40);
+        dynamicPlayerHeal = TTF_CreateText(textEngine, dynamicPlayerHealFont, "Heal: 150", 25);
+        if (dynamicPlayerHeal == nullptr) {
+            SDL_LogWarn(0,"failed to create the text of dynamicPlayerHeal", SDL_GetError());
+        }
+        if (TTF_SetTextColor(dynamicPlayerHeal, 255,255,255,255) == false) {
+            SDL_LogWarn (1, "failed to make the color of dynamicPlayerHeal");
+        }
+
 
 
         //POUR PAUSE
@@ -583,6 +606,7 @@ private:
         TTF_CloseFont(MenuSpecialFont);
         SDL_DestroyTexture(spritesheet);
         SDL_DestroyTexture(ScoreUI);
+        SDL_DestroyTexture(HealUI);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         TTF_Quit();
@@ -815,6 +839,7 @@ private:
         TTF_SetTextColor(dynamicscoreText, r, g, b, 255);
         TTF_SetTextColor(InventoryText, 255, 255, 255, 255);
         TTF_UpdateText(dynamicscoreText);
+        TTF_UpdateText(dynamicPlayerHeal);
         TTF_UpdateText(InventoryText);
 
         /*
@@ -874,7 +899,9 @@ private:
                     // si Fraise
                     else if (entity->entityType == EntityType::EnemyBullet) {
                         SDL_Log("Touché par une fraise !");
-                        player->health.current_health -= 10;
+                        player->health.current_health -= 50;
+                        //Ajout Heal
+                        currentHP = player->health.current_health;
                     }
 
                     entity->bIsDestroyed = true; // Dans les deux cas, l'objet disparaît
@@ -1026,11 +1053,20 @@ private:
             TTF_SetTextString(InventoryText, meatStr.c_str(), 0);
             lastMeat = currentMeat;
         }
+        //Pour afficher les HP actuel dans le jeu
+        if (player->health.current_health != lastHP) {
+            currentHP = player->health.current_health;
+            std::string healStr ="Heal : " + std::to_string(currentHP);
+            TTF_SetTextString(dynamicPlayerHeal, healStr.c_str(), 0);
+            lastHP = currentHP;
+        }
+
         // Rendu du jeu
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir pour le jeu
         SDL_RenderClear(renderer);
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
+        SDL_RenderTexture(renderer,HealUI,nullptr, &healSize);
         //Carre rouge pour viande
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
         SDL_RenderFillRect(renderer, &MeatInventory);
@@ -1048,6 +1084,12 @@ private:
             float posX = MeatInventory.x + MeatInventory.w + 10.0f;
             float posY = MeatInventory.y + (MeatInventory.h - largeurH) / 4.0f;
             TTF_DrawRendererText(InventoryText, posX, posY);
+        }
+        //Mise a jour du Heal rendu
+        if (dynamicPlayerHeal) {
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicPlayerHeal, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicPlayerHeal, healSize.x + (healSize.w - longeurW)/2, healSize.y + (healSize.h - largeurH)- 20);
         }
 
         // Dessiner toutes les entités
@@ -1251,6 +1293,9 @@ private:
             TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
             TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
         }
+
+
+
 
         for (auto &ent: entities) {
             ent->RenderUpdate(renderer);
