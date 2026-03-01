@@ -70,6 +70,7 @@ public:
     TTF_Text *fpsText = nullptr;
     TTF_Text *MenuTitle = nullptr; //Pour rajouter un Titre
     TTF_Text *BoutonCreditsText = nullptr;
+    SDL_Texture *DeerLogo = nullptr;
 
     //Texte special
     TTF_Font *MenuSpecialFont = nullptr;
@@ -902,6 +903,10 @@ private:
                         player->health.current_health -= 50;
                         //Ajout Heal
                         currentHP = player->health.current_health;
+                        //si on va en dessous des 0 hp
+                        if (player->health.current_health <= 0) {
+                            player->health.current_health = 0;
+                        }
                     }
 
                     entity->bIsDestroyed = true; // Dans les deux cas, l'objet disparaît
@@ -974,7 +979,7 @@ private:
             }
         }
 
-        //L'algorithme de collision
+        //L'algorithme de collision entre bullet et cerf
         //vérifier chaque balle pour voir si elle touche un ennemi.
         for (auto &bullet: entities) {
             //recherche entiter qui est pas une balle
