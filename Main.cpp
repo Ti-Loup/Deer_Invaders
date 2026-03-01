@@ -251,7 +251,16 @@ private:
         if (TTF_Init() == false) {
             SDL_LogCritical(1, "SDL_ttf failed to initialize! %s", SDL_GetError());
             abort();
+        }//Pour Le Logo
+        DeerLogo = IMG_LoadTexture(renderer, "assets/Deer_Logo.png");
+        if (DeerLogo == nullptr) {
+            SDL_LogWarn(0, "SDL_Image failed to load DeerLogo", "assets/Deer_Logo.png", SDL_GetError());
         }
+        SDL_SetTextureScaleMode(DeerLogo, SDL_SCALEMODE_NEAREST);
+
+
+
+
         ScoreUI = IMG_LoadTexture(renderer, "assets/ScoreUI.png");
         if (ScoreUI == nullptr) {
             SDL_LogWarn(0, "SDL_IMAGE FAILED TO LOAD TEXTURE ", "assets/spritesheet.png", SDL_GetError());
@@ -606,6 +615,7 @@ private:
         TTF_DestroyText(TextReturnMenuPause);
         TTF_CloseFont(MenuSpecialFont);
         SDL_DestroyTexture(spritesheet);
+        SDL_DestroyTexture(DeerLogo);
         SDL_DestroyTexture(ScoreUI);
         SDL_DestroyTexture(HealUI);
         SDL_DestroyRenderer(renderer);
@@ -672,6 +682,24 @@ private:
             };
 
             SDL_RenderTexture(renderer, spritesheet, &src, &dst);
+        }//Pour le Logo Du jeu
+        if (DeerLogo != nullptr) {
+            float imgW, imgH;
+            SDL_GetTextureSize(DeerLogo, &imgW, &imgH);
+            //Calcul de sa largeur
+            float targetWidth = 700.0f;
+            // calcul sa hauteur proportionellement
+            float targetHeight = targetWidth * (imgH / imgW);
+            //Position
+            SDL_FRect dst = {
+                (1920.0f / 2.0f) - (targetWidth / 2.0f),
+                50.0f,
+                targetWidth,
+                targetHeight
+            };
+
+            // On dessine avec nullptr pour prendre tout le logo Deer Invaders
+            SDL_RenderTexture(renderer, DeerLogo, nullptr, &dst);
         }
     }
 
