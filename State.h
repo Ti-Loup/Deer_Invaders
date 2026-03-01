@@ -12,6 +12,7 @@ class Entity;
 enum class State {
 Menu,
 Game,
+GameMode, //<- Pour choisir entre mod survivor ou Wave 
 ScoreBoard,
 Shop,
 Credits,

@@ -77,22 +77,27 @@ public:
     TTF_Text *MenuSpecialDraw = nullptr;
 
     //creation des boutons pour le menu
-    SDL_FRect BoutonPlay = {50, 450, 250, 100};
+    SDL_FRect BoutonPlay = {760, 600, 400, 80};
     bool bClickedOnPlay = false;
     bool bClickedOnQuit = false;
     bool bClickedOnScore = false;
     bool bClickedOnShop = false;
-    SDL_FRect BoutonScore = {120, 600, 250, 100};
-    SDL_FRect BoutonQuit = {180, 750, 250, 100};
-    SDL_FRect BoutonShop = {1350, 790, 170, 100};
-    SDL_FRect BoutonCredits = {1350, 900, 170, 50};
+    SDL_FRect BoutonScore = {785, 700, 350, 70};
+    SDL_FRect BoutonShop = {810, 790, 300, 60};
+    SDL_FRect BoutonQuit = {835, 870, 250, 50};
+    SDL_FRect BoutonCredits = {860, 940, 200, 40};
+    //Pour taille de police
 
+    TTF_Font *StartFont = nullptr;
+    TTF_Font *ScoreFont = nullptr;
+    TTF_Font *QuitFont = nullptr;
+    TTF_Font *CreditsFont = nullptr;
     TTF_Text *TextStart = nullptr;
     TTF_Text *TextQuit = nullptr;
     TTF_Text *TextScore = nullptr; //Pour les boutons Start Quit et TBh
     TTF_Text *TextShop = nullptr;
     TTF_Text *TextQuitReturnMenu = nullptr;
-    TTF_Font *BoutonFont = nullptr;
+
 
     // -> GAME <- Text et Fonts
     TTF_Font *InventoryFont = nullptr; // Game + Shop
@@ -311,23 +316,26 @@ private:
         }
         MenuSpecialDraw = TTF_CreateText(textEngine, MenuSpecialFont, "abcdefghigklmnopqrstuv", 20);
 
-        BoutonFont = TTF_OpenFont("assets/New Space.ttf", 48);
-
         ReturnBoutonFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 44);
-        ShopFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 60);
+
+        ShopFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 50);
+        StartFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 75);
+        ScoreFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 60);
+        QuitFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
+        CreditsFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 30);
+
         if (ReturnBoutonFont == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
         }
-        BoutonUpgradeFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 28);
-        TextStart = TTF_CreateText(textEngine, BoutonFont, "Start", 25);
+        TextStart = TTF_CreateText(textEngine, StartFont, "Start", 25);
         if (MenuSpecialDraw == nullptr) {
             SDL_LogWarn(0, "Les boutons du menu n'a pas chargé : TTF", SDL_GetError());
         }
-        TextQuit = TTF_CreateText(textEngine, BoutonFont, "Quit", 25);
+        TextQuit = TTF_CreateText(textEngine, QuitFont, "Quit", 25);
         if (TextQuit == nullptr) {
             SDL_LogWarn(0, "Les boutons du menu n'a pas chargé : TTF", SDL_GetError());
         }
-        TextScore = TTF_CreateText(textEngine, BoutonFont, "Score", 25);
+        TextScore = TTF_CreateText(textEngine, ScoreFont, "Score", 25);
         if (TextScore == nullptr) {
             SDL_LogWarn(0, "Les boutons du menu n'a pas chargé : TTF", SDL_GetError());
         }
@@ -335,6 +343,8 @@ private:
         if (TextShop == nullptr) {
             SDL_LogWarn(0, "Le text du bouton Shop n'a pas fonctionner", SDL_GetError());
         }
+
+        BoutonUpgradeFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 25);
         BoutonUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, " Weapon \nUpgrade", 25);
         if (TTF_SetTextColor(BoutonUpgradeText, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "Couleur du bouton amelioration n'a pas fonctionné", SDL_GetError());
@@ -343,21 +353,23 @@ private:
         if (TTF_SetTextColor(BoutonHPUpgradeText, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "Couleur de Bouton HP Upgrade", SDL_GetError());
         }
-        BoutonCreditsText = TTF_CreateText(textEngine, BoutonUpgradeFont, "Credits", 25);
-        if (TTF_SetTextColor(BoutonCreditsText, 0, 0, 0, 255) == false) {
-            SDL_LogWarn(0, "Attention BoutonCredits n'a pas changer de couleurs", SDL_GetError());
-        }
-        if (TTF_SetTextColor(TextShop, 0, 0, 0, 250) == false) {
+        BoutonCreditsText = TTF_CreateText(textEngine, CreditsFont, "Credits", 25);
+
+        if (TTF_SetTextColor(TextShop, 150, 100, 255, 255) == false) {
             SDL_LogWarn(0, "La couleur de TextShop n'a pas fonctionné", SDL_GetError());
         }
-        if (TTF_SetTextColor(TextStart, 0, 0, 0, 255) == false) {
+        if (TTF_SetTextColor(TextStart, 0,  255, 255, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
         }
-        if (TTF_SetTextColor(TextQuit, 0, 0, 0, 255) == false) {
+        if (TTF_SetTextColor(TextQuit, 255, 80, 255, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
         }
-        if (TTF_SetTextColor(TextScore, 0, 0, 0, 255) == false) {
+        if (TTF_SetTextColor(TextScore, 80, 150, 255, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+        }
+        if (TTF_SetTextColor(BoutonCreditsText, 200,150,200,255) == false) {
+            SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+
         }
         TextQuitReturnMenu = TTF_CreateText(textEngine, ReturnBoutonFont, "Return \nMenu", 25);
         if (TextQuitReturnMenu == nullptr) {
@@ -604,7 +616,11 @@ private:
         TTF_DestroyText(MenuTitle);
         TTF_DestroyRendererTextEngine(textEngine);
         TTF_CloseFont(font);
-        TTF_CloseFont(BoutonFont);
+        TTF_CloseFont(ShopFont);
+        TTF_CloseFont(StartFont);
+        TTF_CloseFont(QuitFont);
+        TTF_CloseFont(ScoreFont);
+        TTF_CloseFont(CreditsFont);
         TTF_CloseFont(Credits_Shop_Score_TitleFont);
         TTF_CloseFont(FontPause);
         TTF_DestroyText(TextStart);
@@ -706,8 +722,8 @@ private:
 
     //Petite fonction pour mettre un titre MENU
     void RenderTitle() {
-        TTF_DrawRendererText(MenuTitle, 0, 200);
-        TTF_DrawRendererText(MenuSpecialDraw, 000, 950);
+       // TTF_DrawRendererText(MenuTitle, 0, 200);
+        TTF_DrawRendererText(MenuSpecialDraw, 000, 980);
     }
 
 
@@ -814,6 +830,7 @@ private:
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+
         RenderTitle();
         RenderAnimation();
 
@@ -825,33 +842,33 @@ private:
         if (selectedButtonMenu == 0) {
             RenderBoutons(BoutonPlay, TextStart, r, g, b);//Couleur si selectionner
         }else {
-            RenderBoutons(BoutonPlay, TextStart, 250, 255, 255);//Blanc de base
+            RenderBoutons(BoutonPlay, TextStart, 20, 20, 20);//Blanc de base
         }
         //BOUTON SCORE
         if (selectedButtonMenu == 1) {
             RenderBoutons(BoutonScore, TextScore, r, g, b);
         }else {
-            RenderBoutons(BoutonScore, TextScore, 250, 255, 255);//blanc de base
+            RenderBoutons(BoutonScore, TextScore, 20, 20, 20);//blanc de base
         }
         //BOUTON QUIT
         if (selectedButtonMenu == 2) {
-            RenderBoutons(BoutonQuit, TextQuit, r, g, b);
+            RenderBoutons(BoutonShop, TextShop, r, g, b);
         }else {
-            RenderBoutons(BoutonQuit, TextQuit, 250, 255, 255);
+            RenderBoutons(BoutonShop, TextShop, 20, 20, 20);
         }
         //BOUTON SHOP
         if (selectedButtonMenu == 3) {
-            RenderBoutons(BoutonShop, TextShop, r, g, b);
+            RenderBoutons(BoutonQuit, TextQuit, r, g, b);
         }
         else {
-            RenderBoutons(BoutonShop, TextShop, 250, 255, 255);
+            RenderBoutons(BoutonQuit, TextQuit, 20, 20, 20);
         }
         //BOUTON CREDITS
         if (selectedButtonMenu == 4) {
             RenderBoutons(BoutonCredits, BoutonCreditsText, r, g, b);
         }
         else {
-            RenderBoutons(BoutonCredits, BoutonCreditsText, 250, 255, 255);
+            RenderBoutons(BoutonCredits, BoutonCreditsText, 20, 20, 20);
         }
 
         TTF_DrawRendererText(fpsText, 1800, 10);
@@ -1500,10 +1517,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     app.StateActuel = State::ScoreBoard;
                     break;
                 case 2:
-                    app.StateActuel = State::Quit;
+                    app.StateActuel = State::Shop;
                     break;
                 case 3:
-                    app.StateActuel = State::Shop;
+                    app.StateActuel = State::Quit;
                     app.selectedButtonShop = 0;//Remet a zero
                     break;
                 case 4:
