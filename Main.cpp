@@ -907,12 +907,12 @@ private:
         SDL_RenderClear(renderer);
 
         // Personnage Humain
-        SDL_FRect HumainRect = {100, 200, 400, 800}; // Ajusté X pour pas qu'ils se collent
+        SDL_FRect HumainRect = {100, 300, 400, 800}; // Ajusté X pour pas qu'ils se collent
         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
         SDL_RenderFillRect(renderer, &HumainRect);
 
         // Personnage Deer
-        SDL_FRect DeerRect = {1400, 200, 400, 800}; // Ajusté X à droite
+        SDL_FRect DeerRect = {1400, 300, 400, 800}; // Ajusté X à droite
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Rouge pour le cerf
         SDL_RenderFillRect(renderer, &DeerRect);
 
@@ -920,18 +920,18 @@ private:
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
         //la partie basse dessiner
-        SDL_FRect bottomBand = {0, 780, 1920, 300};
+        SDL_FRect bottomBand = {0, 880, 1920, 200};
         SDL_RenderFillRect(renderer, &bottomBand);
 
         //Text dessus la bande
         TTF_DrawRendererText(fpsText, 1800, 10);
         if (texteIntroCerfEtHUmain != nullptr) {
-            int w, h;
-            TTF_GetTextSize(texteIntroCerfEtHUmain, &w, &h);
+            int weight, height;
+            TTF_GetTextSize(texteIntroCerfEtHUmain, &weight, &height);
 
             // Centrage du texte par rapport au
-            float textX = (1920 - w) / 2.0f;
-            float textY = 800 + (280 - h) / 2.0f;
+            float textX = (1920 - weight) / 2.0f;
+            float textY = 840 + (280 - height) / 2.0f;
 
             TTF_DrawRendererText(texteIntroCerfEtHUmain, textX, textY);
         }
@@ -1737,9 +1737,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     case 2:
                         //Retour menu
                         app.StateActuel = State::Game;
+                        app.selectedButtonShop = 0;
                         break;
                     case 3:
                         app.StateActuel = State::Menu;
+                        app.selectedButtonShop = 0;
                         break;
                 }
             }
