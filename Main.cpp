@@ -98,7 +98,17 @@ public:
     TTF_Text *TextShop = nullptr;
     TTF_Text *TextQuitReturnMenu = nullptr;
 
+    // -> INTROGAME <-
+    SDL_Texture *HumainTexture = nullptr;
+    int indexMessageIntro = 0;
+    static const int NB_MESSAGES_INTRO = 3;
+    const char *phrasesIntro[NB_MESSAGES_INTRO] = {
+        "Humain : We must defend againts this invasion !",
+        "Deer : You will soon be under our control ",
+        "Humain : Free our World ! For our freedom !"
+    };
 
+    TTF_Text* texteIntroCerfEtHUmain = nullptr; // Le texte qui sera affiché
     // -> GAME <- Text et Fonts
     TTF_Font *InventoryFont = nullptr; // Game + Shop
     TTF_Text *InventoryText = nullptr; // Game + Shop
@@ -143,10 +153,10 @@ public:
     TTF_Text *statusIce = nullptr;
     TTF_Text *statusTbd = nullptr;
     TTF_Text *currentMeatShop = nullptr;//savoir combien de meat on a en ce moment
-
+    TTF_Text *resumeGameShopText = nullptr;
     //rectangle
     SDL_FRect MeatInventoryShop ={200.0f, 500.0f, 50.0f,50.0f};
-
+    SDL_FRect BoutonResumeGameShop = {1350.0f, 900.0f, 200.0f,100.0f};
     //Boutons
     SDL_FRect BoutonUpgrade = {800, 800, 125, 100};
     SDL_FRect BoutonHPUpgrade = {1000, 800, 125, 100};
@@ -378,6 +388,11 @@ private:
         if (TTF_SetTextColor(TextQuitReturnMenu, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
         }
+        //DANS INTROGAME
+        texteIntroCerfEtHUmain = TTF_CreateText(textEngine, ShopFont, phrasesIntro[0], 0);
+        TTF_SetTextColor(texteIntroCerfEtHUmain, 255, 255, 255, 255);
+
+
         //DANS GAME
         dynamicscoreFont = TTF_OpenFont("assets/font.ttf", 40);
         dynamicscoreText = TTF_CreateText(textEngine, dynamicscoreFont, "Score", 25);
@@ -497,6 +512,15 @@ private:
         if (TTF_SetTextColor(currentMeatShop, 255, 255, 255, 255) == false) {
             SDL_LogWarn(1, "failed to set the color of currentMeatShop", SDL_GetError());
         }
+        resumeGameShopText = TTF_CreateText(textEngine, ReturnBoutonFont, "Resume \nGame",25);
+        if (resumeGameShopText == nullptr) {
+            SDL_LogWarn(1, "failed to initialise text resumeGameShopText", SDL_GetError());
+        }
+        if (TTF_SetTextColor(resumeGameShopText, 0,0,0,255) == false) {
+            SDL_LogWarn(1,"Erreur impossible de mettre la couleur de resueGameShopText",SDL_GetError());
+        }
+
+
 
         //credits
         CreditsRoleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 50);//Pour les roles
@@ -875,6 +899,49 @@ private:
         SDL_RenderPresent(renderer);
     }
 
+    //fonction Intro pour la narration de debut
+
+    void IntroGame (float deltaTime) {
+        // Effacer l'écran (Fond noir par défaut)
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // Personnage Humain
+        SDL_FRect HumainRect = {100, 200, 400, 800}; // Ajusté X pour pas qu'ils se collent
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_RenderFillRect(renderer, &HumainRect);
+
+        // Personnage Deer
+        SDL_FRect DeerRect = {1400, 200, 400, 800}; // Ajusté X à droite
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Rouge pour le cerf
+        SDL_RenderFillRect(renderer, &DeerRect);
+
+        // Dessiner la bande gris foncé en bas
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
+        //la partie basse dessiner
+        SDL_FRect bottomBand = {0, 780, 1920, 300};
+        SDL_RenderFillRect(renderer, &bottomBand);
+
+        //Text dessus la bande
+        TTF_DrawRendererText(fpsText, 1800, 10);
+        if (texteIntroCerfEtHUmain != nullptr) {
+            int w, h;
+            TTF_GetTextSize(texteIntroCerfEtHUmain, &w, &h);
+
+            // Centrage du texte par rapport au
+            float textX = (1920 - w) / 2.0f;
+            float textY = 800 + (280 - h) / 2.0f;
+
+            TTF_DrawRendererText(texteIntroCerfEtHUmain, textX, textY);
+        }
+
+
+
+        //Tout afficher
+        SDL_RenderPresent(renderer);
+    }
+
     // La fonction Game ne boucle
     void Game(float deltaTime) {
         SDL_Event GameEvents;
@@ -1204,20 +1271,23 @@ private:
         RenderShopTitle();
         UpdateBackgroundTint(deltaTime);//Le rgb
         RenderGlobalWeaponProgresBar(805, 750);
-
+        //Bouton Upgrade Weapon
         if (selectedButtonShop == 0) {
             RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
         }else {
             RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 255, 255, 255);
-        }
-
+        }//Bouton HP
         if (selectedButtonShop == 1) {
             RenderBoutons(BoutonHPUpgrade, BoutonHPUpgradeText, r, g, b);
         }else {
             RenderBoutons(BoutonHPUpgrade, BoutonHPUpgradeText, 255, 255, 255);
-        }
-
+        }//Bouton Return GAme
         if (selectedButtonShop == 2) {
+            RenderBoutons(BoutonResumeGameShop, resumeGameShopText, r, g, b);
+        }else {
+            RenderBoutons(BoutonResumeGameShop, resumeGameShopText, 255,255,255);
+        }//Bouton Quit Menu
+        if (selectedButtonShop == 3) {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
         }else {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255, 255, 255);
@@ -1286,7 +1356,6 @@ private:
             TTF_SetTextColor(statusTbd, 255, 0, 0, 255); // ROUGE
         }
         TTF_DrawRendererText(statusFire, 100, 750 + 40);
-        // On l'affiche juste en dessous de ta ligne
         TTF_DrawRendererText(statusTbd, 100, 950 + 40);
 
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
@@ -1435,6 +1504,10 @@ public:
             case State::Pause:
                 PauseSystem(deltaTime);
                 break;
+                //pour acceder a l'intro avant de jouer
+            case State::IntroGame:
+                IntroGame(deltaTime);
+                break;
 
             case State::Quit:
                 return SDL_APP_SUCCESS;
@@ -1486,6 +1559,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.StateActuel = State::Pause;
             }
         }
+        //Dans Le IntroGame
+        if (app.StateActuel == State::IntroGame) {
+            app.indexMessageIntro++;
+
+            if (app.indexMessageIntro < app.NB_MESSAGES_INTRO) {
+
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[app.indexMessageIntro], 0);
+            } else {
+                app.StateActuel = State::Game;
+                app.indexMessageIntro = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[0], 0);
+            }
+        }
         //GERER SELECTION MENU AVEC GAMEPAD
         if (app.StateActuel == State::Menu) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
@@ -1511,7 +1597,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //switch case MENU
             switch (app.selectedButtonMenu) {
                 case 0:
-                    app.StateActuel = State::Game;
+                    app.StateActuel = State::IntroGame;
                     break;
                 case 1:
                     app.StateActuel = State::ScoreBoard;
@@ -1606,14 +1692,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         else if (app.StateActuel == State::Shop) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT){
             app.selectedButtonShop++;
-                if (app.selectedButtonShop > 2) {
+                if (app.selectedButtonShop > 3) {
                     app.selectedButtonShop = 0;//Retourne au premier
                 }
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
                 app.selectedButtonShop--;
                 if (app.selectedButtonShop < 0) {
-                    app.selectedButtonShop = 2;//retourne au dernier
+                    app.selectedButtonShop = 3;//retourne au dernier
                 }
             }
             //Verification
@@ -1650,11 +1736,15 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         break;
                     case 2:
                         //Retour menu
+                        app.StateActuel = State::Game;
+                        break;
+                    case 3:
                         app.StateActuel = State::Menu;
                         break;
                 }
             }
         }
+        
         //CREDITS
         else if (app.StateActuel == State::Credits) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
@@ -1776,7 +1866,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         // Dans le MENU
         if (app.StateActuel == State::Menu) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonPlay)) {
-                app.StateActuel = State::Game;
+                app.StateActuel = State::IntroGame;
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonScore)) {
                 app.StateActuel = State::ScoreBoard;
@@ -1791,6 +1881,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.StateActuel = State::Quit;
             }
         }
+        //Dans Le IntroGame
+        else if (app.StateActuel == State::IntroGame) {
+            app.indexMessageIntro++;
+
+            if (app.indexMessageIntro < app.NB_MESSAGES_INTRO) {
+                // N'oublie pas 'app.' partout ici aussi
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[app.indexMessageIntro], 0);
+            } else {
+                app.StateActuel = State::Game;
+            }
+
+        }
+
         //Dans Le Pause
         else if (app.StateActuel == State::Pause) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonResume)) {
@@ -1816,6 +1919,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         else if (app.StateActuel == State::Shop) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
                 app.StateActuel = State::Menu;
+            }
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonResumeGameShop)) {
+                app.StateActuel = State::Game;
             }
             // Bouton Upgrade Arme
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonUpgrade)) {
@@ -1855,6 +1961,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     }
     //PRESS DOWN
     if (event->type == SDL_EVENT_KEY_DOWN) {
+
+
         //Si on est dans notre jeu alors on peut appuyer pour bouger notre personnage
         if (event->key.scancode == SDL_SCANCODE_P) {
             if (app.StateActuel==State::Game) {
@@ -1865,7 +1973,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
 
         }
+        //Dans Le IntroGame
+         if (app.StateActuel == State::IntroGame) {
+            app.indexMessageIntro++;
 
+            if (app.indexMessageIntro < app.NB_MESSAGES_INTRO) {
+
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[app.indexMessageIntro], 0);
+            } else {
+                app.StateActuel = State::Game;
+                app.indexMessageIntro = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[0], 0);
+            }
+        }
         if (app.StateActuel == State::Game) {
 
             if (event->key.scancode == SDL_SCANCODE_D) {
