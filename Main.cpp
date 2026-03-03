@@ -123,6 +123,9 @@ public:
     TTF_Text *dynamicPlayerHeal = nullptr;
     TTF_Font *dynamicPlayerHealFont = nullptr;
 
+    // -> DEATHSCREEN <-
+
+
     // ->  PAUSE <-
     SDL_FRect BoutonResume = {850,490,300,80};
     SDL_FRect BoutonGoShop = {850, 600, 300, 80};
@@ -1018,6 +1021,7 @@ private:
                         //si on va en dessous des 0 hp
                         if (player->health.current_health <= 0) {
                             player->health.current_health = 0;
+                            //Appel de la fonction DeathScreen
                         }
                     }
 
@@ -1216,6 +1220,26 @@ private:
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 
         SDL_RenderPresent(renderer);
+
+    }
+    //Lorsque Joueur est mort
+    void DeathScreen() {
+
+
+
+
+        //RENDU
+        //Légé changement à l'image
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);//Peux d'opaciter
+        SDL_FRect screenRect = {0, 0, 1920, 1080};
+        //lES BOUTONS
+
+
+
+        //On remet en noir l'ecran ->
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
+        SDL_RenderFillRect(renderer, &screenRect);
 
     }
 

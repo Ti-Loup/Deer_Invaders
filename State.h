@@ -17,6 +17,7 @@ ScoreBoard,
 Shop,
 Credits,
 Pause,
+DeathScreen,
 Quit,
 };
 
