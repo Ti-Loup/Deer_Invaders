@@ -132,7 +132,7 @@ public:
     TTF_Text *DeathScreenTitleText = nullptr;
     TTF_Text *DeathScreenSousTitleText = nullptr;
     TTF_Text *DeathScreenReturnMenuText = nullptr;
-    SDL_FRect deathReturnMenu = {200,200,300,80};
+    SDL_FRect BoutonDeathReturnMenu = {825,700,300,100};
 
 
     // ->  PAUSE <-
@@ -222,6 +222,7 @@ public:
     //Boutons gbutton
     int selectedButtonMenu = 0;
     int selectedButtonScore = 0;
+    int selectedButtonDeath = 0;
     int selectedButtonShop = 0;
     int selectedButtonCredits = 0;
     int selectedButtonPause = 0;
@@ -828,6 +829,13 @@ private:
     void RenderCreditsTitle() {
         TTF_DrawRendererText(CreditsMenuText, 800, 150);
     }
+    void RenderDeathTitle() {
+        SDL_FRect DeathScreenTitleRect = {610,125,700,225};
+        SDL_SetRenderDrawColor(renderer, 139, 0, 0, 255); // ROUGE vif
+        SDL_RenderFillRect(renderer, &DeathScreenTitleRect);
+        TTF_DrawRendererText(DeathScreenTitleText, 650, 150);
+        TTF_DrawRendererText(DeathScreenSousTitleText, 825, 250);
+    }
 
     //La fonction du dessin de la barre de progression des armes a amiliorer
     void RenderGlobalWeaponProgresBar(float startX, float startY) {
@@ -1301,9 +1309,16 @@ private:
         SDL_FRect screenRect = {0, 0, 1920, 1080};
         SDL_RenderFillRect(app.renderer, &screenRect);
 
-
+//si fondu est asser opaque
         if (app.deathFadeAlpha >= 200.0f) {
             //Le Texte et boutons
+            UpdateBackgroundTint(deltaTime);
+            RenderDeathTitle();
+            if (selectedButtonDeath == 0) {
+                RenderBoutons(BoutonDeathReturnMenu, DeathScreenReturnMenuText, r, g, b);
+            }else {
+                RenderBoutons(BoutonDeathReturnMenu, DeathScreenReturnMenuText, 40, 40, 40);
+            }
         }
 
         SDL_RenderPresent(app.renderer);
@@ -1343,7 +1358,6 @@ private:
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
         }else {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 250, 255, 255);
-
         }
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 
@@ -1799,6 +1813,34 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
         }
+        //GERER SELECTION DEATHSCREEN GAMEPAD
+        else if (app.StateActuel == State::DeathScreen) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
+                //app.selectedButtonDeath++;
+                if (app.selectedButtonDeath > 0) {
+                    app.selectedButtonDeath = 0;//Retourne au premier
+                }
+            }
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
+                //app.selectedButtonDeath --;
+                if (app.selectedButtonDeath < 0) {
+                    app.selectedButtonDeath = 0;
+                }
+            }
+            //Verification
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("Button A Down");
+                //SwitchCase
+                switch (app.selectedButtonDeath) {
+                    case 0:
+                        //Rien Encore Pour L'upgrade
+                        SDL_Log("Retour Menu");
+                        app.StateActuel = State::Menu;
+                        break;
+                }
+            }
+        }
+
 
         //GERER SELECTION SCORE AVEC GAMEPAD
         else if (app.StateActuel == State::ScoreBoard) {
@@ -1852,19 +1894,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         SDL_Log("Weapon Upgrade");
                         // player->ArmeUpgrade();
                         if (app.currentWeaponLevel == 0) {
-                            if (player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
+                            if (app.player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
                                 app.currentWeaponLevel = 1;// on achete la prochaine arme
                                 app.globalWeaponLevel = 1;
                             }
                         }
                         else if (app.currentWeaponLevel == 1){
-                            if (player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
+                            if (app.player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
                                 app.currentWeaponLevel = 2;
                                 app.globalWeaponLevel = 2;
                             }
                         }
                         else if (app.currentWeaponLevel == 2) {
-                            if (player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                            if (app.player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
                                 app.currentWeaponLevel = 3;
                                 app.globalWeaponLevel = 3;
                             }
@@ -1953,18 +1995,18 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             if (app.StateActuel == State::Game) {
                 // Vers la droite
                 if (xValue > app.DEADZONE) {
-                    player->bIsMovingRight = true;
-                    player->bIsMovingLeft = false;
+                    app.player->bIsMovingRight = true;
+                    app.player->bIsMovingLeft = false;
                 }
                 // Vers la gauche
                 else if (xValue < -app.DEADZONE) {
-                    player->bIsMovingRight = false;
-                    player->bIsMovingLeft = true;
+                    app.player->bIsMovingRight = false;
+                    app.player->bIsMovingLeft = true;
                 }
                 // deadZone
                 else {
-                    player->bIsMovingRight = false;
-                    player->bIsMovingLeft = false;
+                    app.player->bIsMovingRight = false;
+                    app.player->bIsMovingLeft = false;
                 }
             }
         }
@@ -1973,13 +2015,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             if (triggerValue > 3000) { // > deadZone Du Trigger
                 if (app.StateActuel == State::Game) {
-                    player->isCurrentlyShooting = true;
+                    app.player->isCurrentlyShooting = true;
                 }
             }
             else {
                 // Si on relâche la gâchette
                 if (app.StateActuel == State::Game) {
-                    player->isCurrentlyShooting = false;
+                    app.player->isCurrentlyShooting = false;
                 }
             }
         }
@@ -2049,6 +2091,12 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.StateActuel = State::Menu;
             }
         }
+        //DANS LE DEATHSCREEN
+        else if (app.StateActuel == State::DeathScreen) {
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonDeathReturnMenu)) {
+                app.StateActuel = State::Menu;
+            }
+        }
 
 
         // Dans le Score
@@ -2070,19 +2118,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 SDL_Log("Achat Upgrade Arme");
                 // player->ArmeUpgrade();
                 if (app.currentWeaponLevel == 0) {
-                    if (player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
+                    if (app.player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
                         app.currentWeaponLevel = 1;// on achete la prochaine arme
                         app.globalWeaponLevel = 1;
                     }
                 }
                 else if (app.currentWeaponLevel == 1){
-                    if (player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
+                    if (app.player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
                         app.currentWeaponLevel = 2;
                         app.globalWeaponLevel = 2;
                     }
                 }
                 else if (app.currentWeaponLevel == 2) {
-                    if (player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                    if (app.player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
                         app.currentWeaponLevel = 3;
                         app.globalWeaponLevel = 3;
                     }
