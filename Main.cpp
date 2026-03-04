@@ -107,8 +107,9 @@ public:
         "Deer : You will soon be under our control ",
         "Humain : Free our World ! For our freedom !"
     };
-
     TTF_Text* texteIntroCerfEtHUmain = nullptr; // Le texte qui sera affiché
+
+
     // -> GAME <- Text et Fonts
     TTF_Font *InventoryFont = nullptr; // Game + Shop
     TTF_Text *InventoryText = nullptr; // Game + Shop
@@ -126,8 +127,11 @@ public:
     // -> DEATHSCREEN <-
     float deathFadeAlpha = 0.0f;
     bool bIsResetDone = false;
-    TTF_Font *DeathScreenTitleFont = nullptr;
-    TTF_Text *DeathScreenTitleText = nullptr;//--A implementer
+    TTF_Font *DeathScreenFont = nullptr;
+    TTF_Font *DeathScreenSousFont = nullptr;
+    TTF_Text *DeathScreenTitleText = nullptr;
+    TTF_Text *DeathScreenSousTitleText = nullptr;
+    TTF_Text *DeathScreenReturnMenuText = nullptr;
     SDL_FRect deathReturnMenu = {200,200,300,80};
 
 
@@ -172,7 +176,7 @@ public:
     TTF_Text *ShopMenuText = nullptr;
 
     // -> Credits <- Text et Fonts
-    TTF_Font *Credits_Shop_Score_TitleFont = nullptr;
+    TTF_Font *Credits_Shop_Score_DeathScreen_TitleFont = nullptr;
     TTF_Font *CreditsNameFont = nullptr;
     TTF_Font *CreditsRoleFont = nullptr;
     TTF_Text *CreditsMenuText = nullptr;
@@ -449,9 +453,6 @@ private:
         if (TTF_SetTextColor(TextPauseGoShop, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set the color of: TextResume", SDL_GetError());
         }
-
-
-
         TextReturnMenuPause = TTF_CreateText(textEngine, FontPause, "Return Menu", 25);
         if (TextReturnMenuPause == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set TextReturnMenuPause text", SDL_GetError());
@@ -460,11 +461,10 @@ private:
             SDL_LogWarn(0, "failed to set the color of: TextReturnMenuPause ", SDL_GetError());
         }
 
-
-        //FONT POUR TITRE SCORE, SHOP, CREDITS
-        Credits_Shop_Score_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        //FONT POUR TITRE SCORE, SHOP, CREDITS, DeathScreen
+        Credits_Shop_Score_DeathScreen_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
         //Score
-        ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_TitleFont, "Score", 25);
+        ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_DeathScreen_TitleFont, "Score", 25);
         if (ScoreMenuText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
         }
@@ -472,8 +472,33 @@ private:
             SDL_LogWarn(0,"Erreur couleur du titre Score n'a pas changer");
         }
 
+        //DEATHSCREEN
+        DeathScreenFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
+        DeathScreenSousFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 60);
+        DeathScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_DeathScreen_TitleFont, "GAME OVER", 25);//font du titre
+        if (DeathScreenTitleText == nullptr) {
+            SDL_LogWarn(0,"failed to set the text of DeathScreenTitleText", SDL_GetError());
+        }
+        if (TTF_SetTextColor(DeathScreenTitleText, 255,255,255,255) == false) {
+            SDL_LogWarn(1, "failed to set the color of DeathScreenTitleText");
+        }
+        DeathScreenSousTitleText = TTF_CreateText(textEngine,DeathScreenSousFont, "You died", 25);
+        if (DeathScreenSousTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to set the text of DeathScreenSousTitleText");
+        }
+        if (TTF_SetTextColor(DeathScreenSousTitleText , 255,255,255,255) == false) {
+            SDL_LogWarn(0, "failed to set the color of DeathScreenSousTitleText");
+        }
+        DeathScreenReturnMenuText = TTF_CreateText(textEngine, DeathScreenFont, "Return Menu", 25);//Pour le bouton
+        if (DeathScreenReturnMenuText == nullptr) {
+            SDL_LogWarn(0, "failed to set the text of DeathScreenReturnMenuText", SDL_GetError());
+        }
+        if (TTF_SetTextColor(DeathScreenReturnMenuText, 0,0,0,255) == false) {
+           SDL_LogWarn(0, "failed to set the color of DeathScreenReturnMenuText");
+        }
+
         //SHOP
-        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_TitleFont, "Shop", 25);
+        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_DeathScreen_TitleFont, "Shop", 25);
         if (ShopMenuText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
         }
@@ -538,8 +563,8 @@ private:
         //credits
         CreditsRoleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 50);//Pour les roles
         CreditsNameFont = TTF_OpenFont ("assets/Cosmo Corner.ttf", 40);//Pour les noms
-        Credits_Shop_Score_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
-        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_TitleFont, "Credits", 25);
+        Credits_Shop_Score_DeathScreen_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_DeathScreen_TitleFont, "Credits", 25);
         if (CreditsMenuText == nullptr) {
             SDL_LogWarn(0, "EERREUR ! Le texte CreditsText n'a pas charger", SDL_GetError());
         }
@@ -658,7 +683,7 @@ private:
         TTF_CloseFont(QuitFont);
         TTF_CloseFont(ScoreFont);
         TTF_CloseFont(CreditsFont);
-        TTF_CloseFont(Credits_Shop_Score_TitleFont);
+        TTF_CloseFont(Credits_Shop_Score_DeathScreen_TitleFont);
         TTF_CloseFont(FontPause);
         TTF_DestroyText(TextStart);
         TTF_DestroyText(TextQuit);
