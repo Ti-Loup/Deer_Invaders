@@ -178,6 +178,11 @@ public:
     TTF_Text *CreditsRoleText2 = nullptr;
     TTF_Text *CreditsRoleText3 = nullptr;
 
+// -> TOUCHE CLAVIER PATTERN COMMAND<-
+    Player* player = nullptr;
+    std::map<SDL_Scancode, Command*> keyBindings;
+    std::map<SDL_Scancode, Command*> keyReleaseBindings;
+
 
     std::vector<float> frameTimes;
     const size_t MAX_SAMPLES = 100;
@@ -1540,13 +1545,56 @@ public:
     }
 };
 
+//PLAN DE CONCEPTION COMMAND
+
+//Classe pour mouvement
+class MoveCommand : public Command {
+    Player *player;
+    bool bIsMoving;
+    bool bMovingRight;
+public:
+    MoveCommand(Player *player, bool moving, bool right):player(player),bIsMoving(moving),bMovingRight(right){}
+    void execute() override {
+        if (bMovingRight) {
+            player->bIsMovingRight = bIsMoving;
+        }else {
+            player->bIsMovingLeft = bIsMoving;
+        }
+    }
+};
+//Class Pour tirer
+class ShootCommand : public Command {
+    Player *player;
+    bool bIsShooting;
+public:
+    ShootCommand(Player *player, bool shoot) : player(player), bIsShooting(shoot){}
+
+    void execute() override {
+        player->isCurrentlyShooting = bIsShooting;
+    }
+};
+
+
+
 //Appeler seulement une seul fois
 //-> Parfait pour SINGLETON
 SDL_AppResult
 //deux *pour modifier et ecrire dans le pointeur (post-it de l'objet qu;on peut mettre de l'information a l'interieur)				2 etoiles argv signifie avec un array
 SDL_AppInit(void **appstate, int argc, char *argv[]) {
     //Avec le SINGLETON ->
-    GameApp::GetInstance();
+    GameApp &app = GameApp::GetInstance();
+
+    //LIER LES TOUCHES AUX COMMANDES DANS APPINIT
+    //KEY DOWN
+    app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);//true moving + true moving right
+    app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);//true moving + false -> not going right (moving left)
+    app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player,true);
+    //KEY UP
+    app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+    app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+    app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+
+
     return SDL_APP_CONTINUE;
 }
 
@@ -2014,6 +2062,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         }
         if (app.StateActuel == State::Game) {
 
+            if (app.keyBindings.count(event->key.scancode)) {
+                app.keyBindings[event->key.scancode]->execute();
+            }
+            /*ancienne methode
             if (event->key.scancode == SDL_SCANCODE_D) {
                 player->bIsMovingRight = true;
             }
@@ -2024,6 +2076,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             if (event->key.scancode == SDL_SCANCODE_SPACE) {
                 player->isCurrentlyShooting = true;
             }
+            */
         }
         //DANS LE SHOP
         if (app.StateActuel == State::Shop) {
@@ -2053,6 +2106,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //Si on est dans notre jeu alors on peut relacher les touches de notre personnage
         if (app.StateActuel == State::Game) {
 
+            if (app.keyReleaseBindings.count(event->key.scancode)) {
+                app.keyReleaseBindings[event->key.scancode]->execute();
+            }
+            /*
             //Relache D
             if (event->key.scancode == SDL_SCANCODE_D) {
                 player->bIsMovingRight = false;
@@ -2061,10 +2118,12 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             if (event->key.scancode == SDL_SCANCODE_A) {
                 player->bIsMovingLeft = false;
             }
-        }
-        if (event->key.scancode == SDL_SCANCODE_SPACE) {
+            if (event->key.scancode == SDL_SCANCODE_SPACE) {
             player->isCurrentlyShooting = false;
+            }
+            */
         }
+
     }
 
     return SDL_APP_CONTINUE;
