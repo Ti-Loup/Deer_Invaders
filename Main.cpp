@@ -124,6 +124,11 @@ public:
     TTF_Font *dynamicPlayerHealFont = nullptr;
 
     // -> DEATHSCREEN <-
+    float deathFadeAlpha = 0.0f;
+    bool bIsResetDone = false;
+    TTF_Font *DeathScreenTitleFont = nullptr;
+    TTF_Text *DeathScreenTitleText = nullptr;//--A implementer
+    SDL_FRect deathReturnMenu = {200,200,300,80};
 
 
     // ->  PAUSE <-
@@ -953,7 +958,7 @@ private:
     // La fonction Game ne boucle
     void Game(float deltaTime) {
         SDL_Event GameEvents;
-
+        GameApp &app = GameApp::GetInstance();
         //Ajout de la fonction UpdateBackgroundTint pour avoir le rgb
         //mis sur le text dynamicscoreText -> UpdateText avec TTF
         UpdateBackgroundTint(deltaTime);
@@ -1026,7 +1031,9 @@ private:
                         //si on va en dessous des 0 hp
                         if (player->health.current_health <= 0) {
                             player->health.current_health = 0;
-                            //Appel de la fonction DeathScreen
+                            //Appel de la fonction du JoueurMort
+                            PlayerDeath();
+                            SDL_Log("Joueur Mort -> Message de fin");
                         }
                     }
 
@@ -1227,26 +1234,59 @@ private:
         SDL_RenderPresent(renderer);
 
     }
+
+    //Fonction Lorsque le Joueur est mort
+    void PlayerDeath() {
+        GameApp &app = GameApp::GetInstance();
+
+        app.player->health.current_health = 0;
+        app.currentHP = 0;
+        app.deathFadeAlpha = 0.0f; // La transparance commence a 0
+        app.StateActuel = State::DeathScreen; // On change d'état
+
+        SDL_Log("Transition vers l'écran de mort");
+    }
+
     //Lorsque Joueur est mort
-    void DeathScreen() {
+    void DeathScreen(float deltaTime) {
+        GameApp &app = GameApp::GetInstance();
 
+        // On remet le fond noir et on clear
+        SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
+        SDL_RenderClear(app.renderer);
 
+        // Dessiner l'UI pour le fundu
+        SDL_RenderTexture(app.renderer, app.ScoreUI, nullptr, &app.scoreSize);
+        SDL_RenderTexture(app.renderer, app.HealUI, nullptr, &app.healSize);
 
+        // Dessiner les entités pour la fondu
+        for (auto &ent : app.entities) {
+            ent->RenderUpdate(app.renderer);
+        }
 
-        //RENDU
-        //Légé changement à l'image
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);//Peux d'opaciter
+        // LE FONDU PROGRESSIF
+        if (app.deathFadeAlpha < 300.0f) {
+            app.deathFadeAlpha += (150.0f * deltaTime);
+            if (app.deathFadeAlpha > 255.0f) app.deathFadeAlpha = 255.0f;
+        }
+
+        // Dessiner le fond noir a nouveau
+        SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, (Uint8)app.deathFadeAlpha);
         SDL_FRect screenRect = {0, 0, 1920, 1080};
-        //lES BOUTONS
+        SDL_RenderFillRect(app.renderer, &screenRect);
 
 
+        if (app.deathFadeAlpha >= 200.0f) {
+            //Le Texte et boutons
+        }
 
-        //On remet en noir l'ecran ->
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
-        SDL_RenderFillRect(renderer, &screenRect);
+        SDL_RenderPresent(app.renderer);
 
     }
+// VOID RESTART GAME A FAIRE POUR RECOMMENCER SI JOUEUR MORT ~~~~~
+
+
 
     //fonction pour la section score
     void Score(float deltaTime) {
@@ -1536,6 +1576,9 @@ public:
                 //pour acceder a l'intro avant de jouer
             case State::IntroGame:
                 IntroGame(deltaTime);
+                break;
+            case State::DeathScreen:
+                DeathScreen(deltaTime);
                 break;
 
             case State::Quit:
