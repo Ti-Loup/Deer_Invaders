@@ -31,6 +31,7 @@ Player* player = nullptr;
 std::map<SDL_Scancode, Command*> keyBindings;
 std::map<SDL_Scancode, Command*> keyReleaseBindings;
 
+
 };
 
 

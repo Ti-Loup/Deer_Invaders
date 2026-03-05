@@ -242,6 +242,20 @@ public:
     //Pour shop,
     int currentWeaponLevel = 0;
     int globalWeaponLevel = 0;
+
+    //POUR LES VAGUES
+    int currentWave = 0;
+    WaveType currentWaveType; //L'enum de state
+    bool waveInProgress = false;
+
+    float survivalTimer = 0.0f;   // pour la vague survivor
+    float survivalDuration = 15.0f;
+    float meteorSpawnTimer = 0.0f;//La vitesse qu'une meteorite spawn
+
+    //Pour faire attendre un peu entre chaque vagues
+    bool isTransitioning = false;
+    float transitionTimer = 0.0f;
+    const float TRANSITION_DURATION = 3.0f; // 3 secondes d'attente
 private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
@@ -250,7 +264,6 @@ private:
 
     //SCORE DU RENDER JEU
     int lastScore = -1;
-
 
     GameApp() //Constructeur
     {
@@ -623,51 +636,6 @@ private:
 
         entities.push_back(player);
 
-        //CERFS WAVE 1
-
-        entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(250.f, 50.0f, true));
-        entities.push_back(new Enemy_Deer(400.f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true));
-
-        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true));
-        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true));
-
-        //Ligne 2 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(250.f, 180.0f, true));
-        entities.push_back(new Enemy_Deer(400.f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true));
-
-        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true));
-        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true));
-        //Ligne 3 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 330.0f, false));
-        entities.push_back(new Enemy_Deer(250.f, 330.0f, true));
-        entities.push_back(new Enemy_Deer(400.f, 330.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 330.0f, true));
-
-        entities.push_back(new Enemy_Deer(700.0f, 330.0f, false));
-        entities.push_back(new Enemy_Deer(850.0f, 330.0f,true));
-        entities.push_back(new Enemy_Deer(1000.0f, 330.0f,false));
-        entities.push_back(new Enemy_Deer(1150.0f, 330.0f,true));
-        //Ligne 4 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 480.0f,false));
-        entities.push_back(new Enemy_Deer(250.f, 480.0f,true));
-        entities.push_back(new Enemy_Deer(400.f, 480.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 480.0f,true));
-
-        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false));
-        entities.push_back(new Enemy_Deer(850.0f, 480.0f,true));
-        entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false));
-        entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true));
-
-        //CERFS WAVE 1
-
         //Timer FPS
         fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
     }
@@ -862,8 +830,6 @@ private:
 
     }
 
-
-
     //Menu du jeu qui run
     void Menu(float deltaTime) {
         SDL_Event MenuEvents;
@@ -987,6 +953,124 @@ private:
         //Tout afficher
         SDL_RenderPresent(renderer);
     }
+    //Pour la premiere vague d'ennemies
+    void SpawnWave1() {
+        entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(250.f, 50.0f, true));
+        entities.push_back(new Enemy_Deer(400.f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true));
+
+        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true));
+        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true));
+
+        //Ligne 2 de cerfs
+        entities.push_back(new Enemy_Deer(100.f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(250.f, 180.0f, true));
+        entities.push_back(new Enemy_Deer(400.f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true));
+
+        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true));
+        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true));
+        //Ligne 3 de cerfs
+        entities.push_back(new Enemy_Deer(100.f, 330.0f, false));
+        entities.push_back(new Enemy_Deer(250.f, 330.0f, true));
+        entities.push_back(new Enemy_Deer(400.f, 330.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 330.0f, true));
+
+        entities.push_back(new Enemy_Deer(700.0f, 330.0f, false));
+        entities.push_back(new Enemy_Deer(850.0f, 330.0f,true));
+        entities.push_back(new Enemy_Deer(1000.0f, 330.0f,false));
+        entities.push_back(new Enemy_Deer(1150.0f, 330.0f,true));
+        //Ligne 4 de cerfs
+        entities.push_back(new Enemy_Deer(100.f, 480.0f,false));
+        entities.push_back(new Enemy_Deer(250.f, 480.0f,true));
+        entities.push_back(new Enemy_Deer(400.f, 480.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 480.0f,true));
+
+        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false));
+        entities.push_back(new Enemy_Deer(850.0f, 480.0f,true));
+        entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false));
+        entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true));
+    }
+    //Wave 3
+    void SpawnWave3() {
+        //A faire
+entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(250.f, 50.0f, true));
+        entities.push_back(new Enemy_Deer(400.f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true));
+
+        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true));
+        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false));
+        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true));
+
+        //Ligne 2 de cerfs
+        entities.push_back(new Enemy_Deer(100.f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(250.f, 180.0f, true));
+        entities.push_back(new Enemy_Deer(400.f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true));
+
+        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true));
+        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false));
+        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true));
+        //Ligne 3 de cerfs
+        entities.push_back(new Enemy_Deer(100.f, 330.0f, false));
+        entities.push_back(new Enemy_Deer(250.f, 330.0f, true));
+        entities.push_back(new Enemy_Deer(400.f, 330.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 330.0f, true));
+
+        entities.push_back(new Enemy_Deer(700.0f, 330.0f, false));
+        entities.push_back(new Enemy_Deer(850.0f, 330.0f,true));
+        entities.push_back(new Enemy_Deer(1000.0f, 330.0f,false));
+        entities.push_back(new Enemy_Deer(1150.0f, 330.0f,true));
+        //Ligne 4 de cerfs
+        entities.push_back(new Enemy_Deer(100.f, 480.0f,false));
+        entities.push_back(new Enemy_Deer(250.f, 480.0f,true));
+        entities.push_back(new Enemy_Deer(400.f, 480.0f, false));
+        entities.push_back(new Enemy_Deer(550.0f, 480.0f,true));
+
+        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false));
+        entities.push_back(new Enemy_Deer(850.0f, 480.0f,true));
+        entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false));
+        entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true));
+    }
+//Fonction pour commencer une wave
+    void StartWave(int wave) {
+        GameApp &app = GameApp::GetInstance();
+        waveInProgress = true;
+        if (wave == 1) {
+            //Les cerfs normaux
+            currentWaveType = WaveType::Elimination;
+            SpawnWave1();
+        }
+        else if (wave == 2) {
+            //Les meteorites qui tombent
+            currentWaveType = WaveType::Survival;
+            survivalTimer = 0.0f;
+        }
+        else if (wave == 3) {
+            //cerfs qui bougent en cercle
+            currentWaveType = WaveType::Elimination;
+            SpawnWave3();
+        }
+        else {
+            waveInProgress = false; // stp la logique de wave
+            app.StateActuel = State::NiveauGagnerScreen;
+        }
+    }
+    //fonction de transition
+    void PreparationNextWave() {
+        waveInProgress = false;
+        isTransitioning = true;
+        transitionTimer = 0.0f;
+        currentWave++; // On incrémente pour l'affichage
+    }
 
     // La fonction Game ne boucle
     void Game(float deltaTime) {
@@ -1000,201 +1084,268 @@ private:
         TTF_UpdateText(dynamicscoreText);
         TTF_UpdateText(dynamicPlayerHeal);
         TTF_UpdateText(InventoryText);
+        //PREMIERE VAGUE
 
-        /*
-    *Plus besoin des SDL_PoolEvent dans chaque classe
-    while (SDL_PollEvent(&GameEvents)) {
-        if (GameEvents.type == SDL_EVENT_QUIT) {
-            StateActuel = State::Quit;
-        }
-        //Les touches
-    }
-    */
-        //Calcul de la nouvelle vitesse avant de deplacer les entities
-        if (player != nullptr) {
-            player->UpdatePhysics(deltaTime);
-            player->ShootUpdate(entities, (SDL_Point){0, -1}, deltaTime);
+        //gestion des etats entre jeu et transition
+        if (isTransitioning) {
+            transitionTimer += deltaTime;
 
-            //Bordure d'ecran du joueur different des ennemies
-            if (player->HasComponent(TRANSFORM)) {
-                if (player->transform.position.x <= 0.0f) {
-                    player->transform.position.x = 0.0f;
-                }
-                //- sa size
-                else if (player->transform.position.x + player->transform.size.x > 1920.0f) {
-                    player->transform.position.x = 1920.0f - player->transform.size.x;
-                }
+            //Attend 2 sec
+            if (transitionTimer >= 2.0f) {
+                isTransitioning = false;
+                StartWave(currentWave); // On lance les ennemis
             }
         }
-        //FONCTION COLLISION ENTRE ENTITITY ET JOUEUR
-        for (auto& entity : entities) {
-            if (entity->bIsDestroyed) continue; // ignore ce qui est mort
+        else if (!waveInProgress)
+        {
+            PreparationNextWave();
+        }
+        if (waveInProgress) {
+            if (currentWaveType == WaveType::Survival && waveInProgress)
+            {
+                survivalTimer += deltaTime;
 
-            entity->Update(deltaTime);
-
-            // Si c'est un ennemi
-            if (entity->entityType == EntityType::Enemy) {
-                Enemy_Deer* deer = dynamic_cast<Enemy_Deer*>(entity);
-                if (deer != nullptr) {
-                    deer->Update(deltaTime, entities); // Gère son tir et son mouvement
-                }
-            }
-
-            // Si fraise (EnemyBullet) ou Viande (Collectable)
-            if (entity->entityType == EntityType::Collectable || entity->entityType == EntityType::EnemyBullet) {
-
-                // On crée les Rects pour la collision
-                SDL_FRect rectPlayer = { player->transform.position.x, player->transform.position.y, player->transform.size.x, player->transform.size.y };
-                SDL_FRect rectEnt = { entity->transform.position.x, entity->transform.position.y, entity->transform.size.x, entity->transform.size.y };
-
-                //si collision
-                if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectEnt)) {
-
-                    // -Si c'est une viante
-                    if (entity->entityType == EntityType::Collectable) {
-                        SDL_Log("Viande collectée -> +1");
-                        currentMeat++;
+                // A. On spawn tant qu'on n'a pas atteint 15 secondes
+                if (survivalTimer < 15.0f)
+                {
+                    meteorSpawnTimer += deltaTime;
+                    if (meteorSpawnTimer >= 0.7f)
+                    {
+                        float spawnX = static_cast<float>(rand() % 1800);
+                        entities.push_back(new Enemy_Meteor(spawnX, -80.0f));
+                        meteorSpawnTimer = 0.0f;
                     }
-                    // si Fraise
-                    else if (entity->entityType == EntityType::EnemyBullet) {
-                        SDL_Log("Touché par une fraise !");
-                        player->health.current_health -= 50;
-                        //Ajout Heal
-                        currentHP = player->health.current_health;
-                        //si on va en dessous des 0 hp
-                        if (player->health.current_health <= 0) {
-                            player->health.current_health = 0;
-                            //Appel de la fonction du JoueurMort
-                            PlayerDeath();
-                            SDL_Log("Joueur Mort -> Message de fin");
+                }
+                // Une fois les 15s passées, on vérifie s'il reste des météores à l'écran
+                else
+                {
+                    bool anyMeteorLeft = false;
+                    for (auto& ent : entities) {
+                        // On vérifie s'il reste des ennemis (météores) non détruits
+                        if (ent->entityType == EntityType::Enemy && !ent->bIsDestroyed) {
+                            anyMeteorLeft = true;
+                            break;
                         }
                     }
 
-                    entity->bIsDestroyed = true; // Dans les deux cas, l'objet disparaît
-                }
-            }
-        }
-
-        //Variables de Detection des cerfs et murs
-        bool ToucheMurGauche = false;
-        bool ToucheMurDroit = false;
-        float MaxPushBack = 0.0f;
-
-        // Mouvement et Détection Des cerfs
-        for (auto &ent: entities) {
-            ent->MovementUpdate(deltaTime);
-
-            ent->HeightMovement(deltaTime);//Hauteur cerfs
-            //On verifie que seulement les ennemies bougent pas joueur !@!@
-            if (ent->entityType == EntityType::Enemy) {
-                if (ent->HasComponent(TRANSFORM)) {
-                    // Verifie Gauche
-                    if (ent->transform.position.x <= 0.0f) {
-                        ToucheMurGauche = true;
-
-                        // Calcul Combien le cerf est dans la bourdure
-                        float deerInBorder = -ent->transform.position.x;
-
-
-                        // Si le cerf est plus en dehors du screen c'est lui qui devient le lead
-                        if (deerInBorder > MaxPushBack) {
-                            MaxPushBack = deerInBorder;
-                        }
-                    }
-                    // Verifie Droite
-                    else if ((ent->transform.position.x + ent->transform.size.x) >= 1920.0f) {
-                        ToucheMurDroit = true;
-
-                        float depassement = ent->transform.position.x + ent->transform.size.x - 1920.0f;
-
-                        // Pareil pour la droite, on garde le plus grand dépassement
-                        if (depassement > MaxPushBack) {
-                            MaxPushBack = depassement;
-                        }
+                    // S'il n'y a plus rien, on lance la transition vers la Vague 3
+                    if (!anyMeteorLeft) {
+                        PreparationNextWave();
                     }
                 }
             }
-        }
-
-        // Application de la correction
-        // touché à Gauche -> force vers la Droite
-        if (ToucheMurGauche) {
-            for (auto &ent: entities) {
-                //Verifie que c'est bien seulement les ennemis qui ont la correction
-                if (ent->entityType == EntityType::Enemy && ent->HasComponent(TRANSFORM)) {
-                    //vitesse en positif std::abs (droite)
-                    ent->movement.velocity.x = std::abs(ent->movement.velocity.x);
-                    ent->transform.position.x += (MaxPushBack + 1.0f);
-                }
-            }
-        }
-        // touché à Droite -> force vers la Gauche
-        else if (ToucheMurDroit) {
-            for (auto &ent: entities) {
-                //Verifie que c'est bien seulement les ennemis qui ont la correction
-                if (ent->entityType == EntityType::Enemy && ent->HasComponent(TRANSFORM)) {
-                    // vitesse en Negatif -std::abs (gauche)
-                    ent->movement.velocity.x = -std::abs(ent->movement.velocity.x);
-                    ent->transform.position.x -= (MaxPushBack + 1.0f);
-                }
-            }
-        }
-
-        //L'algorithme de collision entre bullet et cerf
-        //vérifier chaque balle pour voir si elle touche un ennemi.
-        for (auto &bullet: entities) {
-            //recherche entiter qui est pas une balle
-            if (bullet->entityType != EntityType::Bullet || bullet->bIsDestroyed) {
-                //non
-                continue;
-            }
-            for (auto &ennemi: entities) {
-                if (ennemi->entityType == EntityType::Enemy && !ennemi->bIsDestroyed) {
-                    //oui (a coder)
-                    //Creation Collision Bullet
-                    SDL_FRect rectBullet = {
-                        bullet->transform.position.x,
-                        bullet->transform.position.y,
-                        bullet->transform.size.x,
-                        bullet->transform.size.y
-                    };
-                    //Creation Collision des ennemies
-                    SDL_FRect rectEnnemi = {
-                        ennemi->transform.position.x,
-                        ennemi->transform.position.y,
-                        ennemi->transform.size.x,
-                        ennemi->transform.size.y
-                    };
-                    //Si collision entre Bullet & Ennemi ce fait -> SDL_HasRectIntersectionFloat (A,B) bool
-                    if (SDL_HasRectIntersectionFloat(&rectBullet, &rectEnnemi)) {
-                        SDL_LogWarn(0, "Collision fonctionne");
-                        //detruit la balle au contact d'un cerf
-                        bullet->bIsDestroyed = true;
-
-
-                        //Pv des ennemies baisses
-                        ennemi->health.current_health -= 20;
-                        //si heal plus petit que 0 alors le cerf est detruit + score totaux
-                        if (ennemi->health.current_health <= 0) {
-                            ennemi->bIsDestroyed = true;
-                            SDL_LogWarn(0, "Un cerf est mort");
-
-                            //Ajout score
-                            currentScore += scorePerDeerKilled;
-                            SDL_LogWarn(0, "Le score est de %d", currentScore);
-
-                            // On drop un collectible a collecter
-                            //Creation Collision Bullet Entity
-                            float spawnX = ennemi->transform.position.x + (ennemi->transform.size.x / 3);
-                            float spawnY = ennemi->transform.position.y + (ennemi->transform.size.y / 3);
-                            // On CREE LE COLLECTIBLE
-                            entities.push_back(new Collectible_Meat(spawnX, spawnY));
-                        }
+            //logique d'elimination des entiters apres wave
+            if (currentWaveType == WaveType::Elimination && waveInProgress) {
+                bool anyEnemyAlive = false;
+                for (auto& enemy : entities) {
+                    if (enemy->entityType == EntityType::Enemy && !enemy->bIsDestroyed) {
+                        anyEnemyAlive = true;
                         break;
                     }
+                }
+
+                if (!anyEnemyAlive) {
+                    PreparationNextWave(); // On déclenche la transition
+                }
             }
         }
+
+            /*
+        *Plus besoin des SDL_PoolEvent dans chaque classe
+        while (SDL_PollEvent(&GameEvents)) {
+            if (GameEvents.type == SDL_EVENT_QUIT) {
+                StateActuel = State::Quit;
+            }
+            //Les touches
         }
+        */
+
+            //Calcul de la nouvelle vitesse avant de deplacer les entities
+            if (player != nullptr) {
+                player->UpdatePhysics(deltaTime);
+                player->ShootUpdate(entities, (SDL_Point){0, -1}, deltaTime);
+
+                //Bordure d'ecran du joueur different des ennemies
+                if (player->HasComponent(TRANSFORM)) {
+                    if (player->transform.position.x <= 0.0f) {
+                        player->transform.position.x = 0.0f;
+                    }
+                    //- sa size
+                    else if (player->transform.position.x + player->transform.size.x > 1920.0f) {
+                        player->transform.position.x = 1920.0f - player->transform.size.x;
+                    }
+                }
+            }
+            //FONCTION COLLISION ENTRE ENTITITY ET JOUEUR
+            for (auto& entity : entities) {
+                if (entity->bIsDestroyed) continue; // ignore ce qui est mort
+
+                entity->Update(deltaTime);
+
+                // Si c'est un ennemi
+                if (entity->entityType == EntityType::Enemy) {
+                    Enemy_Deer* deer = dynamic_cast<Enemy_Deer*>(entity);
+                    if (deer != nullptr) {
+                        deer->Update(deltaTime, entities); // Gère son tir et son mouvement
+                    }
+                }
+
+                // Si fraise (EnemyBullet) ou Viande (Collectable)
+                if (entity->entityType == EntityType::Collectable || entity->entityType == EntityType::EnemyBullet) {
+
+                    // On crée les Rects pour la collision
+                    SDL_FRect rectPlayer = { player->transform.position.x, player->transform.position.y, player->transform.size.x, player->transform.size.y };
+                    SDL_FRect rectEnt = { entity->transform.position.x, entity->transform.position.y, entity->transform.size.x, entity->transform.size.y };
+
+                    //si collision
+                    if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectEnt)) {
+
+                        // -Si c'est une viante
+                        if (entity->entityType == EntityType::Collectable) {
+                            SDL_Log("Viande collectée -> +1");
+                            currentMeat++;
+                        }
+                        // si Fraise
+                        else if (entity->entityType == EntityType::EnemyBullet) {
+                            SDL_Log("Touché par une fraise !");
+                            player->health.current_health -= 50;
+                            //Ajout Heal
+                            currentHP = player->health.current_health;
+                            //si on va en dessous des 0 hp
+                            if (player->health.current_health <= 0) {
+                                player->health.current_health = 0;
+                                //Appel de la fonction du JoueurMort
+                                PlayerDeath();
+                                SDL_Log("Joueur Mort -> Message de fin");
+                            }
+                        }
+
+                        entity->bIsDestroyed = true; // Dans les deux cas, l'objet disparaît
+                    }
+                }
+            }
+
+            //Variables de Detection des cerfs et murs
+            bool ToucheMurGauche = false;
+            bool ToucheMurDroit = false;
+            float MaxPushBack = 0.0f;
+
+            // Mouvement et Détection Des cerfs
+            for (auto &ent: entities) {
+                ent->MovementUpdate(deltaTime);
+
+                ent->HeightMovement(deltaTime);//Hauteur cerfs
+                //On verifie que seulement les ennemies bougent pas joueur !@!@
+                if (ent->entityType == EntityType::Enemy) {
+                    if (ent->HasComponent(TRANSFORM)) {
+                        // Verifie Gauche
+                        if (ent->transform.position.x <= 0.0f) {
+                            ToucheMurGauche = true;
+
+                            // Calcul Combien le cerf est dans la bourdure
+                            float deerInBorder = -ent->transform.position.x;
+
+
+                            // Si le cerf est plus en dehors du screen c'est lui qui devient le lead
+                            if (deerInBorder > MaxPushBack) {
+                                MaxPushBack = deerInBorder;
+                            }
+                        }
+                        // Verifie Droite
+                        else if ((ent->transform.position.x + ent->transform.size.x) >= 1920.0f) {
+                            ToucheMurDroit = true;
+
+                            float depassement = ent->transform.position.x + ent->transform.size.x - 1920.0f;
+
+                            // Pareil pour la droite, on garde le plus grand dépassement
+                            if (depassement > MaxPushBack) {
+                                MaxPushBack = depassement;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Application de la correction
+            // touché à Gauche -> force vers la Droite
+            if (ToucheMurGauche) {
+                for (auto &ent: entities) {
+                    //Verifie que c'est bien seulement les ennemis qui ont la correction
+                    if (ent->entityType == EntityType::Enemy && ent->HasComponent(TRANSFORM)) {
+                        //vitesse en positif std::abs (droite)
+                        ent->movement.velocity.x = std::abs(ent->movement.velocity.x);
+                        ent->transform.position.x += (MaxPushBack + 1.0f);
+                    }
+                }
+            }
+            // touché à Droite -> force vers la Gauche
+            else if (ToucheMurDroit) {
+                for (auto &ent: entities) {
+                    //Verifie que c'est bien seulement les ennemis qui ont la correction
+                    if (ent->entityType == EntityType::Enemy && ent->HasComponent(TRANSFORM)) {
+                        // vitesse en Negatif -std::abs (gauche)
+                        ent->movement.velocity.x = -std::abs(ent->movement.velocity.x);
+                        ent->transform.position.x -= (MaxPushBack + 1.0f);
+                    }
+                }
+            }
+
+            //L'algorithme de collision entre bullet et cerf
+            //vérifier chaque balle pour voir si elle touche un ennemi.
+            for (auto &bullet: entities) {
+                //recherche entiter qui est pas une balle
+                if (bullet->entityType != EntityType::Bullet || bullet->bIsDestroyed) {
+                    //non
+                    continue;
+                }
+                for (auto &ennemi: entities) {
+                    if (ennemi->entityType == EntityType::Enemy && !ennemi->bIsDestroyed) {
+                        //oui (a coder)
+                        //Creation Collision Bullet
+                        SDL_FRect rectBullet = {
+                            bullet->transform.position.x,
+                            bullet->transform.position.y,
+                            bullet->transform.size.x,
+                            bullet->transform.size.y
+                        };
+                        //Creation Collision des ennemies
+                        SDL_FRect rectEnnemi = {
+                            ennemi->transform.position.x,
+                            ennemi->transform.position.y,
+                            ennemi->transform.size.x,
+                            ennemi->transform.size.y
+                        };
+                        //Si collision entre Bullet & Ennemi ce fait -> SDL_HasRectIntersectionFloat (A,B) bool
+                        if (SDL_HasRectIntersectionFloat(&rectBullet, &rectEnnemi)) {
+                            SDL_LogWarn(0, "Collision fonctionne");
+                            //detruit la balle au contact d'un cerf
+                            bullet->bIsDestroyed = true;
+
+
+                            //Pv des ennemies baisses
+                            ennemi->health.current_health -= 20;
+                            //si heal plus petit que 0 alors le cerf est detruit + score totaux
+                            if (ennemi->health.current_health <= 0) {
+                                ennemi->bIsDestroyed = true;
+                                SDL_LogWarn(0, "Un cerf est mort");
+
+                                //Ajout score
+                                currentScore += scorePerDeerKilled;
+                                SDL_LogWarn(0, "Le score est de %d", currentScore);
+
+                                // On drop un collectible a collecter
+                                //Creation Collision Bullet Entity
+                                float spawnX = ennemi->transform.position.x + (ennemi->transform.size.x / 3);
+                                float spawnY = ennemi->transform.position.y + (ennemi->transform.size.y / 3);
+                                // On CREE LE COLLECTIBLE
+                                entities.push_back(new Collectible_Meat(spawnX, spawnY));
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
         //Pour Detruire Un objet après détruit
         for (auto enemyEntities = entities.begin(); enemyEntities != entities.end(); ) {
 
@@ -1262,6 +1413,11 @@ private:
         for (auto &ent: entities) {
             ent->RenderUpdate(renderer);
         }
+
+        if (isTransitioning) {
+            //Texte
+        }
+
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 
         SDL_RenderPresent(renderer);
@@ -1326,7 +1482,17 @@ private:
     }
 // VOID RESTART GAME A FAIRE POUR RECOMMENCER SI JOUEUR MORT ~~~~~
 
+//VOID FONCTION QUAND LE JOUEUR GAGNE LE NIVEAU ET SES WAVES
+void NiveauGagnerScreen(float deltaTime) {
+GameApp &app = GameApp::GetInstance();
+        //A configurer
+        // On remet le fond noir et on clear
+        SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
+        SDL_RenderClear(app.renderer);
+        
 
+        SDL_RenderPresent(app.renderer);
+    }
 
     //fonction pour la section score
     void Score(float deltaTime) {
@@ -1618,6 +1784,9 @@ public:
                 break;
             case State::DeathScreen:
                 DeathScreen(deltaTime);
+                break;
+            case State::NiveauGagnerScreen:
+                NiveauGagnerScreen(deltaTime);
                 break;
 
             case State::Quit:

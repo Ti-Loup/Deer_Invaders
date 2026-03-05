@@ -18,7 +18,14 @@ Shop,
 Credits,
 Pause,
 DeathScreen,
+NiveauGagnerScreen,
 Quit,
+};
+
+//State le type de wave
+enum class WaveType{
+Elimination,
+Survival,
 };
 
 enum class ArmeNiveau {

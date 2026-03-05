@@ -36,10 +36,12 @@ class Enemy_HealerDeer : public Entity{
 public:
     Enemy_HealerDeer(float startX, float startY);
 };
+
 //Des meteorites qui tombent du ciel
 class Enemy_Meteor : public Entity{
 public:
     Enemy_Meteor(float startX, float startY);
+    void Update(float deltaTime) override;
 };
 
 

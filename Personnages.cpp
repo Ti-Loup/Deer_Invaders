@@ -103,10 +103,10 @@ Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {
 
 Enemy_Meteor::Enemy_Meteor(float startX, float  startY) {
     AddComponent (HEALTH);
-    health.max_health = 60;
-    health.current_health = 60;
+    health.max_health = 40;
+    health.current_health = 40;
     AddComponent (MOVEMENT);
-    movement.velocity = { 30.0f,0.0f };
+    movement.velocity = { 0.0f,100.0f };
     AddComponent (RENDER);
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
@@ -115,7 +115,14 @@ Enemy_Meteor::Enemy_Meteor(float startX, float  startY) {
 
     //Le type d'entity
     entityType = EntityType::Enemy;
+}
+//Update Method de la meteorite
+void Enemy_Meteor::Update(float deltaTime) {
+    MovementUpdate(deltaTime);
 
+    if (transform.position.y > 1080.0f) {
+        bIsDestroyed = true;
+    }
 }
 
 //  BOSS
