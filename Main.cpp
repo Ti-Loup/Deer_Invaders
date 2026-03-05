@@ -243,7 +243,7 @@ public:
     int currentWeaponLevel = 0;
     int globalWeaponLevel = 0;
 
-    //POUR LES VAGUES
+    //POUR LES FONCTIONS DES WAVES
     int currentWave = 0;
     WaveType currentWaveType; //L'enum de state
     bool waveInProgress = false;
@@ -255,7 +255,16 @@ public:
     //Pour faire attendre un peu entre chaque vagues
     bool isTransitioning = false;
     float transitionTimer = 0.0f;
-    const float TRANSITION_DURATION = 3.0f; // 3 secondes d'attente
+    const float TRANSITION_DURATION = 2.0f; //2 seconde entre transition
+
+    //POUR TEXTE ET FONDU DES WAVES
+    TTF_Font *waveDynamicNumberFont = nullptr;
+    TTF_Text *waveDynamicNumberText = nullptr;
+    //BOOL POUR DIRE SI FAUT METTRE OU PAS METTRE LE UI DES WAVES
+    bool showWaveUI = false;
+    //Fondu Des Waves
+    float waveFadeAlpha = 0.0f;
+
 private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
@@ -474,6 +483,15 @@ private:
         if (TTF_SetTextColor(TextReturnMenuPause, 0, 0, 0, 255 ) == false) {
             SDL_LogWarn(0, "failed to set the color of: TextReturnMenuPause ", SDL_GetError());
         }
+        //FONT POUR LES WAVES
+        waveDynamicNumberFont = TTF_OpenFont("assets/font.ttf", 70);
+        waveDynamicNumberText = TTF_CreateText(textEngine, waveDynamicNumberFont, "Wave 1", 25);
+        if (waveDynamicNumberText == nullptr) {
+            SDL_LogWarn(0,"Erreur failed to set waveDynamicNumberText", SDL_GetError());
+        }
+        if (TTF_SetTextColor(waveDynamicNumberText, 255, 255, 255, 255) == false) {
+            SDL_LogWarn(1,"Failed to set the color for waveDynamicNumberText", SDL_GetError());
+        }
 
         //FONT POUR TITRE SCORE, SHOP, CREDITS, DeathScreen
         Credits_Shop_Score_DeathScreen_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
@@ -651,6 +669,7 @@ private:
         TTF_CloseFont(StartFont);
         TTF_CloseFont(QuitFont);
         TTF_CloseFont(ScoreFont);
+        TTF_CloseFont(waveDynamicNumberFont);
         TTF_CloseFont(CreditsFont);
         TTF_CloseFont(Credits_Shop_Score_DeathScreen_TitleFont);
         TTF_CloseFont(FontPause);
@@ -658,6 +677,7 @@ private:
         TTF_DestroyText(TextQuit);
         TTF_DestroyText(TextScore);
         TTF_DestroyText(CreditsMenuText);
+        TTF_DestroyText(waveDynamicNumberText);
         TTF_DestroyText(TextResume);
         TTF_DestroyText(TextReturnMenuPause);
         TTF_CloseFont(MenuSpecialFont);
@@ -1070,6 +1090,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
         isTransitioning = true;
         transitionTimer = 0.0f;
         currentWave++; // On incrémente pour l'affichage
+        waveFadeAlpha = 0.0f;
     }
 
     // La fonction Game ne boucle
@@ -1083,17 +1104,40 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
         TTF_SetTextColor(InventoryText, 255, 255, 255, 255);
         TTF_UpdateText(dynamicscoreText);
         TTF_UpdateText(dynamicPlayerHeal);
+        TTF_UpdateText(waveDynamicNumberText);//Pour update le texte du Wave
         TTF_UpdateText(InventoryText);
         //PREMIERE VAGUE
 
         //gestion des etats entre jeu et transition
         if (isTransitioning) {
             transitionTimer += deltaTime;
+            showWaveUI = true;
 
-            //Attend 2 sec
-            if (transitionTimer >= 2.0f) {
+            // Mise à jour du texte
+            std::string NextWave = "Wave : " + std::to_string(currentWave);
+            TTF_SetTextString(waveDynamicNumberText, NextWave.c_str(), 0);
+            // 0 a 1.5 -> on met le fondu
+            if (transitionTimer <= 1.5f) {
+                app.waveFadeAlpha += (255.0f / 1.5f) * deltaTime;
+                if (app.waveFadeAlpha > 255.0f) app.waveFadeAlpha = 255.0f;
+            }
+            // 1.5 a 3.0 -> On revient vers le CLAIR
+            else if (transitionTimer <= 3.0f) {
+
+                if (!waveInProgress) {
+                    StartWave(currentWave);
+                }
+
+                app.waveFadeAlpha -= (255.0f / 1.5f) * deltaTime;
+                if (app.waveFadeAlpha < 0.0f) app.waveFadeAlpha = 0.0f;
+            }
+
+            // fin du timer -> enleve le UI + le fading + Timer reset pour la prochaine transition
+            if (transitionTimer >= 3.0f) {
                 isTransitioning = false;
-                StartWave(currentWave); // On lance les ennemis
+                showWaveUI = false;
+                app.waveFadeAlpha = 0.0f;
+                transitionTimer = 0.0f;
             }
         }
         else if (!waveInProgress)
@@ -1105,18 +1149,18 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             {
                 survivalTimer += deltaTime;
 
-                // A. On spawn tant qu'on n'a pas atteint 15 secondes
+                // On spawn tant qu'on n'a pas atteint 15 secondes
                 if (survivalTimer < 15.0f)
                 {
                     meteorSpawnTimer += deltaTime;
                     if (meteorSpawnTimer >= 0.7f)
                     {
                         float spawnX = static_cast<float>(rand() % 1800);
-                        entities.push_back(new Enemy_Meteor(spawnX, -80.0f));
+                        entities.push_back(new Enemy_Meteor(spawnX, -80.0f)); //<- depart au dessus de l'ecran
                         meteorSpawnTimer = 0.0f;
                     }
                 }
-                // Une fois les 15s passées, on vérifie s'il reste des météores à l'écran
+                // Une fois le timer fini, verifie si reste des meteorite
                 else
                 {
                     bool anyMeteorLeft = false;
@@ -1408,6 +1452,15 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             TTF_GetTextSize(dynamicPlayerHeal, &longeurW, &largeurH);
             TTF_DrawRendererText(dynamicPlayerHeal, healSize.x + (healSize.w - longeurW)/2, healSize.y + (healSize.h - largeurH)- 20);
         }
+        //Mise a jour du numero de wave
+        if (showWaveUI) {
+            if (waveDynamicNumberText) {
+                int longeurW, largeurH;
+                TTF_GetTextSize(waveDynamicNumberText, &longeurW, &largeurH);
+                TTF_DrawRendererText(waveDynamicNumberText, 800, 400);
+            }
+        }
+
 
         // Dessiner toutes les entités
         for (auto &ent: entities) {
@@ -1416,6 +1469,23 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
 
         if (isTransitioning) {
             //Texte
+            // la transparence
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+            // couleur sur Noir
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, (Uint8)app.waveFadeAlpha);
+
+            // le rectangle qui couvre
+            SDL_FRect screenOverlay = { 0.0f, 0.0f, 1920.0f, 1080.0f };
+            SDL_RenderFillRect(renderer, &screenOverlay);
+        }
+        //Mise a jour du numero de wave / Apres le fondu noir pour toujours etre visible
+        if (showWaveUI) {
+            if (waveDynamicNumberText) {
+                int longeurW, largeurH;
+                TTF_GetTextSize(waveDynamicNumberText, &longeurW, &largeurH);
+                TTF_DrawRendererText(waveDynamicNumberText, 800, 400);
+            }
         }
 
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
@@ -1489,7 +1559,7 @@ GameApp &app = GameApp::GetInstance();
         // On remet le fond noir et on clear
         SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
         SDL_RenderClear(app.renderer);
-        
+
 
         SDL_RenderPresent(app.renderer);
     }
