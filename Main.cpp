@@ -124,6 +124,13 @@ public:
     TTF_Text *dynamicPlayerHeal = nullptr;
     TTF_Font *dynamicPlayerHealFont = nullptr;
 
+    // -> WINSCREEN <-
+    TTF_Font *WinScreenFont = nullptr;
+    TTF_Font *WinScreenSousFont = nullptr;
+    TTF_Text *WinScreenTitleText = nullptr;
+    TTF_Text *WinScreenSousTitleText = nullptr;
+    TTF_Text *WinScreenReturnMenuText = nullptr;
+    SDL_FRect BoutonWinReturnMenu = {825,700,300,100};
     // -> DEATHSCREEN <-
     float deathFadeAlpha = 0.0f;
     bool bIsResetDone = false;
@@ -176,7 +183,7 @@ public:
     TTF_Text *ShopMenuText = nullptr;
 
     // -> Credits <- Text et Fonts
-    TTF_Font *Credits_Shop_Score_DeathScreen_TitleFont = nullptr;
+    TTF_Font *Credits_Shop_Score_WinScreen_DeathScreen_TitleFont = nullptr;
     TTF_Font *CreditsNameFont = nullptr;
     TTF_Font *CreditsRoleFont = nullptr;
     TTF_Text *CreditsMenuText = nullptr;
@@ -222,6 +229,7 @@ public:
     //Boutons gbutton
     int selectedButtonMenu = 0;
     int selectedButtonScore = 0;
+    int selectedButtonWin = 0;
     int selectedButtonDeath = 0;
     int selectedButtonShop = 0;
     int selectedButtonCredits = 0;
@@ -494,20 +502,44 @@ private:
         }
 
         //FONT POUR TITRE SCORE, SHOP, CREDITS, DeathScreen
-        Credits_Shop_Score_DeathScreen_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        Credits_Shop_Score_WinScreen_DeathScreen_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
         //Score
-        ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_DeathScreen_TitleFont, "Score", 25);
+        ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "Score", 25);
         if (ScoreMenuText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
         }
         if (TTF_SetTextColor(ScoreMenuText, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur du titre Score n'a pas changer");
         }
+        //WINSCREEN
+        WinScreenFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
+        WinScreenSousFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
+        WinScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "YOU WON", 25);//font du titre
+        if (WinScreenTitleText == nullptr) {
+            SDL_LogWarn(0,"failed to set the text of WinScreenTitleText", SDL_GetError());
+        }
+        if (TTF_SetTextColor(WinScreenTitleText, 255,255,255,255) == false) {
+            SDL_LogWarn(1, "failed to set the color of DeathScreenTitleText");
+        }
+        WinScreenSousTitleText = TTF_CreateText(textEngine,WinScreenSousFont, "You finished this stage", 25);
+        if (WinScreenSousTitleText == nullptr) {
+            SDL_LogWarn(0, "failed to set the text of WinScreenSousTitleText");
+        }
+        if (TTF_SetTextColor(WinScreenSousTitleText , 255,255,255,255) == false) {
+            SDL_LogWarn(0, "failed to set the color of WinScreenSousTitleText");
+        }
+        WinScreenReturnMenuText = TTF_CreateText(textEngine, WinScreenFont, "Return Menu", 25);//Pour le bouton
+        if (WinScreenReturnMenuText == nullptr) {
+            SDL_LogWarn(0, "failed to set the text of WinScreenReturnMenuText", SDL_GetError());
+        }
+        if (TTF_SetTextColor(WinScreenReturnMenuText, 0,0,0,255) == false) {
+            SDL_LogWarn(0, "failed to set the color of WinScreenReturnMenuText");
+        }
 
         //DEATHSCREEN
         DeathScreenFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
         DeathScreenSousFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 60);
-        DeathScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_DeathScreen_TitleFont, "GAME OVER", 25);//font du titre
+        DeathScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "GAME OVER", 25);//font du titre
         if (DeathScreenTitleText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of DeathScreenTitleText", SDL_GetError());
         }
@@ -530,7 +562,7 @@ private:
         }
 
         //SHOP
-        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_DeathScreen_TitleFont, "Shop", 25);
+        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "Shop", 25);
         if (ShopMenuText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
         }
@@ -595,8 +627,8 @@ private:
         //credits
         CreditsRoleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 50);//Pour les roles
         CreditsNameFont = TTF_OpenFont ("assets/Cosmo Corner.ttf", 40);//Pour les noms
-        Credits_Shop_Score_DeathScreen_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
-        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_DeathScreen_TitleFont, "Credits", 25);
+        Credits_Shop_Score_WinScreen_DeathScreen_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "Credits", 25);
         if (CreditsMenuText == nullptr) {
             SDL_LogWarn(0, "EERREUR ! Le texte CreditsText n'a pas charger", SDL_GetError());
         }
@@ -671,7 +703,7 @@ private:
         TTF_CloseFont(ScoreFont);
         TTF_CloseFont(waveDynamicNumberFont);
         TTF_CloseFont(CreditsFont);
-        TTF_CloseFont(Credits_Shop_Score_DeathScreen_TitleFont);
+        TTF_CloseFont(Credits_Shop_Score_WinScreen_DeathScreen_TitleFont);
         TTF_CloseFont(FontPause);
         TTF_DestroyText(TextStart);
         TTF_DestroyText(TextQuit);
@@ -817,6 +849,16 @@ private:
     void RenderCreditsTitle() {
         TTF_DrawRendererText(CreditsMenuText, 800, 150);
     }
+    //Rendu du titre WinTitle
+    void RenderWinTitle() {
+        SDL_FRect WinScreenTitleRect = {610,125,700,225};
+        SDL_SetRenderDrawColor(renderer, 50, 205, 50, 255); // vert pour la fin
+        SDL_RenderFillRect(renderer, &WinScreenTitleRect);
+        TTF_DrawRendererText(WinScreenTitleText, 700, 150);
+        TTF_DrawRendererText(WinScreenSousTitleText, 710, 260);
+    }
+
+    //Rendu Du titre DeathTitle
     void RenderDeathTitle() {
         SDL_FRect DeathScreenTitleRect = {610,125,700,225};
         SDL_SetRenderDrawColor(renderer, 139, 0, 0, 255); // ROUGE vif
@@ -968,8 +1010,6 @@ private:
             TTF_DrawRendererText(texteIntroCerfEtHUmain, textX, textY);
         }
 
-
-
         //Tout afficher
         SDL_RenderPresent(renderer);
     }
@@ -1016,6 +1056,10 @@ private:
         entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false));
         entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true));
     }
+
+    //WAVE 2
+    //Randomizer pour creer les meteorites dans la fonction Game()
+
     //Wave 3
     void SpawnWave3() {
         //A faire
@@ -1080,7 +1124,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             SpawnWave3();
         }
         else {
-            waveInProgress = false; // stp la logique de wave
+            waveInProgress = false; // stop la logique de wave
             app.StateActuel = State::NiveauGagnerScreen;
         }
     }
@@ -1560,6 +1604,15 @@ GameApp &app = GameApp::GetInstance();
         SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
         SDL_RenderClear(app.renderer);
 
+        UpdateBackgroundTint(deltaTime);//<-- pour le rgb
+        RenderWinTitle();
+        //Boutons pour Gamepad
+        if (selectedButtonWin == 0) {
+            RenderBoutons(BoutonWinReturnMenu, WinScreenReturnMenuText, r,g,b);
+        }else {
+            RenderBoutons(BoutonWinReturnMenu, WinScreenReturnMenuText, 40,40,40);
+
+        }
 
         SDL_RenderPresent(app.renderer);
     }
@@ -1678,7 +1731,7 @@ GameApp &app = GameApp::GetInstance();
         }
         else {
 
-            TTF_SetTextString(statusIce, "LEVEL 3", 0); // ou ton texte par défaut
+            TTF_SetTextString(statusIce, "LEVEL 3", 0); //
             TTF_SetTextColor(statusIce, 255, 0, 0, 255); // ROUGE
         }
         TTF_DrawRendererText(statusIce, 100, 850 + 40);
@@ -1696,7 +1749,7 @@ GameApp &app = GameApp::GetInstance();
         }
         else {
 
-            TTF_SetTextString(statusTbd, "LEVEL 4", 0); // ou ton texte par défaut
+            TTF_SetTextString(statusTbd, "LEVEL 4", 0);
             TTF_SetTextColor(statusTbd, 255, 0, 0, 255); // ROUGE
         }
         TTF_DrawRendererText(statusFire, 100, 750 + 40);
@@ -2052,6 +2105,35 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
         }
+        //GERER SELECTION WinSCREEN GAMEPAD
+        else if (app.StateActuel == State::NiveauGagnerScreen) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
+                //app.selectedButtonWin++;
+                if (app.selectedButtonWin > 0) {
+                    app.selectedButtonWin = 0;//Retourne au premier
+                }
+            }
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
+                //app.selectedButtonWin --;
+                if (app.selectedButtonWin < 0) {
+                    app.selectedButtonWin = 0;
+                }
+            }
+            //Verification
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("Button A Down");
+                //SwitchCase
+                switch (app.selectedButtonWin) {
+                    case 0:
+
+                        SDL_Log("Retour Menu");
+                        app.StateActuel = State::Menu;
+                        break;
+                }
+            }
+        }
+
+
         //GERER SELECTION DEATHSCREEN GAMEPAD
         else if (app.StateActuel == State::DeathScreen) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
@@ -2330,6 +2412,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.StateActuel = State::Menu;
             }
         }
+        //DANS LE WINSCREEN
+        else if (app.StateActuel == State::NiveauGagnerScreen) {
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonWinReturnMenu)) {
+                app.StateActuel = State::Menu;
+            }
+        }
+
         //DANS LE DEATHSCREEN
         else if (app.StateActuel == State::DeathScreen) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonDeathReturnMenu)) {
