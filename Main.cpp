@@ -2141,7 +2141,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
         }
         //GERER LES BOUTONS CHOIXNIVEAU
-        if (app.StateActuel == State::ChoixNiveau) {
+        else if (app.StateActuel == State::ChoixNiveau) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
                 //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
                 app.selectedButtonChoixNiveau++;
