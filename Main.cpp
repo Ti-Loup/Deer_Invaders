@@ -98,6 +98,20 @@ public:
     TTF_Text *TextShop = nullptr;
     TTF_Text *TextQuitReturnMenu = nullptr;
 
+
+    // -> ChoixNiveau <-
+    //Font titre meme que les autres
+    TTF_Font *ChoixNiveauFont = nullptr;
+    TTF_Text *ChoixNiveauTitre = nullptr;
+    TTF_Text *ChoixNiveau1Text = nullptr;
+    TTF_Text *ChoixNiveau2Text = nullptr;
+    TTF_Text *ChoixNiveau3Text = nullptr;
+
+    SDL_FRect BoutonChoixNiveau1 ={700, 300, 200,200};
+    SDL_FRect BoutonChoixNiveau2 ={700, 550, 200,200};
+    SDL_FRect BoutonChoixNiveau3 ={700, 800, 200,200};
+
+
     // -> INTROGAME <-
     SDL_Texture *HumainTexture = nullptr;
     int indexMessageIntro = 0;
@@ -183,7 +197,7 @@ public:
     TTF_Text *ShopMenuText = nullptr;
 
     // -> Credits <- Text et Fonts
-    TTF_Font *Credits_Shop_Score_WinScreen_DeathScreen_TitleFont = nullptr;
+    TTF_Font *Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont = nullptr;
     TTF_Font *CreditsNameFont = nullptr;
     TTF_Font *CreditsRoleFont = nullptr;
     TTF_Text *CreditsMenuText = nullptr;
@@ -228,6 +242,7 @@ public:
     const Sint16 DEADZONE = 8000;          // Zone morte du gamepad
     //Boutons gbutton
     int selectedButtonMenu = 0;
+    int selectedButtonChoixNiveau = 0;
     int selectedButtonScore = 0;
     int selectedButtonWin = 0;
     int selectedButtonDeath = 0;
@@ -436,6 +451,19 @@ private:
         if (TTF_SetTextColor(TextQuitReturnMenu, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
         }
+        //FONT POUR TITRE SCORE, SHOP, CREDITS, DeathScreen
+        Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        // CHOIX NIVEAU
+        ChoixNiveauFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 30);
+        if (ChoixNiveauFont == nullptr) {
+            SDL_LogWarn(0, "SDL_ttf failed to set the font", SDL_GetError());
+        }
+        ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Chose Your Level", 25);
+        ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend The Sky", 25);
+        ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Work In Progress", 25);
+        ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "TBD", 25);
+
+
         //DANS INTROGAME
         texteIntroCerfEtHUmain = TTF_CreateText(textEngine, ShopFont, phrasesIntro[0], 0);
         TTF_SetTextColor(texteIntroCerfEtHUmain, 255, 255, 255, 255);
@@ -501,10 +529,8 @@ private:
             SDL_LogWarn(1,"Failed to set the color for waveDynamicNumberText", SDL_GetError());
         }
 
-        //FONT POUR TITRE SCORE, SHOP, CREDITS, DeathScreen
-        Credits_Shop_Score_WinScreen_DeathScreen_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
         //Score
-        ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "Score", 25);
+        ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Score", 25);
         if (ScoreMenuText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
         }
@@ -514,7 +540,7 @@ private:
         //WINSCREEN
         WinScreenFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
         WinScreenSousFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
-        WinScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "YOU WON", 25);//font du titre
+        WinScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "YOU WON", 25);//font du titre
         if (WinScreenTitleText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of WinScreenTitleText", SDL_GetError());
         }
@@ -539,7 +565,7 @@ private:
         //DEATHSCREEN
         DeathScreenFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
         DeathScreenSousFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 60);
-        DeathScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "GAME OVER", 25);//font du titre
+        DeathScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "GAME OVER", 25);//font du titre
         if (DeathScreenTitleText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of DeathScreenTitleText", SDL_GetError());
         }
@@ -562,7 +588,7 @@ private:
         }
 
         //SHOP
-        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "Shop", 25);
+        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Shop", 25);
         if (ShopMenuText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
         }
@@ -627,8 +653,8 @@ private:
         //credits
         CreditsRoleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 50);//Pour les roles
         CreditsNameFont = TTF_OpenFont ("assets/Cosmo Corner.ttf", 40);//Pour les noms
-        Credits_Shop_Score_WinScreen_DeathScreen_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
-        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_TitleFont, "Credits", 25);
+        Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Credits", 25);
         if (CreditsMenuText == nullptr) {
             SDL_LogWarn(0, "EERREUR ! Le texte CreditsText n'a pas charger", SDL_GetError());
         }
@@ -694,6 +720,12 @@ private:
     ~GameApp() {
         SDL_RemoveTimer(fpsTimerID);
         TTF_DestroyText(fpsText);
+        //-> Choix Niveau <-
+        TTF_DestroyText(ChoixNiveau1Text);
+        TTF_DestroyText(ChoixNiveau2Text);
+        TTF_DestroyText(ChoixNiveau3Text);
+        TTF_CloseFont(ChoixNiveauFont);
+
         TTF_DestroyText(MenuTitle);
         TTF_DestroyRendererTextEngine(textEngine);
         TTF_CloseFont(font);
@@ -703,7 +735,7 @@ private:
         TTF_CloseFont(ScoreFont);
         TTF_CloseFont(waveDynamicNumberFont);
         TTF_CloseFont(CreditsFont);
-        TTF_CloseFont(Credits_Shop_Score_WinScreen_DeathScreen_TitleFont);
+        TTF_CloseFont(Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont);
         TTF_CloseFont(FontPause);
         TTF_DestroyText(TextStart);
         TTF_DestroyText(TextQuit);
@@ -858,6 +890,11 @@ private:
         TTF_DrawRendererText(WinScreenSousTitleText, 710, 260);
     }
 
+    //Render Titre Choix Niveau
+    void RenderChoixNiveauTitle() {
+        TTF_DrawRendererText(ChoixNiveauTitre, 450,150);
+    }
+
     //Rendu Du titre DeathTitle
     void RenderDeathTitle() {
         SDL_FRect DeathScreenTitleRect = {610,125,700,225};
@@ -970,6 +1007,40 @@ private:
         }
 
         TTF_DrawRendererText(fpsText, 1800, 10);
+        SDL_RenderPresent(renderer);
+    }
+
+
+    //fonction pour le choix de niveau
+    // Gros cube a cliquer pour aller vers le  niveau choix entre 3 niveau
+    void ChoixNiveau(float deltaTime) {
+
+        UpdateBackgroundTint(deltaTime);  // <- Pour le rgb
+        // Rendu du menu
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        //boutons et text
+        //Bouton Niveau 1
+        if (selectedButtonChoixNiveau== 0) {
+            RenderBoutons(BoutonChoixNiveau1, ChoixNiveau1Text, r, g, b);//Couleur si selectionner
+        }else {
+            RenderBoutons(BoutonChoixNiveau1, ChoixNiveau1Text, 40, 40, 40);//gris foncer de base
+        }
+        //BOUTON Niveau 2
+        if (selectedButtonChoixNiveau == 1) {
+            RenderBoutons(BoutonChoixNiveau2, ChoixNiveau2Text, r, g, b);
+        }else {
+            RenderBoutons(BoutonChoixNiveau2, ChoixNiveau2Text, 40, 40, 40);//gris foncer de base
+        }
+        //BOUTON Niveau 3
+        if (selectedButtonChoixNiveau == 2) {
+            RenderBoutons(BoutonChoixNiveau3, ChoixNiveau3Text, r, g, b);
+        }else {
+            RenderBoutons(BoutonChoixNiveau3, ChoixNiveau3Text, 40, 40, 40);//gris foncer de base
+        }
+
+        RenderChoixNiveauTitle();
         SDL_RenderPresent(renderer);
     }
 
@@ -1883,6 +1954,10 @@ public:
                 Menu(deltaTime);
                 break;
 
+            case State::ChoixNiveau:
+                ChoixNiveau(deltaTime);
+                break;
+
             case State::Game:
                 Game(deltaTime);
                 break;
@@ -2043,7 +2118,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //switch case MENU
             switch (app.selectedButtonMenu) {
                 case 0:
-                    app.StateActuel = State::IntroGame;
+                    app.StateActuel = State::ChoixNiveau;
                     break;
                 case 1:
                     app.StateActuel = State::ScoreBoard;
@@ -2059,6 +2134,45 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     app.StateActuel = State::Credits;
                     app.selectedButtonShop = 0;
                     break;
+                }
+
+            }
+
+
+        }
+        //GERER LES BOUTONS CHOIXNIVEAU
+        if (app.StateActuel == State::ChoixNiveau) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
+                //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
+                app.selectedButtonChoixNiveau++;
+                //Dessend 0 vers 2~ 3 choix
+                if (app.selectedButtonChoixNiveau > 2) {
+                    app.selectedButtonChoixNiveau = 0;//loop entre 3 et 0
+                }
+            }
+            //Monte ~
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
+                //Monte
+                app.selectedButtonChoixNiveau--;
+                if (app.selectedButtonChoixNiveau < 0) {
+                    app.selectedButtonChoixNiveau = 2;
+                }
+            }
+            //validation Touche A
+            if (event->gbutton.button ==  SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("blablabla");
+
+                //switch case ChoixNiveau
+                switch (app.selectedButtonChoixNiveau) {
+                    case 0:
+                        app.StateActuel = State::IntroGame;
+                        break;
+                    case 1:
+                        app.StateActuel = State::IntroGame; // <-A FAIRE LES DIFFERENTS INTRO
+                        break;
+                    case 2:
+                        app.StateActuel = State::IntroGame; // <- A FAIRE LES DIFFERENTS INTRO
+                        break;
                 }
 
             }
@@ -2371,7 +2485,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         // Dans le MENU
         if (app.StateActuel == State::Menu) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonPlay)) {
-                app.StateActuel = State::IntroGame;
+                app.StateActuel = State::ChoixNiveau;
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonScore)) {
                 app.StateActuel = State::ScoreBoard;
@@ -2384,6 +2498,21 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuit)) {
                 app.StateActuel = State::Quit;
+            }
+        }
+        //DAns le ChoixNiveau
+        else if (app.StateActuel == State::ChoixNiveau) {
+            //va vers intro de niveau 1
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau1)) {
+                app.StateActuel = State::IntroGame;
+            }
+            //va vers intro de niveau 2
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau2)) {
+                app.StateActuel = State::IntroGame;
+            }
+            //va vers intro de niveau 3
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau3)) {
+                app.StateActuel = State::IntroGame;
             }
         }
         //Dans Le IntroGame

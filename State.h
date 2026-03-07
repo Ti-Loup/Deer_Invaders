@@ -11,6 +11,7 @@ class Entity;
 //state machine
 enum class State {
 Menu,
+ChoixNiveau,//Apres start pour choisir le niveau
 Game,
 IntroGame, //<- Pour l'intro
 ScoreBoard,
