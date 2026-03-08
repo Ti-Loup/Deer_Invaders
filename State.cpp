@@ -4,6 +4,7 @@
 
 #include "State.h"
 
+
 //Pour Le Bullet Du Player
 void BulletType::Affect(Entity *entity) {
 
@@ -22,6 +23,13 @@ void ClassicBulletType::Affect(Entity *entity) {
 }
 SDL_Color ClassicBulletType::GetColor () {
     return (SDL_Color){255, 255, 255, 255};
+}
+//Capacité spécial
+void CompetenceSpecialBulletType::Affect(Entity *entity) {
+    BulletType::Affect(entity);
+}
+SDL_Color CompetenceSpecialBulletType::GetColor () {
+    return (SDL_Color){100, 100, 255, 255}; // A FAIRE RGB
 }
 
 //Bullet Niveau 2(Amélioration -> Shop)

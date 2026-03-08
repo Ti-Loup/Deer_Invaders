@@ -502,21 +502,21 @@ private:
         if (TextResume == nullptr) {
             SDL_LogWarn(0, "failed to set the text: TextResume", SDL_GetError());
         }
-        if (TTF_SetTextColor(TextResume, 0, 0, 0, 255) == false) {
+        if (TTF_SetTextColor(TextResume, 173, 216, 230, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set the color of: TextResume", SDL_GetError());
         }
         TextPauseGoShop = TTF_CreateText(textEngine, FontPause, "Shop", 25);
         if (TextPauseGoShop == nullptr) {
             SDL_LogWarn(0, "failed to set the text: TextResume", SDL_GetError());
         }
-        if (TTF_SetTextColor(TextPauseGoShop, 0, 0, 0, 255) == false) {
+        if (TTF_SetTextColor(TextPauseGoShop, 0, 191, 255, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set the color of: TextResume", SDL_GetError());
         }
         TextReturnMenuPause = TTF_CreateText(textEngine, FontPause, "Return Menu", 25);
         if (TextReturnMenuPause == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set TextReturnMenuPause text", SDL_GetError());
         }
-        if (TTF_SetTextColor(TextReturnMenuPause, 0, 0, 0, 255 ) == false) {
+        if (TTF_SetTextColor(TextReturnMenuPause, 65, 105, 255, 255 ) == false) {
             SDL_LogWarn(0, "failed to set the color of: TextReturnMenuPause ", SDL_GetError());
         }
         //FONT POUR LES WAVES
@@ -884,8 +884,7 @@ private:
     //Rendu du titre WinTitle
     void RenderWinTitle() {
         SDL_FRect WinScreenTitleRect = {610,125,700,225};
-        SDL_SetRenderDrawColor(renderer, 50, 205, 50, 255); // vert pour la fin
-        SDL_RenderFillRect(renderer, &WinScreenTitleRect);
+        SDL_SetRenderDrawColor(renderer, 50, 205, 50, 255); // vert pour la fin        SDL_RenderFillRect(renderer, &WinScreenTitleRect);
         TTF_DrawRendererText(WinScreenTitleText, 700, 150);
         TTF_DrawRendererText(WinScreenSousTitleText, 710, 260);
     }
@@ -1351,8 +1350,8 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
                     }
                 }
 
-                // Si fraise (EnemyBullet) ou Viande (Collectable)
-                if (entity->entityType == EntityType::Collectable || entity->entityType == EntityType::EnemyBullet) {
+                // Si fraise (EnemyBullet) ou Viande (Collectable) ou meteorite cerf (Enemy)
+                if (entity->entityType == EntityType::Collectable || entity->entityType == EntityType::EnemyBullet || entity->entityType == EntityType::Enemy) {
 
                     // On crée les Rects pour la collision
                     SDL_FRect rectPlayer = { player->transform.position.x, player->transform.position.y, player->transform.size.x, player->transform.size.y };
@@ -1373,6 +1372,19 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
                             //Ajout Heal
                             currentHP = player->health.current_health;
                             //si on va en dessous des 0 hp
+                            if (player->health.current_health <= 0) {
+                                player->health.current_health = 0;
+                                //Appel de la fonction du JoueurMort
+                                PlayerDeath();
+                                SDL_Log("Joueur Mort -> Message de fin");
+                            }
+                        }
+                        //Si toucher avec Enemy (Cerf ou Meteorite)
+                        else if (entity->entityType == EntityType::Enemy) {
+                            SDL_Log("Touché par une météorite !");
+                            player -> health.current_health -= 100;
+                            currentHP = player->health.current_health;
+                            //Si en dessous des 0 hp
                             if (player->health.current_health <= 0) {
                                 player->health.current_health = 0;
                                 //Appel de la fonction du JoueurMort
@@ -1914,20 +1926,20 @@ GameApp &app = GameApp::GetInstance();
         if (selectedButtonPause == 0) {
             RenderBoutons(BoutonResume, TextResume, r, g, b);
         } else {
-            RenderBoutons(BoutonResume, TextResume, 255, 255, 255);
+            RenderBoutons(BoutonResume, TextResume, 40, 40, 40);
         }
         if (selectedButtonPause == 1) {
             RenderBoutons(BoutonGoShop, TextPauseGoShop, r,g,b);
         }
         else {
-            RenderBoutons(BoutonGoShop, TextPauseGoShop, 255,255,255);
+            RenderBoutons(BoutonGoShop, TextPauseGoShop, 40,40,40);
 
         }
 
         if (selectedButtonPause == 2) {
             RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, r, g, b);
         } else {
-            RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, 255, 255, 255);
+            RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, 40, 40, 40);
         }
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
 

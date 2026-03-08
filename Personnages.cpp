@@ -106,19 +106,34 @@ Enemy_Meteor::Enemy_Meteor(float startX, float  startY) {
     health.max_health = 40;
     health.current_health = 40;
     AddComponent (MOVEMENT);
-    movement.velocity = { 0.0f,100.0f };
+    movement.velocity = { 0.0f,0.0f };
     AddComponent (RENDER);
-    render.color = { 139, 69, 19, 255 };//couleur brun
+    render.color = { 139, 100, 30, 255 };//couleur Meteor
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
     transform.size = { 80.f, 80.f };
+
+
+    static std::random_device rd;
+    static std::mt19937 gen(rd());//Pour un mouvement random
+    std::uniform_real_distribution<float> dis(-60.0f, 60.0f);
+    //genere sa vitesse sur l'axe des x
+    movement.velocity.x = dis(gen);
 
     //Le type d'entity
     entityType = EntityType::Enemy;
 }
 //Update Method de la meteorite
 void Enemy_Meteor::Update(float deltaTime) {
+    float gravity = 200.0f;
+
+    // Appliquer gravité
+    movement.velocity.y += gravity * deltaTime;
+
     MovementUpdate(deltaTime);
+
+
+
 
     if (transform.position.y > 1080.0f) {
         bIsDestroyed = true;
@@ -174,9 +189,9 @@ Collectible_Meat::Collectible_Meat(float startX, float startY) {
 //MOUVEMENT DU COLLECTIBLE MEAT
 void Collectible_Meat::Update(float deltaTime) {
     const float gravity = 200.0f;
-    const float floorY = 1050.0f; // adapte à ton sol réel
+    const float floorY = 1050.0f; // adapte au sol réel
     static std::random_device rd;
-    static std::mt19937 gen(rd());//Pour un rebond random sur l'axe des x (PEUT ETRE NEGATIF ET POSITIF )
+    static std::mt19937 gen(rd());//Pour un rebond random sur l'axe des x
 
     // Appliquer gravité
     movement.velocity.y += gravity * deltaTime;
