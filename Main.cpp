@@ -107,9 +107,9 @@ public:
     TTF_Text *ChoixNiveau2Text = nullptr;
     TTF_Text *ChoixNiveau3Text = nullptr;
 
-    SDL_FRect BoutonChoixNiveau1 ={700, 300, 200,200};
-    SDL_FRect BoutonChoixNiveau2 ={700, 550, 200,200};
-    SDL_FRect BoutonChoixNiveau3 ={700, 800, 200,200};
+    SDL_FRect BoutonChoixNiveau1 ={200, 550, 300,300};
+    SDL_FRect BoutonChoixNiveau2 ={800, 550, 300,300};
+    SDL_FRect BoutonChoixNiveau3 ={1400, 550, 300,300};
 
 
     // -> INTROGAME <-
@@ -1023,23 +1023,25 @@ private:
         //boutons et text
         //Bouton Niveau 1
         if (selectedButtonChoixNiveau== 0) {
-            RenderBoutons(BoutonChoixNiveau1, ChoixNiveau1Text, r, g, b);//Couleur si selectionner
+            RenderBoutons(BoutonChoixNiveau1, nullptr, r, g, b);//Couleur si selectionner
         }else {
-            RenderBoutons(BoutonChoixNiveau1, ChoixNiveau1Text, 40, 40, 40);//gris foncer de base
+            RenderBoutons(BoutonChoixNiveau1, nullptr, 40, 40, 40);//gris foncer de base
         }
         //BOUTON Niveau 2
         if (selectedButtonChoixNiveau == 1) {
-            RenderBoutons(BoutonChoixNiveau2, ChoixNiveau2Text, r, g, b);
+            RenderBoutons(BoutonChoixNiveau2, nullptr, r, g, b);
         }else {
-            RenderBoutons(BoutonChoixNiveau2, ChoixNiveau2Text, 40, 40, 40);//gris foncer de base
+            RenderBoutons(BoutonChoixNiveau2, nullptr, 40, 40, 40);//gris foncer de base
         }
         //BOUTON Niveau 3
         if (selectedButtonChoixNiveau == 2) {
-            RenderBoutons(BoutonChoixNiveau3, ChoixNiveau3Text, r, g, b);
+            RenderBoutons(BoutonChoixNiveau3, nullptr, r, g, b);
         }else {
-            RenderBoutons(BoutonChoixNiveau3, ChoixNiveau3Text, 40, 40, 40);//gris foncer de base
+            RenderBoutons(BoutonChoixNiveau3, nullptr, 40, 40, 40);//gris foncer de base
         }
-
+        TTF_DrawRendererText(ChoixNiveau1Text, 200, 900);
+        TTF_DrawRendererText(ChoixNiveau2Text, 800, 900);
+        TTF_DrawRendererText(ChoixNiveau3Text, 1400, 900);
         RenderChoixNiveauTitle();
         SDL_RenderPresent(renderer);
     }
