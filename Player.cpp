@@ -98,7 +98,7 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
     }//Pour la compétence special
     else if (dynamic_cast<CompetenceSpecialBulletType*>(currentWeapon)) {
         float decalage = 25.0f;
-        constexpr float angleBullet = 0.577f; // l'angle de tir
+        constexpr float angleBullet = 0.577f; // l'angle de tir ~ 30 Degree
 
         entity.push_back(new Bullet({ centerX, bulletY },          { 0.f,      -1.f    }, BulletColor, true)); // centre
         entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, true)); // gauche droit
@@ -184,7 +184,7 @@ float ShootDefaultCooldown = 90.f;
 //Tick cooldown des tires
 void Player::ShootUpdate(std::vector<Entity *> &entity, SDL_FPoint dir, float deltaTime) {
     // Cooldown réduit de moitié si compétence active
-    float activeCooldown = bCompetenceActive ? ShootDefaultCooldown / 4.0f : ShootDefaultCooldown;
+    float activeCooldown = bCompetenceActive ? ShootDefaultCooldown / 2.0f : ShootDefaultCooldown;
 
     if (ShootCooldown <= 0.f && isCurrentlyShooting) {
         Shoot(entity, dir);

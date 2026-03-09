@@ -137,6 +137,8 @@ public:
     TTF_Font *dynamicscoreFont = nullptr;
     TTF_Text *dynamicPlayerHeal = nullptr;
     TTF_Font *dynamicPlayerHealFont = nullptr;
+    TTF_Font *competenceSpecialFont = nullptr;
+    TTF_Text *competenceSpecialText = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -484,16 +486,22 @@ private:
         if (InventoryText == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set the inventory text", SDL_GetError());
         }
-        dynamicPlayerHealFont = TTF_OpenFont("assets/font.ttf", 40);
+        dynamicPlayerHealFont = TTF_OpenFont("assets/font.ttf", 20);
         dynamicPlayerHeal = TTF_CreateText(textEngine, dynamicPlayerHealFont, "Heal: 150", 25);
         if (dynamicPlayerHeal == nullptr) {
             SDL_LogWarn(0,"failed to create the text of dynamicPlayerHeal", SDL_GetError());
         }
         if (TTF_SetTextColor(dynamicPlayerHeal, 255,255,255,255) == false) {
-            SDL_LogWarn (1, "failed to make the color of dynamicPlayerHeal");
+            SDL_LogWarn (1, "failed to make the color of dynamicPlayerHeal", SDL_GetError());
         }
-
-
+        competenceSpecialFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 20);
+        competenceSpecialText = TTF_CreateText(textEngine, competenceSpecialFont, "special Skill Available", 25);
+        if (competenceSpecialText == nullptr) {
+            SDL_LogWarn(0, "failed to create the text for competenceSpecialText", SDL_GetError());
+        }
+        if (TTF_SetTextColor(competenceSpecialText, 80, 80, 220, 255) == false) {
+            SDL_LogWarn(0, "failed to set the color of competenceSpecialText", SDL_GetError());
+        }
 
         //POUR PAUSE
         FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
@@ -1627,7 +1635,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
         }
 
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
-        // --- Barre de compétence spéciale ---
+        // Barre de compétence spéciale
         SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
         float ratio = player->competenceTimer / player->competenceCooldown;
         SDL_FRect jaugeFill = { 50.0f, 955.0f, 250.0f * ratio, 22.0f };
@@ -1640,6 +1648,8 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
         if (player->bCompetenceActive) {
             SDL_SetRenderDrawColor(renderer, r, g, b, 255); // RGB animé
         } else if (player->bCompetenceReady) {
+            //Rajouter Texte + Color ~
+            TTF_DrawRendererText(competenceSpecialText, 50, 925);
             SDL_SetRenderDrawColor(renderer, 0, 255, 120, 255); // Vert
         } else {
             SDL_SetRenderDrawColor(renderer, 80, 80, 220, 255); // en recharge

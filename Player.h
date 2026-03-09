@@ -26,7 +26,7 @@ public:
 BulletType* previousWeapon = nullptr; // pour restaurer l'arme après
 //Competence special
 float competenceTimer = 0.0f;
-const float competenceCooldown = 10.0f; // <- vitesse du competenceCooldown
+const float competenceCooldown = 100.0f; // <- vitesse du competenceCooldown
 bool bCompetenceReady = false;
 bool bCompetenceActive = false;
 float competenceActiveDuration = 4.0f;
