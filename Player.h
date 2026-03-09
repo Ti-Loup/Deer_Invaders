@@ -23,17 +23,32 @@ public:
 
      //Le type d'arme (-> Dans State.h)
     BulletType* currentWeapon;
+BulletType* previousWeapon = nullptr; // pour restaurer l'arme après
+//Competence special
+float competenceTimer = 0.0f;
+const float competenceCooldown = 10.0f; // <- vitesse du competenceCooldown
+bool bCompetenceReady = false;
+bool bCompetenceActive = false;
+float competenceActiveDuration = 4.0f;
+float competenceActiveTimer = 0.0f;
+
 
 //fonctions
 
 //fonction pour glisser
     void UpdatePhysics(float deltaTime);
 
-    void Shoot(std::vector<Entity *> &entity, SDL_Point dir);
+    void Shoot(std::vector<Entity *> &entity, SDL_FPoint dir);
 
-    void ShootUpdate (std::vector<Entity *> &entity, SDL_Point dir,float deltaTime);
+    void ShootUpdate (std::vector<Entity *> &entity, SDL_FPoint dir,float deltaTime);
 
     bool ArmeUpgrade(ArmeNiveau type, int &meatCount);
+
+    //Competence Special
+    void UpdateCompetence(float deltaTime);
+    void ActivateCompetence();
+    void AddKillToCompetence(); //ajout du temps si ennemi tuer
+
 };
 
 //Pour que le joueur puisse tirer
@@ -41,7 +56,8 @@ public:
 class Bullet : public Entity{
     public:
 
-    Bullet (SDL_FPoint spawn, SDL_Point dir, SDL_Color color);
+    Bullet (SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, bool bIsRGB = false);
+    bool bIsRGB = false;//Pour que le rgb fonction (update la couleur a chaque frame)
 };
 
 

@@ -5,6 +5,7 @@
 #ifndef DEER_INVADERS_STATE_H
 #define DEER_INVADERS_STATE_H
 #include <SDL3/SDL_pixels.h>
+#include "Main.h"
 class Entity;
 
 

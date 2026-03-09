@@ -45,7 +45,7 @@ static Uint32 ShootCallback(void *userdata, SDL_TimerID timerID, Uint32 interval
 
 
 Player *player;
-
+Uint8 r = 0, g = 0, b = 0;
 class GameApp final {
 public:
     SDL_Window *window = nullptr;
@@ -60,7 +60,7 @@ public:
     const float frameDuration = 0.15f;
 
     float colorTime = 0.0f;
-    Uint8 r = 0, g = 0, b = 0;
+
 
     //-> MENU <- Font et Texts
     TTF_Font *font = nullptr;
@@ -287,6 +287,8 @@ public:
     bool showWaveUI = false;
     //Fondu Des Waves
     float waveFadeAlpha = 0.0f;
+
+
 
 private:
     //Score Lorsque Cerf Mort
@@ -884,7 +886,8 @@ private:
     //Rendu du titre WinTitle
     void RenderWinTitle() {
         SDL_FRect WinScreenTitleRect = {610,125,700,225};
-        SDL_SetRenderDrawColor(renderer, 50, 205, 50, 255); // vert pour la fin        SDL_RenderFillRect(renderer, &WinScreenTitleRect);
+        SDL_SetRenderDrawColor(renderer, 50, 205, 50, 255); // vert pour la fin
+        SDL_RenderFillRect(renderer, &WinScreenTitleRect);
         TTF_DrawRendererText(WinScreenTitleText, 700, 150);
         TTF_DrawRendererText(WinScreenSousTitleText, 710, 260);
     }
@@ -1323,8 +1326,8 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             //Calcul de la nouvelle vitesse avant de deplacer les entities
             if (player != nullptr) {
                 player->UpdatePhysics(deltaTime);
-                player->ShootUpdate(entities, (SDL_Point){0, -1}, deltaTime);
-
+                player->ShootUpdate(entities, (SDL_FPoint){0, -1}, deltaTime);
+                player->UpdateCompetence(deltaTime); // <- pour l'update de la capacite special
                 //Bordure d'ecran du joueur different des ennemies
                 if (player->HasComponent(TRANSFORM)) {
                     if (player->transform.position.x <= 0.0f) {
@@ -1505,6 +1508,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
                                 //Ajout score
                                 currentScore += scorePerDeerKilled;
                                 SDL_LogWarn(0, "Le score est de %d", currentScore);
+                                player->AddKillToCompetence();// Appel de la fonction AddKillToCompetence pour reduire le timer quand un cerf est mort
 
                                 // On drop un collectible a collecter
                                 //Creation Collision Bullet Entity
@@ -1593,6 +1597,11 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
 
         // Dessiner toutes les entités
         for (auto &ent: entities) {
+            if (Bullet* bulletCompetenceSpecial = dynamic_cast<Bullet*>(ent)) {
+                if (bulletCompetenceSpecial->bIsRGB) {
+                    bulletCompetenceSpecial->render.color = { r, g, b, 255 }; // r,g,b changent chaque frame
+                }
+            }
             ent->RenderUpdate(renderer);
         }
 
@@ -1618,7 +1627,24 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
         }
 
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
+        // --- Barre de compétence spéciale ---
+        SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
+        float ratio = player->competenceTimer / player->competenceCooldown;
+        SDL_FRect jaugeFill = { 50.0f, 955.0f, 250.0f * ratio, 22.0f };
 
+        // Fond gris foncé
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+        SDL_RenderFillRect(renderer, &jaugeBg);
+
+        // Remplissage
+        if (player->bCompetenceActive) {
+            SDL_SetRenderDrawColor(renderer, r, g, b, 255); // RGB animé
+        } else if (player->bCompetenceReady) {
+            SDL_SetRenderDrawColor(renderer, 0, 255, 120, 255); // Vert
+        } else {
+            SDL_SetRenderDrawColor(renderer, 80, 80, 220, 255); // en recharge
+        }
+        SDL_RenderFillRect(renderer, &jaugeFill);
         SDL_RenderPresent(renderer);
 
     }
@@ -2085,10 +2111,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     if (event->type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) {
         //POUR POWER UP
         if (app.StateActuel == State::Game) {
-            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_WEST) {
 
                 SDL_Log("Button Down");
                 //POWER UP
+                app.player->ActivateCompetence();
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_START) {
                 app.StateActuel = State::Pause;
@@ -2651,6 +2678,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             if (app.keyBindings.count(event->key.scancode)) {
                 app.keyBindings[event->key.scancode]->execute();
+            }
+            if (event->key.scancode == SDL_SCANCODE_E) {
+                app.player->ActivateCompetence();
             }
             /*ancienne methode
             if (event->key.scancode == SDL_SCANCODE_D) {

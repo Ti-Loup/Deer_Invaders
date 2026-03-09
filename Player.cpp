@@ -6,6 +6,7 @@
 #include "State.h"
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_timer.h"
+#include <cmath>
 
 Player::Player() {
     //constructeur
@@ -68,7 +69,7 @@ void Player::UpdatePhysics(float deltaTime) {
 }
 
 //Pour tirer
-void Player::Shoot(std::vector<Entity *> &entity, SDL_Point dir) {
+void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
     SDL_Color BulletColor = currentWeapon->GetColor(); //Prend la couleur de l'arme actuel
     float centerX = transform.position.x + (transform.size.x / 2.0f) - 8.0f;
     float bulletY = transform.position.y - 16.0f;
@@ -86,9 +87,24 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_Point dir) {
     }//Pour ICE
     else if (dynamic_cast<IceBulletType*>(currentWeapon)) {
         //code
+        float decalage = 25.0f;
+        float hight = -10.0f;
+        entity.push_back(new Bullet({ centerX, bulletY + hight},          { 0.f,      -1.f    }, BulletColor)); // centre
+        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor)); // gauche droit
+        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor)); // droite droit
     }
     else if (dynamic_cast<TBDBulletType*>(currentWeapon)) {
         //code
+    }//Pour la compétence special
+    else if (dynamic_cast<CompetenceSpecialBulletType*>(currentWeapon)) {
+        float decalage = 25.0f;
+        constexpr float angleBullet = 0.577f; // l'angle de tir
+
+        entity.push_back(new Bullet({ centerX, bulletY },          { 0.f,      -1.f    }, BulletColor, true)); // centre
+        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, true)); // gauche droit
+        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, true)); // droite droit
+        entity.push_back(new Bullet({ centerX, bulletY },          { -angleBullet, -1.f    }, BulletColor, true)); // diag gauche 30°
+        entity.push_back(new Bullet({ centerX, bulletY },          { angleBullet,  -1.f    }, BulletColor, true)); // diag droite 30°
     }
     else {
         // arme de base
@@ -97,32 +113,84 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_Point dir) {
     }
 }
 
-Bullet::Bullet(SDL_FPoint spawn, SDL_Point dir, SDL_Color color) {
+void Player::UpdateCompetence(float deltaTime) {
+    if (bCompetenceActive) {
+        competenceActiveTimer -= deltaTime;
+        if (competenceActiveTimer <= 0.0f) {
+            // Fin de la compétence -> restaurer l'arme d'avant
+            bCompetenceActive = false;
+            competenceActiveTimer = 0.0f;
+            competenceTimer = 0.0f;
+
+            if (currentWeapon != nullptr) delete currentWeapon;
+            // Si on avait une arme sauvegardée on la remet, sinon arme de base
+            currentWeapon = (previousWeapon != nullptr)
+                ? previousWeapon
+                : new ClassicBulletType();
+            previousWeapon = nullptr;
+        }
+    } else if (!bCompetenceReady) {
+        competenceTimer += deltaTime;
+        if (competenceTimer >= competenceCooldown) {
+            competenceTimer = competenceCooldown;
+            bCompetenceReady = true;
+        }
+    }
+}
+
+void Player::ActivateCompetence() {
+    if (!bCompetenceReady || bCompetenceActive) return;
+
+    bCompetenceActive = true;
+    bCompetenceReady  = false;
+    competenceActiveTimer = competenceActiveDuration;
+
+    // Sauvegarder l'arme actuelle et équiper la compétence
+    previousWeapon = currentWeapon; // on NE delete PAS ici
+    currentWeapon  = new CompetenceSpecialBulletType();
+}
+//fonction si Un ennemie est detruit alors on ajoute au timer
+void Player::AddKillToCompetence() {
+    if (bCompetenceActive) return; // pas besoin si déjà active
+    competenceTimer = std::min(competenceTimer + 1.5f, competenceCooldown);
+    if (competenceTimer >= competenceCooldown)
+        bCompetenceReady = true;
+}
+
+
+Bullet::Bullet(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color,bool isRGB) {
     //Constructeur
-    AddComponent(MOVEMENT);
-    movement.velocity = (SDL_FPoint){0.f * dir.x, 700.f * dir.y}; //les bullets aillent vers le haut
+    AddComponent(MOVEMENT);//movement de base
+    // vitesse toujours 700 peu importe l'angle passé
+    //<cmath>
+    float length = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+    if (length > 0.f) {
+        dir.x /= length;
+        dir.y /= length;
+    }
+    movement.velocity = { 700.f * dir.x, 700.f * dir.y };
     AddComponent(RENDER);
     render.color = color;
     AddComponent(TRANSFORM);
     transform.position = spawn;
     transform.size = (SDL_FPoint){16.f, 16.f};
-
+    bIsRGB = isRGB;
     entityType = EntityType::Bullet;
 }
 
 float ShootCooldown = 0.f;
 float ShootDefaultCooldown = 90.f;
 
-//Tick cooldown
-void Player::ShootUpdate(std::vector<Entity *> &entity, SDL_Point dir, float deltaTime) {
-    //Rajout si on appuie sur la touche
-    if (ShootCooldown <= 0.f && isCurrentlyShooting == true) {
-        // TIRER ICI
-        Shoot(entity, dir);
+//Tick cooldown des tires
+void Player::ShootUpdate(std::vector<Entity *> &entity, SDL_FPoint dir, float deltaTime) {
+    // Cooldown réduit de moitié si compétence active
+    float activeCooldown = bCompetenceActive ? ShootDefaultCooldown / 4.0f : ShootDefaultCooldown;
 
-        ShootCooldown = ShootDefaultCooldown;
+    if (ShootCooldown <= 0.f && isCurrentlyShooting) {
+        Shoot(entity, dir);
+        ShootCooldown = activeCooldown; // <- utilise le bon cooldown
     } else {
-        ShootCooldown -= deltaTime *150.f;
+        ShootCooldown -= deltaTime * 150.f;
     }
 }
 

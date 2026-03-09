@@ -15,16 +15,20 @@ public:
     virtual void execute() = 0;
 };
 
+// Le extern permet de oartager une variable entre plusieurs fichier -> RGB du Main.cpp vers State.cpp
+extern Uint8 r;
+extern Uint8 g;
+extern Uint8 b;
 
 class Main {
-
-
 //~ methodes ~
 public:
+
 void RenderTitle();//Pour mettre un titre
 void RenderCreditsTitle();//Titre Credits
 void RenderShopTitle();//Titre Shop
 void RenderScoreTitle();//Titre Score
+void UpdateBackgroundTint(const float deltaTime);
 void Game();
 //Ce qui permet d'associer une touche a une commande
 Player* player = nullptr;
