@@ -70,6 +70,13 @@ void InvalidShieldType::Affect(Entity *entity) {
 SDL_Color InvalidShieldType::GetColor (){
     return (SDL_Color){0, 0, 0, 255};
 }
+//No Shield (Transparant)
+void NoShieldType::Affect(Entity *entity) {
+    ShieldType::Affect(entity);
+}
+SDL_Color NoShieldType::GetColor () {
+    return (SDL_Color){255, 255, 255, 0}; // <- Aucun shield alors opacité à 0
+}
 //Petit Shield (Bleu)
 void SmallShieldType::Affect(Entity *entity) {
     ShieldType::Affect(entity);

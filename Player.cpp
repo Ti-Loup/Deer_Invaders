@@ -263,6 +263,25 @@ int shieldPrice = 0;
     }
     //Si on a deja un shield
     if (currentShield != nullptr) {
-
+        delete currentShield;
     }
+    switch (typeShield) {
+        case ShieldAmount::NoShield:
+            currentShield = new NoShieldType();
+            break;
+        case ShieldAmount::SmallShield:
+            currentShield = new SmallShieldType();
+            break;
+        case ShieldAmount::MediumShield:
+            currentShield = new MediumShieldType();
+            break;
+        case ShieldAmount::LargeShield:
+            currentShield = new LargeShieldType();
+            break;
+    }
+
+    //On fait la soustraction du nombre de viande Total - viande restante
+    meatCount -= shieldPrice;
+    SDL_Log("Nouvelle Arme debloquer");
+    return true;//fin fonction bool
 }
