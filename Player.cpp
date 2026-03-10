@@ -152,7 +152,7 @@ void Player::ActivateCompetence() {
 //fonction si Un ennemie est detruit alors on ajoute au timer
 void Player::AddKillToCompetence() {
     if (bCompetenceActive) return; // pas besoin si déjà active
-    competenceTimer = std::min(competenceTimer + 1.5f, competenceCooldown);
+    competenceTimer = std::min(competenceTimer + 2.0f, competenceCooldown);
     if (competenceTimer >= competenceCooldown)
         bCompetenceReady = true;
 }
@@ -239,3 +239,5 @@ int weaponPrice = 0;
     SDL_Log("Nouvelle Arme debloquer");
     return true;//fin fonction bool
 }
+
+//Fonction pour l'amilioration des hp

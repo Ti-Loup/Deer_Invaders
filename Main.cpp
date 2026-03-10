@@ -139,6 +139,7 @@ public:
     TTF_Font *dynamicPlayerHealFont = nullptr;
     TTF_Font *competenceSpecialFont = nullptr;
     TTF_Text *competenceSpecialText = nullptr;
+    TTF_Text *competenceSpecialText2 = nullptr;// Gris de base
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -486,7 +487,7 @@ private:
         if (InventoryText == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set the inventory text", SDL_GetError());
         }
-        dynamicPlayerHealFont = TTF_OpenFont("assets/font.ttf", 20);
+        dynamicPlayerHealFont = TTF_OpenFont("assets/font.ttf", 40);
         dynamicPlayerHeal = TTF_CreateText(textEngine, dynamicPlayerHealFont, "Heal: 150", 25);
         if (dynamicPlayerHeal == nullptr) {
             SDL_LogWarn(0,"failed to create the text of dynamicPlayerHeal", SDL_GetError());
@@ -501,6 +502,10 @@ private:
         }
         if (TTF_SetTextColor(competenceSpecialText, 80, 80, 220, 255) == false) {
             SDL_LogWarn(0, "failed to set the color of competenceSpecialText", SDL_GetError());
+        }
+        competenceSpecialText2 = TTF_CreateText(textEngine, competenceSpecialFont, "special Skill Available", 25);
+        if (competenceSpecialText2 == nullptr) {
+            SDL_LogWarn(0, "failed to create the text for competenceSpecialText", SDL_GetError());
         }
 
         //POUR PAUSE
@@ -1646,12 +1651,16 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
 
         // Remplissage
         if (player->bCompetenceActive) {
+            TTF_DrawRendererText(competenceSpecialText2, 50, 925);
+            TTF_SetTextColor(competenceSpecialText2,40,40,40,255);
             SDL_SetRenderDrawColor(renderer, r, g, b, 255); // RGB animé
         } else if (player->bCompetenceReady) {
             //Rajouter Texte + Color ~
             TTF_DrawRendererText(competenceSpecialText, 50, 925);
             SDL_SetRenderDrawColor(renderer, 0, 255, 120, 255); // Vert
         } else {
+            TTF_DrawRendererText(competenceSpecialText2, 50, 925);
+            TTF_SetTextColor(competenceSpecialText2,40,40,40,255);
             SDL_SetRenderDrawColor(renderer, 80, 80, 220, 255); // en recharge
         }
         SDL_RenderFillRect(renderer, &jaugeFill);
