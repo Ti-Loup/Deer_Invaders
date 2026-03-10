@@ -13,8 +13,9 @@ enum class EntityType {
 Player,//0
 Enemy,//1
 Bullet,//2
-EnemyBullet,//3
-Collectable,//4
+Shield,//3
+EnemyBullet,//4
+Collectable,//5
 };
 
 class Entity {

@@ -14,7 +14,9 @@ enum class State {
 Menu,
 ChoixNiveau,//Apres start pour choisir le niveau
 Game,
-IntroGame, //<- Pour l'intro
+IntroNiveau1,
+IntroNiveau2,
+IntroNiveau3,    //<- Pour l'intro
 ScoreBoard,
 Shop,
 Credits,
@@ -29,12 +31,21 @@ enum class WaveType{
 Elimination,
 Survival,
 };
+//Pour les differents types d'armes
 
 enum class ArmeNiveau {
     Classic,
     Fire,
     Ice,
     Tbd,
+};
+//Pour les differents types de shields
+
+enum class ShieldAmount {
+    NoShield,
+    SmallShield,
+    MediumShield,
+    LargeShield,
 };
 
 //Le type de Bullet
@@ -97,6 +108,50 @@ class CompetenceSpecialBulletType : public BulletType{
     CompetenceSpecialBulletType () = default;
     void Affect (Entity *entity) override;
 
+    SDL_Color GetColor () override;
+};
+//Les differents state de Shield ( petit shield bleue, moyen shield mauve, grand shield Jaune)
+class ShieldType {
+    public:
+    ShieldType () = default;
+    virtual ~ShieldType() = default;
+
+    virtual void Affect (Entity *entity);
+    virtual SDL_Color GetColor () = 0;
+};
+class InvalidShieldType : public ShieldType {
+    public:
+    InvalidShieldType () = default;
+    void Affect (Entity *entity) override;
+    SDL_Color GetColor () override;
+};
+//Pas de shield
+class NoShieldType : public ShieldType {
+public:
+    NoShieldType () = default;
+    void Affect (Entity *entity) override;
+    SDL_Color GetColor() override;
+};
+
+//Petit Shield
+class SmallShieldType : public ShieldType {
+    public:
+    SmallShieldType () = default;
+    void Affect (Entity *entity) override;
+    SDL_Color GetColor () override;
+};
+//Moyen Shield
+class MediumShieldType : public ShieldType {
+public:
+    MediumShieldType () = default;
+    void Affect (Entity *entity) override;
+    SDL_Color GetColor () override;
+};
+//Grand Shield
+class LargeShieldType : public ShieldType {
+public:
+    LargeShieldType () = default;
+    void Affect (Entity *entity) override;
     SDL_Color GetColor () override;
 };
 

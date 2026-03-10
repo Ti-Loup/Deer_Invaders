@@ -240,4 +240,29 @@ int weaponPrice = 0;
     return true;//fin fonction bool
 }
 
-//Fonction pour l'amilioration des hp
+//Fonction pour l'obtension d'un shield
+//Si vrai on upgrade le shield
+bool Player::ShieldUpgrade(ShieldAmount typeShield, int &meatCount) {
+int shieldPrice = 0;
+    switch (typeShield) {
+        case ShieldAmount::SmallShield: shieldPrice = 10;
+            break;
+        case ShieldAmount::MediumShield: shieldPrice = 50;
+            break;
+        case ShieldAmount::LargeShield: shieldPrice = 100;
+            break;
+        case ShieldAmount::NoShield :shieldPrice = 0;
+            break;
+        default :shieldPrice = 0;
+    }
+
+    //Si on a pas asser de viance pour acheter un Shield -> On sort de la boucle
+    if (meatCount < shieldPrice) {
+        SDL_Log("Pas asser de viande pour acheter un shield");
+        return false; // Fin de la fonction bool
+    }
+    //Si on a deja un shield
+    if (currentShield != nullptr) {
+
+    }
+}

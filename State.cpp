@@ -59,3 +59,35 @@ void TBDBulletType::Affect(Entity *entity) {
 SDL_Color TBDBulletType::GetColor () {
     return (SDL_Color){1, 2, 2, 255};
 }
+
+//Pour le Shield Du Player
+void ShieldType::Affect(Entity *entity) {
+
+}
+void InvalidShieldType::Affect(Entity *entity) {
+    ShieldType::Affect(entity);
+}//Si invalide -> noir
+SDL_Color InvalidShieldType::GetColor (){
+    return (SDL_Color){0, 0, 0, 255};
+}
+//Petit Shield (Bleu)
+void SmallShieldType::Affect(Entity *entity) {
+    ShieldType::Affect(entity);
+}
+SDL_Color SmallShieldType::GetColor () {
+    return (SDL_Color){85,23,255,255};
+}
+//Moyen Shield (Mauve)
+void MediumShieldType::Affect(Entity *entity) {
+    ShieldType::Affect(entity);
+}
+SDL_Color MediumShieldType::GetColor () {
+    return (SDL_Color){186, 23, 255, 255};
+}
+//Grand Shield (Jaune)
+void LargeShieldType::Affect(Entity *entity) {
+    ShieldType::Affect(entity);
+}
+SDL_Color LargeShieldType::GetColor () {
+    return (SDL_Color){233,255,23,255};
+}

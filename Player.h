@@ -24,6 +24,9 @@ public:
      //Le type d'arme (-> Dans State.h)
     BulletType* currentWeapon;
 BulletType* previousWeapon = nullptr; // pour restaurer l'arme après
+    //Le type de shield de state.h
+    ShieldType* currentShield;
+    ShieldType* previousShield = nullptr;
 //Competence special
 float competenceTimer = 0.0f;
 const float competenceCooldown = 100.0f; // <- vitesse du competenceCooldown
@@ -42,8 +45,9 @@ float competenceActiveTimer = 0.0f;
 
     void ShootUpdate (std::vector<Entity *> &entity, SDL_FPoint dir,float deltaTime);
 
+    //Pour les boutons du shop, pouvoir changer l'arme et le shield en fonction du nombre de meat
     bool ArmeUpgrade(ArmeNiveau type, int &meatCount);
-
+    bool ShieldUpgrade(ShieldAmount typeShield, int &meatCount);
     //Competence Special
     void UpdateCompetence(float deltaTime);
     void ActivateCompetence();

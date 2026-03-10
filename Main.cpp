@@ -112,15 +112,34 @@ public:
     SDL_FRect BoutonChoixNiveau3 ={1400, 550, 300,300};
 
 
-    // -> INTROGAME <-
+    // -> INTRONIVEAU 1 / 2 / 3 <-
     SDL_Texture *HumainTexture = nullptr;
-    int indexMessageIntro = 0;
-    static const int NB_MESSAGES_INTRO = 3;
-    const char *phrasesIntro[NB_MESSAGES_INTRO] = {
+    SDL_Texture *DeerTexture = nullptr;
+    int indexMessageIntroNiveau1 = 0;
+    int indexMessageIntroNiveau2 = 0;
+    int indexMessageIntroNiveau3 = 0;
+
+    static const int NB_MESSAGES_IntroNiveau1 = 3;
+    const char *phrasesIntroNiveau1[NB_MESSAGES_IntroNiveau1] = {
         "Humain : We must defend againts this invasion !",
         "Deer : You will soon be under our control ",
         "Humain : Free our World ! For our freedom !"
     };
+    static const int NB_MESSAGES_IntroNiveau2 = 4;
+    const char *phrasesIntroNiveau2[NB_MESSAGES_IntroNiveau2] = {
+        "Humain : Our defence has not been breached ",
+        "Humain : We must attack them at their own territories",
+        "Deer : Come!~ We are waiting for you",
+        "Humain : Prepare yourself ! Humainkind is at risk"
+    };
+    static const int NB_MESSAGES_IntroNiveau3 = 3;
+    const char *phrasesIntroNiveau3[NB_MESSAGES_IntroNiveau3] = {
+        "TBD",
+        "TBD",
+        "TBD"
+    };
+
+
     TTF_Text* texteIntroCerfEtHUmain = nullptr; // Le texte qui sera affiché
 
 
@@ -470,7 +489,7 @@ private:
 
 
         //DANS INTROGAME
-        texteIntroCerfEtHUmain = TTF_CreateText(textEngine, ShopFont, phrasesIntro[0], 0);
+        texteIntroCerfEtHUmain = TTF_CreateText(textEngine, ShopFont, phrasesIntroNiveau1[0], 0);
         TTF_SetTextColor(texteIntroCerfEtHUmain, 255, 255, 255, 255);
 
 
@@ -2036,8 +2055,14 @@ public:
                 PauseSystem(deltaTime);
                 break;
                 //pour acceder a l'intro avant de jouer
-            case State::IntroGame:
+            case State::IntroNiveau1:
                 IntroGame(deltaTime);
+                break;
+            case State::IntroNiveau2:
+                IntroGame(deltaTime);
+                break;
+            case State::IntroNiveau3:
+                IntroGame(deltaTime); // <- Intro game qui s'occupe de chaque intro differente
                 break;
             case State::DeathScreen:
                 DeathScreen(deltaTime);
@@ -2140,17 +2165,17 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.StateActuel = State::Pause;
             }
         }
-        //Dans Le IntroGame
-        if (app.StateActuel == State::IntroGame) {
-            app.indexMessageIntro++;
+        //Dans Le IntroNIveau1
+        if (app.StateActuel == State::IntroNiveau1) {
+            app.indexMessageIntroNiveau1++;
 
-            if (app.indexMessageIntro < app.NB_MESSAGES_INTRO) {
+            if (app.indexMessageIntroNiveau1 < app.NB_MESSAGES_IntroNiveau1) {
 
-                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[app.indexMessageIntro], 0);
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[app.indexMessageIntroNiveau1], 0);
             } else {
                 app.StateActuel = State::Game;
-                app.indexMessageIntro = 0;
-                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[0], 0);
+                app.indexMessageIntroNiveau1 = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[0], 0);
             }
         }
         //GERER SELECTION MENU AVEC GAMEPAD
@@ -2225,13 +2250,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 //switch case ChoixNiveau
                 switch (app.selectedButtonChoixNiveau) {
                     case 0:
-                        app.StateActuel = State::IntroGame;
+                        app.StateActuel = State::IntroNiveau1;
                         break;
                     case 1:
-                        app.StateActuel = State::IntroGame; // <-A FAIRE LES DIFFERENTS INTRO
+                        app.StateActuel = State::IntroNiveau1; // <-A FAIRE LES DIFFERENTS INTRO
                         break;
                     case 2:
-                        app.StateActuel = State::IntroGame; // <- A FAIRE LES DIFFERENTS INTRO
+                        app.StateActuel = State::IntroNiveau1; // <- A FAIRE LES DIFFERENTS INTRO
                         break;
                 }
 
@@ -2564,30 +2589,46 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         else if (app.StateActuel == State::ChoixNiveau) {
             //va vers intro de niveau 1
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau1)) {
-                app.StateActuel = State::IntroGame;
+                app.StateActuel = State::IntroNiveau1;
             }
             //va vers intro de niveau 2
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau2)) {
-                app.StateActuel = State::IntroGame;
+                app.StateActuel = State::IntroNiveau2;
             }
             //va vers intro de niveau 3
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau3)) {
-                app.StateActuel = State::IntroGame;
+                app.StateActuel = State::IntroNiveau3;
             }
         }
-        //Dans Le IntroGame
-        else if (app.StateActuel == State::IntroGame) {
-            app.indexMessageIntro++;
+        //Dans Le IntroNiveau1
+        else if (app.StateActuel == State::IntroNiveau1) {
+            app.indexMessageIntroNiveau1++;
 
-            if (app.indexMessageIntro < app.NB_MESSAGES_INTRO) {
-                // N'oublie pas 'app.' partout ici aussi
-                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[app.indexMessageIntro], 0);
+            if (app.indexMessageIntroNiveau1 < app.NB_MESSAGES_IntroNiveau1) {
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[app.indexMessageIntroNiveau1], 0);
             } else {
                 app.StateActuel = State::Game;
             }
 
         }
+        //Dans le IntroNiveau2
+        else if (app.StateActuel == State::IntroNiveau2) {
+        app.indexMessageIntroNiveau2++;
 
+            if (app.indexMessageIntroNiveau2 < app.NB_MESSAGES_IntroNiveau2) {
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[app.indexMessageIntroNiveau2], 0);
+            }
+            else {
+                app.StateActuel = State::Game;
+            }
+        }
+        //Dans le Intro Niveau3
+        else if (app.StateActuel == State::IntroNiveau3) {
+        app.indexMessageIntroNiveau3++;
+            if (app.indexMessageIntroNiveau3 < app.NB_MESSAGES_IntroNiveau3) {
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[app.indexMessageIntroNiveau3], 0);
+            }
+        }
         //Dans Le Pause
         else if (app.StateActuel == State::Pause) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonResume)) {
@@ -2681,16 +2722,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
         }
         //Dans Le IntroGame
-         if (app.StateActuel == State::IntroGame) {
-            app.indexMessageIntro++;
+         if (app.StateActuel == State::IntroNiveau1) {
+            app.indexMessageIntroNiveau1++;
 
-            if (app.indexMessageIntro < app.NB_MESSAGES_INTRO) {
+            if (app.indexMessageIntroNiveau1 < app.NB_MESSAGES_IntroNiveau1) {
 
-                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[app.indexMessageIntro], 0);
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[app.indexMessageIntroNiveau1], 0);
             } else {
                 app.StateActuel = State::Game;
-                app.indexMessageIntro = 0;
-                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntro[0], 0);
+                app.indexMessageIntroNiveau1 = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[0], 0);
             }
         }
         if (app.StateActuel == State::Game) {
