@@ -195,26 +195,36 @@ public:
     // -> Shop <- Text et Fonts
     //Fonts
     TTF_Font *BoutonUpgradeFont = nullptr;
-    TTF_Font *ArmeDescriptionFont = nullptr;
+    TTF_Font *Arme_Shield_DescriptionFont = nullptr;
     TTF_Font *currentMeatShopFont = nullptr;
     //Texts
     TTF_Text *BoutonUpgradeText = nullptr;
     TTF_Text *BoutonHPUpgradeText = nullptr;
+    //Text armes
     TTF_Text *ArmeFireText = nullptr;
     TTF_Text *ArmeIceText = nullptr;
     TTF_Text *ArmeTBDText = nullptr;
-    //Pour faciliter le joueur a savoir si il peut en acheter un ou non
+    //Text shields
+    TTF_Text *ShieldSmallText = nullptr;
+    TTF_Text *ShieldMediumText = nullptr;
+    TTF_Text *ShieldLargeText = nullptr;
+    //Pour faciliter le joueur a savoir si il peut en acheter un ou non une arme
     TTF_Text *statusFire = nullptr;
     TTF_Text *statusIce = nullptr;
     TTF_Text *statusTbd = nullptr;
+    //Pour faciliter le joueur a savoir si il peut en acheter un ou non un shield
+    TTF_Text *statusSmallShield = nullptr;
+    TTF_Text *statusMediumShield = nullptr;
+    TTF_Text *statusLargeShield = nullptr;
+
     TTF_Text *currentMeatShop = nullptr;//savoir combien de meat on a en ce moment
     TTF_Text *resumeGameShopText = nullptr;
     //rectangle
-    SDL_FRect MeatInventoryShop ={200.0f, 500.0f, 50.0f,50.0f};
+    SDL_FRect MeatInventoryShop ={200.0f, 100.0f, 50.0f,50.0f};
     SDL_FRect BoutonResumeGameShop = {1350.0f, 900.0f, 200.0f,100.0f};
     //Boutons
     SDL_FRect BoutonUpgrade = {800, 800, 125, 100};
-    SDL_FRect BoutonHPUpgrade = {1000, 800, 125, 100};
+    SDL_FRect BoutonShieldUpgrade = {1000, 800, 125, 100};
 
     TTF_Text *ShopMenuText = nullptr;
 
@@ -283,10 +293,14 @@ public:
     int currentHP = 150;
     int lastHP = 1;
 
+
+    //Pour SHOP
     //Pour les armes
-    //Pour shop,
     int currentWeaponLevel = 0;
     int globalWeaponLevel = 0;
+    //Pour Les shields
+    int currentShieldLevel = 0;
+    int globalShieldLevel = 0;
 
     //POUR LES FONCTIONS DES WAVES
     int currentWave = 0;
@@ -629,43 +643,82 @@ private:
         if (TTF_SetTextColor(ShopMenuText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(2,"Erreur de couleur pour le titre de Shop -> Shop", SDL_GetError());
         }
-        ArmeDescriptionFont = TTF_OpenFont("assets/font.ttf", 40);
-        if (ArmeDescriptionFont == nullptr) {
-            SDL_LogWarn(0,"failed to implement the font ArmeDescriptionFont", SDL_GetError());
+        Arme_Shield_DescriptionFont = TTF_OpenFont("assets/font.ttf", 40);
+        if (Arme_Shield_DescriptionFont == nullptr) {
+            SDL_LogWarn(0,"failed to implement the font Arme_Shield_DescriptionFont", SDL_GetError());
         }
-        ArmeFireText = TTF_CreateText(textEngine, ArmeDescriptionFont, "Weapon Fire - 10 Meats -", 25);
+        ArmeFireText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Weapon Fire - 10 Meats -", 25);
         if (ArmeFireText == nullptr) {
             SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
         }
         if (TTF_SetTextColor(ArmeFireText, 247, 65, 27, 255) == false) {
             SDL_LogWarn(2,"failed to put the color of ArmeFireText",SDL_GetError());
         }
-        ArmeIceText = TTF_CreateText(textEngine, ArmeDescriptionFont, "Weapon Ice - 50 Meats -", 25);
+        ArmeIceText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Weapon Ice - 50 Meats -", 25);
         if (ArmeIceText == nullptr) {
             SDL_LogWarn(1, "failed to set the ArmeIceText ", SDL_GetError());
         }
         if (TTF_SetTextColor(ArmeIceText, 173, 216, 216, 230) == false) {
             SDL_LogWarn(2,"failed to put the color of ArmeIceText",SDL_GetError());
         }
-        ArmeTBDText = TTF_CreateText(textEngine, ArmeDescriptionFont, "Arme TBD - 100 Meats -", 25);
+        ArmeTBDText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Arme TBD - 100 Meats -", 25);
         if (ArmeTBDText == nullptr) {
             SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
         }
         if (TTF_SetTextColor(ArmeTBDText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(2,"failed to put the color of ArmeTBDText",SDL_GetError());
-        }
-        statusFire = TTF_CreateText(textEngine, ArmeDescriptionFont, "LEVEL 2", 25);
+        }//Status des armes
+        statusFire = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "LEVEL 2", 25);
         if (statusFire == nullptr) {
             SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
         }
-        statusIce = TTF_CreateText(textEngine, ArmeDescriptionFont, "LEVEL 3", 25);
+        statusIce = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "LEVEL 3", 25);
         if (statusIce == nullptr) {
             SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
         }
-        statusTbd = TTF_CreateText(textEngine, ArmeDescriptionFont, "LEVEL 4", 25);
+        statusTbd = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "LEVEL 4", 25);
         if (statusTbd == nullptr) {
             SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
         }
+
+        //SHIELD TTF
+        ShieldSmallText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Small Shield - 10 Meats -", 25);
+        if (ShieldSmallText == nullptr) {
+            SDL_LogWarn(1, "failed to set the ShieldSmallText ", SDL_GetError());
+        }
+        if (TTF_SetTextColor(ShieldSmallText, 85,23,255,255) == false) {
+            SDL_LogWarn(2,"failed to put the color of ShieldSmallText",SDL_GetError());
+        }
+        ShieldMediumText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Medium Shield - 50 Meats -", 25);
+        if (ShieldMediumText == nullptr) {
+            SDL_LogWarn(1, "failed to set the ShieldMediumText ", SDL_GetError());
+        }
+        if (TTF_SetTextColor(ShieldMediumText, 186, 23, 255, 255) == false) {
+            SDL_LogWarn(2,"failed to put the color of ShieldMediumText",SDL_GetError());
+        }
+        ShieldLargeText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Large Shield - 100 Meats -", 25);
+        if (ShieldLargeText == nullptr) {
+            SDL_LogWarn(1, "failed to set the ShieldLargeText ", SDL_GetError());
+        }
+        if (TTF_SetTextColor(ShieldLargeText, 233,255,23,255) == false) {
+            SDL_LogWarn(2,"failed to put the color of ShieldLargeText",SDL_GetError());
+        }//Status des armes
+        statusSmallShield = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "LEVEL 2", 25);
+        if (statusSmallShield == nullptr) {
+            SDL_LogWarn(1, "failed to set the statusSmallShield ", SDL_GetError());
+        }
+        statusMediumShield = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "LEVEL 3", 25);
+        if (statusMediumShield == nullptr) {
+            SDL_LogWarn(1, "failed to set the statusMediumShield ", SDL_GetError());
+        }
+        statusLargeShield = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "LEVEL 4", 25);
+        if (statusLargeShield == nullptr) {
+            SDL_LogWarn(1, "failed to set the statusLargeShield ", SDL_GetError());
+        }
+
+
+
+
         currentMeatShopFont = TTF_OpenFont("assets/font.ttf", 60);
         currentMeatShop = TTF_CreateText(textEngine, currentMeatShopFont, "0", 25);
         if (currentMeatShop == nullptr) {
@@ -730,7 +783,7 @@ private:
         if (TTF_SetTextColor(CreditsRoleText2, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
-        CreditsRoleText3 = TTF_CreateText(textEngine, CreditsRoleFont, "Role Fraiche : ", 25);
+        CreditsRoleText3 = TTF_CreateText(textEngine, CreditsRoleFont, "Role Fraise : ", 25);
         if (CreditsRoleText3 == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
@@ -759,6 +812,16 @@ private:
         TTF_DestroyText(ChoixNiveau2Text);
         TTF_DestroyText(ChoixNiveau3Text);
         TTF_CloseFont(ChoixNiveauFont);
+
+        //Shop
+        TTF_CloseFont (Arme_Shield_DescriptionFont);
+        TTF_DestroyText(ShieldSmallText);
+        TTF_DestroyText(ShieldMediumText);
+        TTF_DestroyText(ShieldLargeText);
+        TTF_DestroyText (ArmeFireText);
+        TTF_DestroyText (ArmeIceText);
+        TTF_DestroyText (ArmeTBDText);
+
 
         TTF_DestroyText(MenuTitle);
         TTF_DestroyRendererTextEngine(textEngine);
@@ -962,7 +1025,30 @@ private:
         }
 
     }
+    //La fonction du dessin de la barre de progression des Shields
+    void RenderGlobalShieldProgresBar(float startX, float startY) {
+        //pour un petit rectangle
+        int segmentWidth = 110;
+        int segmentHeight = 30;
+        int espace = 12;
 
+        //3 Shield
+        for (int i = 0; i< 3; i++) {
+            SDL_FRect segment = {startX, startY - (i * (segmentHeight + espace)), (float)segmentWidth, (float)segmentHeight};
+
+            if (i < globalWeaponLevel) {
+                // Segment rempli
+                if (i == 0) SDL_SetRenderDrawColor(renderer, 85,23,255,255); // Bleu (Petit Shield)
+                if (i == 1) SDL_SetRenderDrawColor(renderer, 186, 23, 255, 255); // Mauve (Moyen Shield)
+                if (i == 2) SDL_SetRenderDrawColor(renderer, 233,255,23,255); // Jaune (Large Shield)
+            } else {
+                // Segment vide
+                SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+            }
+            SDL_RenderFillRect(renderer, &segment);
+        }
+
+    }
     //Menu du jeu qui run
     void Menu(float deltaTime) {
         SDL_Event MenuEvents;
@@ -1816,7 +1902,8 @@ GameApp &app = GameApp::GetInstance();
         //Render
         RenderShopTitle();
         UpdateBackgroundTint(deltaTime);//Le rgb
-        RenderGlobalWeaponProgresBar(805, 750);
+        RenderGlobalWeaponProgresBar(805, 750);// Pour render les cubes pour les armes.
+        RenderGlobalShieldProgresBar(1005, 750);// Pour render les cubes pour les shields
         //Bouton Upgrade Weapon
         if (selectedButtonShop == 0) {
             RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
@@ -1824,9 +1911,9 @@ GameApp &app = GameApp::GetInstance();
             RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 255, 255, 255);
         }//Bouton HP
         if (selectedButtonShop == 1) {
-            RenderBoutons(BoutonHPUpgrade, BoutonHPUpgradeText, r, g, b);
+            RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, r, g, b);
         }else {
-            RenderBoutons(BoutonHPUpgrade, BoutonHPUpgradeText, 255, 255, 255);
+            RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, 255, 255, 255);
         }//Bouton Return GAme
         if (selectedButtonShop == 2) {
             RenderBoutons(BoutonResumeGameShop, resumeGameShopText, r, g, b);
@@ -1843,12 +1930,15 @@ GameApp &app = GameApp::GetInstance();
         //pour actualiser le current meat
         std::string meatStr = " " + std::to_string(currentMeat);
         TTF_SetTextString(currentMeatShop, meatStr.c_str(), 0);
-        TTF_DrawRendererText(currentMeatShop, 270, 500);
+        TTF_DrawRendererText(currentMeatShop, 270, 100);
 
         TTF_DrawRendererText(fpsText, 1800, 10);
-        TTF_DrawRendererText(ArmeFireText, 100,750);
-        TTF_DrawRendererText(ArmeIceText, 100,850);
-        TTF_DrawRendererText(ArmeTBDText, 100,950);
+        TTF_DrawRendererText(ArmeFireText, 100,350);
+        TTF_DrawRendererText(ArmeIceText, 100,450);
+        TTF_DrawRendererText(ArmeTBDText, 100,550);
+        TTF_DrawRendererText(ShieldSmallText, 100,750);
+        TTF_DrawRendererText(ShieldMediumText, 100,850);
+        TTF_DrawRendererText(ShieldLargeText, 100,950);
         //Fire
         if (globalWeaponLevel >= 1) {
             // possece deja l'arme
@@ -1865,7 +1955,7 @@ GameApp &app = GameApp::GetInstance();
             TTF_SetTextString(statusFire, "LEVEL 2", 0);
             TTF_SetTextColor(statusFire, 255, 0, 0, 255); // ROUGE
         }
-        TTF_DrawRendererText(statusFire, 100, 750 + 40);
+        TTF_DrawRendererText(statusFire, 100, 350 + 40);
 
         // Ice
         if (globalWeaponLevel >= 2) {
@@ -1883,7 +1973,7 @@ GameApp &app = GameApp::GetInstance();
             TTF_SetTextString(statusIce, "LEVEL 3", 0); //
             TTF_SetTextColor(statusIce, 255, 0, 0, 255); // ROUGE
         }
-        TTF_DrawRendererText(statusIce, 100, 850 + 40);
+        TTF_DrawRendererText(statusIce, 100, 450 + 40);
 
         //WEAPON TBD
         if (globalWeaponLevel >= 3) {
@@ -1901,8 +1991,61 @@ GameApp &app = GameApp::GetInstance();
             TTF_SetTextString(statusTbd, "LEVEL 4", 0);
             TTF_SetTextColor(statusTbd, 255, 0, 0, 255); // ROUGE
         }
-        TTF_DrawRendererText(statusFire, 100, 750 + 40);
-        TTF_DrawRendererText(statusTbd, 100, 950 + 40);
+        TTF_DrawRendererText(statusTbd, 100, 550 + 40);
+
+        //Small Shield
+        if (globalShieldLevel >= 1) {
+            // possece deja le shield
+            TTF_SetTextString(statusSmallShield, "EQUIPPED", 0);
+            TTF_SetTextColor(statusSmallShield, 0, 255, 0, 255); // reste vert
+        }
+        else if (currentMeat >= 10) {
+
+            TTF_SetTextString(statusSmallShield, "AVAILABLE", 0);
+            TTF_SetTextColor(statusSmallShield, 0, 255, 0, 255); // VERT (Achetable)
+        }
+        else {
+
+            TTF_SetTextString(statusSmallShield, "LEVEL 2", 0);
+            TTF_SetTextColor(statusSmallShield, 255, 0, 0, 255); // ROUGE
+        }
+        TTF_DrawRendererText(statusSmallShield, 100, 750 + 40);
+
+        // Medium Shield
+        if (globalShieldLevel >= 2) {
+            //possede deja un shield
+            TTF_SetTextString(statusMediumShield, "EQUIPPED", 0);
+            TTF_SetTextColor(statusMediumShield, 0, 255, 0, 255); // Reste VERT car acquis
+        }
+        else if (currentMeat >= 50) {
+
+            TTF_SetTextString(statusMediumShield, "AVAILABLE", 0);
+            TTF_SetTextColor(statusMediumShield, 0, 255, 0, 255); // VERT (Achetable)
+        }
+        else {
+
+            TTF_SetTextString(statusMediumShield, "LEVEL 3", 0); //
+            TTF_SetTextColor(statusMediumShield, 255, 0, 0, 255); // ROUGE
+        }
+        TTF_DrawRendererText(statusMediumShield, 100, 850 + 40);
+
+        //Large Shield
+        if (globalShieldLevel >= 3) {
+            //Possede deja un shield
+            TTF_SetTextString(statusLargeShield, "EQUIPEED", 0);
+            TTF_SetTextColor(statusLargeShield, 0, 255, 0, 255); // Reste VERT car acquis
+        }
+        else if (currentMeat >= 100) {
+
+            TTF_SetTextString(statusLargeShield, "AVAILABLE", 0);
+            TTF_SetTextColor(statusLargeShield, 0, 255, 0, 255); // VERT (Achetable)
+        }
+        else {
+
+            TTF_SetTextString(statusLargeShield, "LEVEL 4", 0);
+            TTF_SetTextColor(statusLargeShield, 255, 0, 0, 255); // ROUGE
+        }
+        TTF_DrawRendererText(statusLargeShield, 100, 950 + 40);
 
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
         SDL_RenderFillRect(renderer, &MeatInventoryShop);
@@ -2695,11 +2838,28 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
 
-
             // Bouton Upgrade HP
-            if (SDL_PointInRectFloat(&MousePT, &app.BoutonHPUpgrade)) {
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonShieldUpgrade)) {
                 SDL_Log("Achat Upgrade HP");
-                // player->Heal();
+                // player->ShieldUpgrade();
+                if (app.currentShieldLevel == 0) {
+                    if (app.player->ShieldUpgrade(ShieldAmount::SmallShield, app.currentMeat)) {
+                        app.currentShieldLevel = 1; // On achete le prochain shield
+                        app.globalShieldLevel = 1;
+                    }
+                }
+                else if (app.currentShieldLevel == 1) {
+                    if (app.player->ShieldUpgrade(ShieldAmount::MediumShield, app.currentMeat)) {
+                        app.currentShieldLevel = 2;
+                        app.globalShieldLevel = 2;
+                    }
+                }
+                else if (app.currentShieldLevel == 2) {
+                    if (app.player->ShieldUpgrade(ShieldAmount::LargeShield, app.currentMeat)) {
+                        app.currentShieldLevel = 3;
+                        app.globalShieldLevel = 3;
+                    }
+                }
             }
         } else if (app.StateActuel == State::Credits) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
