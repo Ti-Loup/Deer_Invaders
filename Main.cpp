@@ -2396,10 +2396,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.StateActuel = State::IntroNiveau1;
                         break;
                     case 1:
-                        app.StateActuel = State::IntroNiveau1; // <-A FAIRE LES DIFFERENTS INTRO
+                        app.StateActuel = State::IntroNiveau2; // <-A FAIRE LES DIFFERENTS INTRO
                         break;
                     case 2:
-                        app.StateActuel = State::IntroNiveau1; // <- A FAIRE LES DIFFERENTS INTRO
+                        app.StateActuel = State::IntroNiveau3; // <- A FAIRE LES DIFFERENTS INTRO
                         break;
                 }
 
