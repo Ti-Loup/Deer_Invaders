@@ -32,7 +32,7 @@ public:
 
    //Un flash quand le cerf est toucher par bullet
    float hitFlashTimer = 0.0f; //le timer
-   const float hitFlashDuration = 0.2f;//duree
+   const float hitFlashDuration = 0.4f;//duree
    bool bIsFlashing = false;
 
     SDL_Texture *textureCerf = nullptr;
