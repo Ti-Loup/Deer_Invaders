@@ -166,6 +166,8 @@ public:
     SDL_Texture *ShieldUI = nullptr;
     //Texture fraise
     SDL_Texture* textureStrawberry = nullptr;
+    //Texture Cerf
+    SDL_Texture *textureCerf = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -565,7 +567,11 @@ private:
         if (textureStrawberry == nullptr) {
             SDL_LogWarn(0, "Erreur chargement Strawb.png: %s", SDL_GetError());
         }
-
+        //Pour faire spawn la texture du Cerf
+        textureCerf = IMG_LoadTexture(renderer, "assets/DeerEnnemie.png");
+        if (textureCerf == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureCerf", SDL_GetError());
+        }
 
         //POUR PAUSE
         FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
@@ -871,6 +877,7 @@ private:
         SDL_DestroyTexture(spritesheet);
         SDL_DestroyTexture(DeerLogo);
         SDL_DestroyTexture(textureStrawberry);
+        SDL_DestroyTexture(textureCerf);
         SDL_DestroyTexture(ScoreUI);
         SDL_DestroyTexture(HealUI);
         SDL_DestroyRenderer(renderer);
@@ -1235,46 +1242,46 @@ private:
     }
     //Pour la premiere vague d'ennemies
     void SpawnWave1() {
-        entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(250.f, 50.0f, true));
-        entities.push_back(new Enemy_Deer(400.f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true));
+        entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 50.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true, textureCerf));
 
-        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true));
-        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true));
+        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true, textureCerf));
 
         //Ligne 2 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(250.f, 180.0f, true));
-        entities.push_back(new Enemy_Deer(400.f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true));
+        entities.push_back(new Enemy_Deer(100.f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 180.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true, textureCerf));
 
-        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true));
-        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true));
+        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true, textureCerf));
+        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true, textureCerf));
         //Ligne 3 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 330.0f, false));
-        entities.push_back(new Enemy_Deer(250.f, 330.0f, true));
-        entities.push_back(new Enemy_Deer(400.f, 330.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 330.0f, true));
+        entities.push_back(new Enemy_Deer(100.f, 330.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 330.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 330.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 330.0f, true, textureCerf));
 
-        entities.push_back(new Enemy_Deer(700.0f, 330.0f, false));
-        entities.push_back(new Enemy_Deer(850.0f, 330.0f,true));
-        entities.push_back(new Enemy_Deer(1000.0f, 330.0f,false));
-        entities.push_back(new Enemy_Deer(1150.0f, 330.0f,true));
+        entities.push_back(new Enemy_Deer(700.0f, 330.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 330.0f,true, textureCerf));
+        entities.push_back(new Enemy_Deer(1000.0f, 330.0f,false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 330.0f,true, textureCerf));
         //Ligne 4 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 480.0f,false));
-        entities.push_back(new Enemy_Deer(250.f, 480.0f,true));
-        entities.push_back(new Enemy_Deer(400.f, 480.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 480.0f,true));
+        entities.push_back(new Enemy_Deer(100.f, 480.0f,false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 480.0f,true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 480.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 480.0f,true, textureCerf));
 
-        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false));
-        entities.push_back(new Enemy_Deer(850.0f, 480.0f,true));
-        entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false));
-        entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true));
+        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 480.0f,true, textureCerf));
+        entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true, textureCerf));
     }
 
     //WAVE 2
@@ -1283,46 +1290,46 @@ private:
     //Wave 3
     void SpawnWave3() {
         //A faire
-entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(250.f, 50.0f, true));
-        entities.push_back(new Enemy_Deer(400.f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true));
+entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 50.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true, textureCerf));
 
-        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true));
-        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false));
-        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true));
+        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true, textureCerf));
 
         //Ligne 2 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(250.f, 180.0f, true));
-        entities.push_back(new Enemy_Deer(400.f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true));
+        entities.push_back(new Enemy_Deer(100.f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 180.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true, textureCerf));
 
-        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true));
-        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false));
-        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true));
+        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true, textureCerf));
+        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true, textureCerf));
         //Ligne 3 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 330.0f, false));
-        entities.push_back(new Enemy_Deer(250.f, 330.0f, true));
-        entities.push_back(new Enemy_Deer(400.f, 330.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 330.0f, true));
+        entities.push_back(new Enemy_Deer(100.f, 330.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 330.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 330.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 330.0f, true, textureCerf));
 
-        entities.push_back(new Enemy_Deer(700.0f, 330.0f, false));
-        entities.push_back(new Enemy_Deer(850.0f, 330.0f,true));
-        entities.push_back(new Enemy_Deer(1000.0f, 330.0f,false));
-        entities.push_back(new Enemy_Deer(1150.0f, 330.0f,true));
+        entities.push_back(new Enemy_Deer(700.0f, 330.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 330.0f,true, textureCerf));
+        entities.push_back(new Enemy_Deer(1000.0f, 330.0f,false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 330.0f,true, textureCerf));
         //Ligne 4 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 480.0f,false));
-        entities.push_back(new Enemy_Deer(250.f, 480.0f,true));
-        entities.push_back(new Enemy_Deer(400.f, 480.0f, false));
-        entities.push_back(new Enemy_Deer(550.0f, 480.0f,true));
+        entities.push_back(new Enemy_Deer(100.f, 480.0f,false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 480.0f,true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 480.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 480.0f,true, textureCerf));
 
-        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false));
-        entities.push_back(new Enemy_Deer(850.0f, 480.0f,true));
-        entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false));
-        entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true));
+        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 480.0f,true, textureCerf));
+        entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true, textureCerf));
     }
 //Fonction pour commencer une wave
     void StartWave(int wave) {
@@ -1786,6 +1793,21 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
                     continue;
                 }
             }
+            //Rendu texture Cerf
+            if (Enemy_Deer *enemy_deer = dynamic_cast<Enemy_Deer*>(ent)) {
+                if (enemy_deer->textureCerf != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_deer->transform.position.x,
+                        enemy_deer->transform.position.y,
+                        enemy_deer->transform.size.x,
+                        enemy_deer->transform.size.y
+                    };
+                    SDL_RenderTexture(renderer, enemy_deer->textureCerf, nullptr, &dest);
+                    continue;
+                }
+            }
+
+
 
             ent->RenderUpdate(renderer);
         }

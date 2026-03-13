@@ -16,7 +16,7 @@ class Personnages {
 //Cerfs generaux
 class Enemy_Deer : public Entity{
 public:
-    Enemy_Deer(float startX, float startY, bool mouvementInverser);
+    Enemy_Deer(float startX, float startY, bool mouvementInverser = false, SDL_Texture *texture = nullptr);
 
     void Update(float deltaTime, std::vector<Entity*> &entities, SDL_Texture *texture);
 //  MOVEMENT CERFS VERTICAL
@@ -29,6 +29,8 @@ public:
     float multiplicateurDirection = 1.0f;
     //Cooldown de fraises qui ce fait lacher par Cerf
     float strawberryCooldown = 2.0f;
+
+    SDL_Texture *textureCerf = nullptr;
 };
 
 //Les soigneurs

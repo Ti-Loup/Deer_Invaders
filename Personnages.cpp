@@ -12,7 +12,7 @@
 
 
 //enemy_Deer
-Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser = false) {
+Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser, SDL_Texture *texture) {
     AddComponent (HEALTH);
     health.max_health = 40;
     health.current_health = 40;
@@ -22,7 +22,7 @@ Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser = fals
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
-    transform.size = { 80.f, 80.f };
+    transform.size = { 100.f, 140.f };
 
     //Le type de l'entity
     entityType = EntityType::Enemy;
@@ -35,6 +35,8 @@ Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser = fals
     }
     //temps avant de lancer leur premiere fraise
     this->strawberryCooldown = 1.0f + (static_cast<float>(rand() %9000) / 100.0f);
+
+    textureCerf= texture;//assigne la texture au BulletStrawb -> deja assigner dans le constructeur main
 /*
     //Pour que les cerfs bouge légèrement haut et en bas de façon logique
     //Le randomizer <random>
