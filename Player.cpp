@@ -23,6 +23,8 @@ Player::Player() {
     transform.size = (SDL_FPoint){64.0f, 64.0f};
     //ClassicBulletType par défaut
     currentWeapon = new ClassicBulletType();
+    //Aucun shield par default
+    currentShield = new NoShieldType();
 
     //Le Type d'entity
     entityType = EntityType::Player;
@@ -281,6 +283,8 @@ int shieldPrice = 0;
     }
 
     //On fait la soustraction du nombre de viande Total - viande restante
+    maxShieldHP = currentShield->GetMaxShieldHP();//on vient chercher le nombre de pv du shield maximum du shield actuel
+    currentShieldHP = maxShieldHP;
     meatCount -= shieldPrice;
     SDL_Log("Nouvelle Arme debloquer");
     return true;//fin fonction bool

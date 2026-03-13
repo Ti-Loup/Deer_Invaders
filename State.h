@@ -118,12 +118,7 @@ class ShieldType {
 
     virtual void Affect (Entity *entity);
     virtual SDL_Color GetColor () = 0;
-};
-class InvalidShieldType : public ShieldType {
-    public:
-    InvalidShieldType () = default;
-    void Affect (Entity *entity) override;
-    SDL_Color GetColor () override;
+    virtual int GetMaxShieldHP() = 0; //<- pour le nombre de pv du shield
 };
 //Pas de shield
 class NoShieldType : public ShieldType {
@@ -131,6 +126,7 @@ public:
     NoShieldType () = default;
     void Affect (Entity *entity) override;
     SDL_Color GetColor() override;
+    int GetMaxShieldHP() override { return 0; } // si aucun shield alors 0
 };
 
 //Petit Shield
@@ -139,6 +135,7 @@ class SmallShieldType : public ShieldType {
     SmallShieldType () = default;
     void Affect (Entity *entity) override;
     SDL_Color GetColor () override;
+    int GetMaxShieldHP() override { return 50; }
 };
 //Moyen Shield
 class MediumShieldType : public ShieldType {
@@ -146,6 +143,7 @@ public:
     MediumShieldType () = default;
     void Affect (Entity *entity) override;
     SDL_Color GetColor () override;
+    int GetMaxShieldHP() override { return 100; }
 };
 //Grand Shield
 class LargeShieldType : public ShieldType {
@@ -153,6 +151,7 @@ public:
     LargeShieldType () = default;
     void Affect (Entity *entity) override;
     SDL_Color GetColor () override;
+    int GetMaxShieldHP() override { return 250; }
 };
 
 #endif //DEER_INVADERS_STATE_H

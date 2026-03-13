@@ -1036,7 +1036,7 @@ private:
         for (int i = 0; i< 3; i++) {
             SDL_FRect segment = {startX, startY - (i * (segmentHeight + espace)), (float)segmentWidth, (float)segmentHeight};
 
-            if (i < globalWeaponLevel) {
+            if (i < globalShieldLevel) {
                 // Segment rempli
                 if (i == 0) SDL_SetRenderDrawColor(renderer, 85,23,255,255); // Bleu (Petit Shield)
                 if (i == 1) SDL_SetRenderDrawColor(renderer, 186, 23, 255, 255); // Mauve (Moyen Shield)
@@ -1488,29 +1488,40 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
                         }
                         // si Fraise
                         else if (entity->entityType == EntityType::EnemyBullet) {
-                            SDL_Log("Touché par une fraise !");
-                            player->health.current_health -= 50;
-                            //Ajout Heal
+                            int damage = 50;
+                            // Si le shield a des HP restants, il absorbe en premier
+                            if (player->currentShieldHP > 0) {
+                                player->currentShieldHP -= damage;
+                                if (player->currentShieldHP < 0) {
+                                    // Le shield est detruit alors on passe au hp du joueur
+                                    player->health.current_health += player->currentShieldHP; // currentShieldHP est negatif ici
+                                    player->currentShieldHP = 0;
+                                }
+                            } else {
+                                player->health.current_health -= damage;
+                            }
                             currentHP = player->health.current_health;
-                            //si on va en dessous des 0 hp
                             if (player->health.current_health <= 0) {
                                 player->health.current_health = 0;
-                                //Appel de la fonction du JoueurMort
                                 PlayerDeath();
-                                SDL_Log("Joueur Mort -> Message de fin");
                             }
                         }
                         //Si toucher avec Enemy (Cerf ou Meteorite)
                         else if (entity->entityType == EntityType::Enemy) {
-                            SDL_Log("Touché par une météorite !");
-                            player -> health.current_health -= 100;
+                            int damage = 100;
+                            if (player->currentShieldHP > 0) {
+                                player->currentShieldHP -= damage;
+                                if (player->currentShieldHP < 0) {
+                                    player->health.current_health += player->currentShieldHP;
+                                    player->currentShieldHP = 0;
+                                }
+                            } else {
+                                player->health.current_health -= damage;
+                            }
                             currentHP = player->health.current_health;
-                            //Si en dessous des 0 hp
                             if (player->health.current_health <= 0) {
                                 player->health.current_health = 0;
-                                //Appel de la fonction du JoueurMort
                                 PlayerDeath();
-                                SDL_Log("Joueur Mort -> Message de fin");
                             }
                         }
 
@@ -1769,6 +1780,21 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             SDL_SetRenderDrawColor(renderer, 80, 80, 220, 255); // en recharge
         }
         SDL_RenderFillRect(renderer, &jaugeFill);
+
+
+        // Barre shield
+
+            SDL_FRect shieldBg   = { 50.0f, 900.0f, 250.0f, 15.0f };
+            float shieldRatio = (float)player->currentShieldHP / (float)player->maxShieldHP;
+            SDL_FRect shieldFill = { 50.0f, 900.0f, 250.0f * shieldRatio, 15.0f };
+
+            SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+            SDL_RenderFillRect(renderer, &shieldBg);
+
+            SDL_Color shieldColor = player->currentShield->GetColor();
+            SDL_SetRenderDrawColor(renderer, shieldColor.r, shieldColor.g, shieldColor.b, 255);
+            SDL_RenderFillRect(renderer, &shieldFill);
+
         SDL_RenderPresent(renderer);
 
     }

@@ -64,12 +64,7 @@ SDL_Color TBDBulletType::GetColor () {
 void ShieldType::Affect(Entity *entity) {
 
 }
-void InvalidShieldType::Affect(Entity *entity) {
-    ShieldType::Affect(entity);
-}//Si invalide -> noir
-SDL_Color InvalidShieldType::GetColor (){
-    return (SDL_Color){0, 0, 0, 255};
-}
+
 //No Shield (Transparant)
 void NoShieldType::Affect(Entity *entity) {
     ShieldType::Affect(entity);

@@ -19,14 +19,17 @@ public:
 
     bool isCurrentlyShooting = false;
   float shootCooldown = 0.f;
-  float shootDefaultCooldown = 90.0f;//1.5 sec
+  float shootDefaultCooldown = 60.0f;//1 min
 
      //Le type d'arme (-> Dans State.h)
     BulletType* currentWeapon;
 BulletType* previousWeapon = nullptr; // pour restaurer l'arme après
     //Le type de shield de state.h
     ShieldType* currentShield;
-    ShieldType* previousShield = nullptr;
+    int currentShieldHP = 0; //HPSHIELd actuel
+    int maxShieldHP = 0; // HP SHIELD MAX
+
+
 //Competence special
 float competenceTimer = 0.0f;
 const float competenceCooldown = 100.0f; // <- vitesse du competenceCooldown
