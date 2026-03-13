@@ -30,6 +30,11 @@ public:
     //Cooldown de fraises qui ce fait lacher par Cerf
     float strawberryCooldown = 2.0f;
 
+   //Un flash quand le cerf est toucher par bullet
+   float hitFlashTimer = 0.0f; //le timer
+   const float hitFlashDuration = 0.2f;//duree
+   bool bIsFlashing = false;
+
     SDL_Texture *textureCerf = nullptr;
 };
 

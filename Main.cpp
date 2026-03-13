@@ -1660,10 +1660,15 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
                             SDL_LogWarn(0, "Collision fonctionne");
                             //detruit la balle au contact d'un cerf
                             bullet->bIsDestroyed = true;
-
-
-                            //Pv des ennemies baisses
+                            //Pv des ennemies baisses + Ajout d'un vfx rouge sur le cerf
                             ennemi->health.current_health -= 20;
+                            // Déclenche le flash rouge
+                            Enemy_Deer* deerHit = dynamic_cast<Enemy_Deer*>(ennemi);
+                            if (deerHit != nullptr) {
+                                deerHit->bIsFlashing = true;
+                                deerHit->hitFlashTimer = deerHit->hitFlashDuration;
+                            }
+
                             //si heal plus petit que 0 alors le cerf est detruit + score totaux
                             if (ennemi->health.current_health <= 0) {
                                 ennemi->bIsDestroyed = true;
@@ -1802,6 +1807,17 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
                         enemy_deer->transform.size.x,
                         enemy_deer->transform.size.y
                     };
+
+                    if (enemy_deer->bIsFlashing) {
+                        // Calcule l'intensité du rouge selon le temps restant
+                        float ratio = enemy_deer->hitFlashTimer / enemy_deer->hitFlashDuration;
+                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255 - flashIntensity, 255 - flashIntensity);
+                    } else {
+                        // Remet la couleur normale
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255, 255);
+                    }
+
                     SDL_RenderTexture(renderer, enemy_deer->textureCerf, nullptr, &dest);
                     continue;
                 }
@@ -1858,7 +1874,6 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
             SDL_SetRenderDrawColor(renderer, 80, 80, 220, 255); // en recharge
         }
         SDL_RenderFillRect(renderer, &jaugeFill);
-
 
         // Barre shield
 

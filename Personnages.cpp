@@ -37,6 +37,9 @@ Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser, SDL_T
     this->strawberryCooldown = 1.0f + (static_cast<float>(rand() %9000) / 100.0f);
 
     textureCerf= texture;//assigne la texture au BulletStrawb -> deja assigner dans le constructeur main
+
+
+
 /*
     //Pour que les cerfs bouge légèrement haut et en bas de façon logique
     //Le randomizer <random>
@@ -77,6 +80,15 @@ void Enemy_Deer::Update(float deltaTime,std::vector<Entity*> &entities, SDL_Text
         StrawberryShoot(entities, {0,-1}, texture);
         //Temps avant qu'un cerf lance une fraise de nouveau
     this->strawberryCooldown = 8.0f + (static_cast<float>(rand() % 300) / 100.0f);
+    }
+    //Le flash
+    if (bIsFlashing) {
+        //timer diminue
+        hitFlashTimer -= deltaTime;
+        if (hitFlashTimer <= 0.0f) {
+            hitFlashTimer = 0.0f;
+            bIsFlashing = false;
+        }
     }
 
 }
