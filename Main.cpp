@@ -148,6 +148,7 @@ public:
     TTF_Text *InventoryText = nullptr; // Game + Shop
     SDL_FRect MeatInventory ={1700.0f, 10.0f, 25.0f,25.0f};
     SDL_Texture *MeatInventoryTexture = nullptr;
+    SDL_Texture *StrawberryTexture = nullptr;
     SDL_Texture *ScoreUI = nullptr;
     SDL_Texture *HealUI = nullptr;
     SDL_FRect scoreSize = { 1570.0f, 925.0f, 350.0f, 140.0f };
@@ -512,6 +513,7 @@ private:
 
 
         //DANS INTROGAME
+
         texteIntroCerfEtHUmain = TTF_CreateText(textEngine, ShopFont, phrasesIntroNiveau1[0], 0);
         TTF_SetTextColor(texteIntroCerfEtHUmain, 255, 255, 255, 255);
 
@@ -557,7 +559,12 @@ private:
         if (TTF_SetTextColor(dynamicShieldHPText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0, "failed to set the color of dynamicShieldHPText");
         }
-
+        //Pour les fraises
+        StrawberryTexture = IMG_LoadTexture(renderer, "assets/Strawb.png");
+        if (StrawberryTexture == nullptr) {
+            SDL_LogWarn(0, "SDL_Image failed to load DeerLogo", "assets/Strawb.png", SDL_GetError());
+        }
+        SDL_SetTextureScaleMode(StrawberryTexture, SDL_SCALEMODE_NEAREST);
 
 
         //POUR PAUSE
@@ -864,6 +871,7 @@ private:
         SDL_DestroyTexture(spritesheet);
         SDL_DestroyTexture(DeerLogo);
         SDL_DestroyTexture(ScoreUI);
+        SDL_DestroyTexture (StrawberryTexture);
         SDL_DestroyTexture(HealUI);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);

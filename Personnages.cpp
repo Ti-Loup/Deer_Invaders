@@ -167,6 +167,7 @@ BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir) {
     transform.position = spawn;
     transform.size = (SDL_FPoint){ 20.f, 20.f };
     entityType = EntityType::EnemyBullet;
+
 }
 
 
