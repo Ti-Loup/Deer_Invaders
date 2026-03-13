@@ -1372,7 +1372,6 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
         TTF_UpdateText(waveDynamicNumberText);//Pour update le texte du Wave
         TTF_UpdateText(InventoryText);
         //PREMIERE VAGUE
-
         //gestion des etats entre jeu et transition
         if (isTransitioning) {
             transitionTimer += deltaTime;
@@ -1472,6 +1471,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             //Calcul de la nouvelle vitesse avant de deplacer les entities
             if (player != nullptr) {
                 player->UpdatePhysics(deltaTime);
+                player->MovementUpdate(deltaTime);//Mouvement
                 player->ShootUpdate(entities, (SDL_FPoint){0, -1}, deltaTime);
                 player->UpdateCompetence(deltaTime); // <- pour l'update de la capacite special
                 //Bordure d'ecran du joueur different des ennemies
@@ -1488,7 +1488,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             //FONCTION COLLISION ENTRE ENTITITY ET JOUEUR
             for (auto& entity : entities) {
                 if (entity->bIsDestroyed) continue; // ignore ce qui est mort
-
+                if (entity->entityType == EntityType::Player) continue;
                 entity->Update(deltaTime);
 
                 // Si c'est un ennemi
@@ -1565,8 +1565,8 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
 
             // Mouvement et Détection Des cerfs
             for (auto &ent: entities) {
+                if (ent->entityType == EntityType::Player) continue; //Le joueur a son propre mouvement alors il est exclue du Mouvements des autres. sinon il aurait 2 fois le mouvement appliquer
                 ent->MovementUpdate(deltaTime);
-
                 ent->HeightMovement(deltaTime);//Hauteur cerfs
                 //On verifie que seulement les ennemies bougent pas joueur !@!@
                 if (ent->entityType == EntityType::Enemy) {

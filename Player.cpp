@@ -44,6 +44,7 @@ void Player::UpdatePhysics(float deltaTime) {
     float friction = 1500.0f; //Temps que le personnage va continuer a bouger apres avoir relacher la touche clavier
     float maxSpeed = 700.0f; //Speed Max apres l'acceleration
 
+
     //acceleration
     if (bIsMovingRight) {
         movement.velocity.x += acceleration * deltaTime;
