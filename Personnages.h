@@ -18,11 +18,11 @@ class Enemy_Deer : public Entity{
 public:
     Enemy_Deer(float startX, float startY, bool mouvementInverser);
 
-    void Update(float deltaTime, std::vector<Entity*> &entities);
+    void Update(float deltaTime, std::vector<Entity*> &entities, SDL_Texture *texture);
 //  MOVEMENT CERFS VERTICAL
     void HeightMovement(float deltaTime) override;
 //  CERFS TIRE DES FRAISES
-    void StrawberryShoot(std::vector<Entity *> &entity, SDL_Point dir );
+    void StrawberryShoot(std::vector<Entity *> &entity, SDL_Point dir, SDL_Texture *texture );
 
     float startY;//depart
     float timeAlive = 0.f;
@@ -55,7 +55,8 @@ public:
 //Bullets
 class BulletStrawberry : public Entity {
      public:
-        BulletStrawberry(SDL_FPoint spawn, SDL_Point dir);
+        BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture *texture);
+        SDL_Texture *textureStrawb = nullptr;
 
 };
 

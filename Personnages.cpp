@@ -5,6 +5,9 @@
 #include "Personnages.h"
 #include <cstdlib>
 #include <random>
+#include <SDL3_image/SDL_image.h>
+#include "Main.h"
+
 #include "Components.h"
 
 
@@ -63,13 +66,13 @@ void Enemy_Deer::HeightMovement(float deltaTime) {
 
 }
 //Methode Update Method de EnemyDeer
-void Enemy_Deer::Update(float deltaTime,std::vector<Entity*> &entities) {
+void Enemy_Deer::Update(float deltaTime,std::vector<Entity*> &entities, SDL_Texture *texture) {
     HeightMovement(deltaTime);
     //timer pour tier
     strawberryCooldown -= deltaTime;
     //Quand timer == 0
     if (strawberryCooldown <= 0.0f) {
-        StrawberryShoot(entities, {0,-1});
+        StrawberryShoot(entities, {0,-1}, texture);
         //Temps avant qu'un cerf lance une fraise de nouveau
     this->strawberryCooldown = 8.0f + (static_cast<float>(rand() % 300) / 100.0f);
     }
@@ -77,11 +80,11 @@ void Enemy_Deer::Update(float deltaTime,std::vector<Entity*> &entities) {
 }
 
 //Nouvelle fonction pour faire tirer les fraises des cerfs vers le Joueur
-void Enemy_Deer::StrawberryShoot(std::vector<Entity *> &entity, SDL_Point dir ) {
+void Enemy_Deer::StrawberryShoot(std::vector<Entity *> &entity, SDL_Point dir, SDL_Texture *texture ) {
     float spawnX = transform.position.x + (transform.size.x / 2.0f) - 10.0f;
     float spawnY = transform.position.y + transform.size.y;
     SDL_FPoint spawnPoint = {spawnX, spawnY};
-    entity.push_back(new BulletStrawberry(spawnPoint, dir));
+    entity.push_back(new BulletStrawberry(spawnPoint, dir, texture));
 }
 
 
@@ -158,16 +161,16 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY) {
 }
 
 //Bullets
-BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir) {
+BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture *texture) {
     AddComponent (MOVEMENT);
     movement.velocity = { 0.0f * dir.x,- 400.0f * dir.y };// les fraises vont vers le bas
     AddComponent (RENDER);
     render.color = { 255, 182, 193, 255 };//Pink for strawberry
     AddComponent (TRANSFORM);
     transform.position = spawn;
-    transform.size = (SDL_FPoint){ 20.f, 20.f };
+    transform.size = (SDL_FPoint){ 50.f, 50.f };
     entityType = EntityType::EnemyBullet;
-
+    textureStrawb = texture;//assigne la texture au BulletStrawb -> deja assigner dans le constructeur main
 }
 
 

@@ -148,7 +148,6 @@ public:
     TTF_Text *InventoryText = nullptr; // Game + Shop
     SDL_FRect MeatInventory ={1700.0f, 10.0f, 25.0f,25.0f};
     SDL_Texture *MeatInventoryTexture = nullptr;
-    SDL_Texture *StrawberryTexture = nullptr;
     SDL_Texture *ScoreUI = nullptr;
     SDL_Texture *HealUI = nullptr;
     SDL_FRect scoreSize = { 1570.0f, 925.0f, 350.0f, 140.0f };
@@ -165,6 +164,8 @@ public:
     TTF_Font *dynamicShieldHPFont = nullptr;
     TTF_Text *dynamicShieldHPText = nullptr;
     SDL_Texture *ShieldUI = nullptr;
+    //Texture fraise
+    SDL_Texture* textureStrawberry = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -559,12 +560,11 @@ private:
         if (TTF_SetTextColor(dynamicShieldHPText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0, "failed to set the color of dynamicShieldHPText");
         }
-        //Pour les fraises
-        StrawberryTexture = IMG_LoadTexture(renderer, "assets/Strawb.png");
-        if (StrawberryTexture == nullptr) {
-            SDL_LogWarn(0, "SDL_Image failed to load DeerLogo", "assets/Strawb.png", SDL_GetError());
+        //Pour faire spawn la fraise
+        textureStrawberry = IMG_LoadTexture(renderer, "assets/Strawb.png");
+        if (textureStrawberry == nullptr) {
+            SDL_LogWarn(0, "Erreur chargement Strawb.png: %s", SDL_GetError());
         }
-        SDL_SetTextureScaleMode(StrawberryTexture, SDL_SCALEMODE_NEAREST);
 
 
         //POUR PAUSE
@@ -870,8 +870,8 @@ private:
         TTF_CloseFont(MenuSpecialFont);
         SDL_DestroyTexture(spritesheet);
         SDL_DestroyTexture(DeerLogo);
+        SDL_DestroyTexture(textureStrawberry);
         SDL_DestroyTexture(ScoreUI);
-        SDL_DestroyTexture (StrawberryTexture);
         SDL_DestroyTexture(HealUI);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
@@ -1495,7 +1495,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
                 if (entity->entityType == EntityType::Enemy) {
                     Enemy_Deer* deer = dynamic_cast<Enemy_Deer*>(entity);
                     if (deer != nullptr) {
-                        deer->Update(deltaTime, entities); // Gère son tir et son mouvement
+                        deer->Update(deltaTime, entities, app.textureStrawberry); // Gère son tir et son mouvement
                     }
                 }
 
@@ -1712,9 +1712,8 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             lastHP = currentHP;
         }
         //Pour afficher les HP du shield dans le jeu
-        if (player->currentShieldHP != lastShield ) {
-            player->currentShieldHP = player->maxShieldHP;
-            std::string ShieldStr ="Shield Amount : " + std::to_string(player->currentShieldHP);
+        if (player->currentShieldHP != lastShield) {
+            std::string ShieldStr = "Shield Amount : " + std::to_string(player->currentShieldHP);
             TTF_SetTextString(dynamicShieldHPText, ShieldStr.c_str(), 0);
             lastShield = player->currentShieldHP;
         }
@@ -1773,6 +1772,21 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
                     bulletCompetenceSpecial->render.color = { r, g, b, 255 }; // r,g,b changent chaque frame
                 }
             }
+
+            // Rendu texture fraise
+            if (BulletStrawberry* strawb = dynamic_cast<BulletStrawberry*>(ent)) {
+                if (strawb->textureStrawb != nullptr) {
+                    SDL_FRect dest = {
+                        strawb->transform.position.x,
+                        strawb->transform.position.y,
+                        strawb->transform.size.x,
+                        strawb->transform.size.y
+                    };
+                    SDL_RenderTexture(renderer, strawb->textureStrawb, nullptr, &dest);
+                    continue;
+                }
+            }
+
             ent->RenderUpdate(renderer);
         }
 
