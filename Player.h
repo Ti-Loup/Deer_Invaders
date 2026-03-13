@@ -19,7 +19,7 @@ public:
 
     bool isCurrentlyShooting = false;
   float shootCooldown = 0.f;
-  float shootDefaultCooldown = 60.0f;//1 min
+  float shootDefaultCooldown = 90.0f;//la vitesse de tire
 
      //Le type d'arme (-> Dans State.h)
     BulletType* currentWeapon;
@@ -32,10 +32,10 @@ BulletType* previousWeapon = nullptr; // pour restaurer l'arme après
 
 //Competence special
 float competenceTimer = 0.0f;
-const float competenceCooldown = 100.0f; // <- vitesse du competenceCooldown
+const float competenceCooldown = 30.0f; // <- vitesse du competenceCooldown ~~ 30
 bool bCompetenceReady = false;
 bool bCompetenceActive = false;
-float competenceActiveDuration = 4.0f;
+float competenceActiveDuration = 4.0f; // combien de temps la capaciter dure
 float competenceActiveTimer = 0.0f;
 
 

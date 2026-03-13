@@ -152,6 +152,7 @@ public:
     SDL_Texture *HealUI = nullptr;
     SDL_FRect scoreSize = { 1570.0f, 925.0f, 350.0f, 140.0f };
     SDL_FRect healSize = {50.0f,1000.0f,250.0f,100.0f};
+    SDL_FRect shieldSize = {150.0f, 1000, 250, 100 };
     TTF_Text *dynamicscoreText = nullptr;
     TTF_Font *dynamicscoreFont = nullptr;
     TTF_Text *dynamicPlayerHeal = nullptr;
@@ -159,6 +160,10 @@ public:
     TTF_Font *competenceSpecialFont = nullptr;
     TTF_Text *competenceSpecialText = nullptr;
     TTF_Text *competenceSpecialText2 = nullptr;// Gris de base
+    //Font pour le Shield HP amount
+    TTF_Font *dynamicShieldHPFont = nullptr;
+    TTF_Text *dynamicShieldHPText = nullptr;
+    SDL_Texture *ShieldUI = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -292,6 +297,10 @@ public:
     //Point HP
     int currentHP = 150;
     int lastHP = 1;
+
+    //Point Shield
+    int lastShield = 1;
+
 
 
     //Pour SHOP
@@ -520,7 +529,7 @@ private:
         if (InventoryText == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set the inventory text", SDL_GetError());
         }
-        dynamicPlayerHealFont = TTF_OpenFont("assets/font.ttf", 40);
+        dynamicPlayerHealFont = TTF_OpenFont("assets/font.ttf", 25);
         dynamicPlayerHeal = TTF_CreateText(textEngine, dynamicPlayerHealFont, "Heal: 150", 25);
         if (dynamicPlayerHeal == nullptr) {
             SDL_LogWarn(0,"failed to create the text of dynamicPlayerHeal", SDL_GetError());
@@ -540,6 +549,16 @@ private:
         if (competenceSpecialText2 == nullptr) {
             SDL_LogWarn(0, "failed to create the text for competenceSpecialText", SDL_GetError());
         }
+        dynamicShieldHPFont = TTF_OpenFont("assets/font.ttf", 25);
+        dynamicShieldHPText = TTF_CreateText(textEngine, dynamicShieldHPFont, "Shield Amount: 0", 25);
+        if (dynamicShieldHPText == nullptr) {
+            SDL_LogWarn(0, "failed to set the text of dynamicShieldHPText", 25, SDL_GetError());
+        }
+        if (TTF_SetTextColor(dynamicShieldHPText, 255, 255, 255, 255) == false) {
+            SDL_LogWarn(0, "failed to set the color of dynamicShieldHPText");
+        }
+
+
 
         //POUR PAUSE
         FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
@@ -1341,6 +1360,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
         TTF_SetTextColor(InventoryText, 255, 255, 255, 255);
         TTF_UpdateText(dynamicscoreText);
         TTF_UpdateText(dynamicPlayerHeal);
+        TTF_UpdateText(dynamicscoreText); // Pour update le shield amount dans Game
         TTF_UpdateText(waveDynamicNumberText);//Pour update le texte du Wave
         TTF_UpdateText(InventoryText);
         //PREMIERE VAGUE
@@ -1683,7 +1703,13 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             TTF_SetTextString(dynamicPlayerHeal, healStr.c_str(), 0);
             lastHP = currentHP;
         }
-
+        //Pour afficher les HP du shield dans le jeu
+        if (player->currentShieldHP != lastShield ) {
+            player->currentShieldHP = player->maxShieldHP;
+            std::string ShieldStr ="Shield Amount : " + std::to_string(player->currentShieldHP);
+            TTF_SetTextString(dynamicShieldHPText, ShieldStr.c_str(), 0);
+            lastShield = player->currentShieldHP;
+        }
         // Rendu du jeu
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir pour le jeu
@@ -1714,6 +1740,14 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
             TTF_GetTextSize(dynamicPlayerHeal, &longeurW, &largeurH);
             TTF_DrawRendererText(dynamicPlayerHeal, healSize.x + (healSize.w - longeurW)/2, healSize.y + (healSize.h - largeurH)- 20);
         }
+        //Mise a jour du Shield Heal Rendu
+        if (dynamicShieldHPText) {
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicShieldHPText, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicShieldHPText, 75, 990);
+        }
+
+
         //Mise a jour du numero de wave
         if (showWaveUI) {
             if (waveDynamicNumberText) {
@@ -1784,9 +1818,9 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false));
 
         // Barre shield
 
-            SDL_FRect shieldBg   = { 50.0f, 900.0f, 250.0f, 15.0f };
+            SDL_FRect shieldBg   = { 50.0f, 1020.0f, 250.0f, 25.0f };
             float shieldRatio = (float)player->currentShieldHP / (float)player->maxShieldHP;
-            SDL_FRect shieldFill = { 50.0f, 900.0f, 250.0f * shieldRatio, 15.0f };
+            SDL_FRect shieldFill = { 50.0f, 1020.0f, 250.0f * shieldRatio, 25.0f };
 
             SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
             SDL_RenderFillRect(renderer, &shieldBg);
