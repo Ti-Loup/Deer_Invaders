@@ -2321,6 +2321,35 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[0], 0);
             }
         }
+        //Dans Le Introniveau2
+        if (app.StateActuel == State::IntroNiveau2) {
+            app.indexMessageIntroNiveau2++;
+
+            if (app.indexMessageIntroNiveau2 < app.NB_MESSAGES_IntroNiveau2) {
+
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[app.indexMessageIntroNiveau2], 0);
+            } else {
+                app.StateActuel = State::Game;
+                app.indexMessageIntroNiveau2 = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
+            }
+        }
+        //Dans Le Introniveau 3
+        if (app.StateActuel == State::IntroNiveau3) {
+            app.indexMessageIntroNiveau3++;
+
+            if (app.indexMessageIntroNiveau3 < app.NB_MESSAGES_IntroNiveau3) {
+
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[app.indexMessageIntroNiveau3], 0);
+            } else {
+                app.StateActuel = State::Game;
+                app.indexMessageIntroNiveau3 = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
+            }
+        }
+
+
+
         //GERER SELECTION MENU AVEC GAMEPAD
         if (app.StateActuel == State::Menu) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
@@ -2393,12 +2422,18 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 //switch case ChoixNiveau
                 switch (app.selectedButtonChoixNiveau) {
                     case 0:
+                        app.indexMessageIntroNiveau1 = 0;
+                        TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[0], 0);
                         app.StateActuel = State::IntroNiveau1;
                         break;
                     case 1:
+                        app.indexMessageIntroNiveau2 = 0;
+                        TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
                         app.StateActuel = State::IntroNiveau2; // <-A FAIRE LES DIFFERENTS INTRO
                         break;
                     case 2:
+                        app.indexMessageIntroNiveau3 = 0;
+                        TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
                         app.StateActuel = State::IntroNiveau3; // <- A FAIRE LES DIFFERENTS INTRO
                         break;
                 }
@@ -2407,6 +2442,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 
         }
+
 
         else if (app.StateActuel == State::Pause) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
@@ -2732,14 +2768,20 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         else if (app.StateActuel == State::ChoixNiveau) {
             //va vers intro de niveau 1
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau1)) {
+                app.indexMessageIntroNiveau1 = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[0], 0);
                 app.StateActuel = State::IntroNiveau1;
             }
             //va vers intro de niveau 2
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau2)) {
+                app.indexMessageIntroNiveau2 = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
                 app.StateActuel = State::IntroNiveau2;
             }
             //va vers intro de niveau 3
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau3)) {
+                app.indexMessageIntroNiveau3 = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
                 app.StateActuel = State::IntroNiveau3;
             }
         }
@@ -2894,6 +2936,33 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[0], 0);
             }
         }
+        //Dans Le Introniveau2
+        if (app.StateActuel == State::IntroNiveau2) {
+            app.indexMessageIntroNiveau2++;
+
+            if (app.indexMessageIntroNiveau2 < app.NB_MESSAGES_IntroNiveau2) {
+
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[app.indexMessageIntroNiveau2], 0);
+            } else {
+                app.StateActuel = State::Game;
+                app.indexMessageIntroNiveau2 = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
+            }
+        }
+        //Dans Le Introniveau 3
+        if (app.StateActuel == State::IntroNiveau3) {
+            app.indexMessageIntroNiveau3++;
+
+            if (app.indexMessageIntroNiveau3 < app.NB_MESSAGES_IntroNiveau3) {
+
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[app.indexMessageIntroNiveau3], 0);
+            } else {
+                app.StateActuel = State::Game;
+                app.indexMessageIntroNiveau3 = 0;
+                TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
+            }
+        }
+
         if (app.StateActuel == State::Game) {
 
             if (app.keyBindings.count(event->key.scancode)) {
