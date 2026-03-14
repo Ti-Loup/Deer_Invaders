@@ -473,7 +473,7 @@ private:
         if (TTF_SetTextColor(BoutonUpgradeText, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "Couleur du bouton amelioration n'a pas fonctionné", SDL_GetError());
         }
-        BoutonHPUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, "      HP \nUpgrade", 25);
+        BoutonHPUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, "   Shield  \nUpgrade", 25);
         if (TTF_SetTextColor(BoutonHPUpgradeText, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "Couleur de Bouton HP Upgrade", SDL_GetError());
         }
@@ -1197,6 +1197,7 @@ private:
         TTF_DrawRendererText(ChoixNiveau2Text, 800, 900);
         TTF_DrawRendererText(ChoixNiveau3Text, 1400, 900);
         RenderChoixNiveauTitle();
+        TTF_DrawRendererText(fpsText, 1800, 10);
         SDL_RenderPresent(renderer);
     }
 
@@ -1236,7 +1237,7 @@ private:
 
             TTF_DrawRendererText(texteIntroCerfEtHUmain, textX, textY);
         }
-
+        TTF_DrawRendererText(fpsText, 1800, 10);
         //Tout afficher
         SDL_RenderPresent(renderer);
     }
@@ -1827,28 +1828,6 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
 
             ent->RenderUpdate(renderer);
         }
-
-        if (isTransitioning) {
-            //Texte
-            // la transparence
-            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-            // couleur sur Noir
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, (Uint8)app.waveFadeAlpha);
-
-            // le rectangle qui couvre
-            SDL_FRect screenOverlay = { 0.0f, 0.0f, 1920.0f, 1080.0f };
-            SDL_RenderFillRect(renderer, &screenOverlay);
-        }
-        //Mise a jour du numero de wave / Apres le fondu noir pour toujours etre visible
-        if (showWaveUI) {
-            if (waveDynamicNumberText) {
-                int longeurW, largeurH;
-                TTF_GetTextSize(waveDynamicNumberText, &longeurW, &largeurH);
-                TTF_DrawRendererText(waveDynamicNumberText, 800, 400);
-            }
-        }
-
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
         // Barre de compétence spéciale
         SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
@@ -1877,16 +1856,42 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
 
         // Barre shield
 
-            SDL_FRect shieldBg   = { 50.0f, 1020.0f, 250.0f, 25.0f };
-            float shieldRatio = (float)player->currentShieldHP / (float)player->maxShieldHP;
-            SDL_FRect shieldFill = { 50.0f, 1020.0f, 250.0f * shieldRatio, 25.0f };
+        SDL_FRect shieldBg   = { 50.0f, 1020.0f, 250.0f, 25.0f };
+        float shieldRatio = (float)player->currentShieldHP / (float)player->maxShieldHP;
+        SDL_FRect shieldFill = { 50.0f, 1020.0f, 250.0f * shieldRatio, 25.0f };
 
-            SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-            SDL_RenderFillRect(renderer, &shieldBg);
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+        SDL_RenderFillRect(renderer, &shieldBg);
 
-            SDL_Color shieldColor = player->currentShield->GetColor();
-            SDL_SetRenderDrawColor(renderer, shieldColor.r, shieldColor.g, shieldColor.b, 255);
-            SDL_RenderFillRect(renderer, &shieldFill);
+        SDL_Color shieldColor = player->currentShield->GetColor();
+        SDL_SetRenderDrawColor(renderer, shieldColor.r, shieldColor.g, shieldColor.b, 255);
+        SDL_RenderFillRect(renderer, &shieldFill);
+
+
+
+// Tout ce qui est en HAUT aura l'opaciter
+        if (isTransitioning) {
+            //Texte
+            // la transparence
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+            // couleur sur Noir
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, (Uint8)app.waveFadeAlpha);
+
+            // le rectangle qui couvre
+            SDL_FRect screenOverlay = { 0.0f, 0.0f, 1920.0f, 1080.0f };
+            SDL_RenderFillRect(renderer, &screenOverlay);
+        }
+        //Mise a jour du numero de wave / Apres le fondu noir pour toujours etre visible
+        if (showWaveUI) {
+            if (waveDynamicNumberText) {
+                int longeurW, largeurH;
+                TTF_GetTextSize(waveDynamicNumberText, &longeurW, &largeurH);
+                TTF_DrawRendererText(waveDynamicNumberText, 800, 400);
+            }
+        }
+
+
 
         SDL_RenderPresent(renderer);
 
@@ -1912,15 +1917,139 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
         SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
         SDL_RenderClear(app.renderer);
 
-        // Dessiner l'UI pour le fundu
-        SDL_RenderTexture(app.renderer, app.ScoreUI, nullptr, &app.scoreSize);
-        SDL_RenderTexture(app.renderer, app.HealUI, nullptr, &app.healSize);
-
-        // Dessiner les entités pour la fondu
-        for (auto &ent : app.entities) {
-            ent->RenderUpdate(app.renderer);
+        //On dessine les entities et UI sans les faire bouger
+        SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
+        //Rajouter le score dynamique lors du Pause
+        if (currentScore != lastScore) {
+            std::string scoreStr = std::to_string(currentScore);
+            TTF_SetTextString(dynamicscoreText, scoreStr.c_str(), 0);
+            lastScore = currentScore;
+        }
+        if (dynamicscoreText) {
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
         }
 
+
+
+
+        for (auto &ent: entities) {
+
+        }
+        //Légé changement à l'image
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);//Peux d'opaciter
+        SDL_FRect screenRect = {0, 0, 1920, 1080};
+        //Carre rouge pour viande
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
+        SDL_RenderFillRect(renderer, &MeatInventory);
+        SDL_RenderTexture(renderer,MeatInventoryTexture, nullptr, &MeatInventory);
+        //On remet en noir l'ecran ->
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
+        SDL_RenderFillRect(renderer, &screenRect);
+        //Mise a jour du Meat rendu
+        if (InventoryText) {
+            int longeurL, largeurH;
+            TTF_GetTextSize(InventoryText, &longeurL, &largeurH);
+            float posX = MeatInventory.x + MeatInventory.w + 10.0f;
+            float posY = MeatInventory.y + (MeatInventory.h - largeurH) / 4.0f;
+            TTF_DrawRendererText(InventoryText, posX, posY);
+        }
+
+         // Dessiner toutes les entités meme dans le Pause pour que leurs textures restent
+        for (auto &ent: entities) {
+            if (Bullet* bulletCompetenceSpecial = dynamic_cast<Bullet*>(ent)) {
+                if (bulletCompetenceSpecial->bIsRGB) {
+                    bulletCompetenceSpecial->render.color = { r, g, b, 255 }; // r,g,b changent chaque frame
+                }
+            }
+
+            // Rendu texture fraise
+            if (BulletStrawberry* strawb = dynamic_cast<BulletStrawberry*>(ent)) {
+                if (strawb->textureStrawb != nullptr) {
+                    SDL_FRect dest = {
+                        strawb->transform.position.x,
+                        strawb->transform.position.y,
+                        strawb->transform.size.x,
+                        strawb->transform.size.y
+                    };
+                    SDL_RenderTexture(renderer, strawb->textureStrawb, nullptr, &dest);
+                    continue;
+                }
+            }
+            //Rendu texture Cerf
+            if (Enemy_Deer *enemy_deer = dynamic_cast<Enemy_Deer*>(ent)) {
+                if (enemy_deer->textureCerf != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_deer->transform.position.x,
+                        enemy_deer->transform.position.y,
+                        enemy_deer->transform.size.x,
+                        enemy_deer->transform.size.y
+                    };
+                    SDL_RenderTexture(renderer, enemy_deer->textureCerf, nullptr, &dest);
+                    continue;
+                }
+            }
+
+            // Barre de compétence spéciale
+            SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
+            float ratio = player->competenceTimer / player->competenceCooldown;
+            SDL_FRect jaugeFill = { 50.0f, 955.0f, 250.0f * ratio, 22.0f };
+
+            // Fond gris foncé
+            SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+            SDL_RenderFillRect(renderer, &jaugeBg);
+
+            // Remplissage
+            if (player->bCompetenceActive) {
+                TTF_DrawRendererText(competenceSpecialText2, 50, 925);
+                TTF_SetTextColor(competenceSpecialText2,40,40,40,255);
+                SDL_SetRenderDrawColor(renderer, r, g, b, 255); // RGB animé
+            } else if (player->bCompetenceReady) {
+                //Rajouter Texte + Color ~
+                TTF_DrawRendererText(competenceSpecialText, 50, 925);
+                SDL_SetRenderDrawColor(renderer, 0, 255, 120, 255); // Vert
+            } else {
+                TTF_DrawRendererText(competenceSpecialText2, 50, 925);
+                TTF_SetTextColor(competenceSpecialText2,40,40,40,255);
+                SDL_SetRenderDrawColor(renderer, 80, 80, 220, 255); // en recharge
+            }
+            SDL_RenderFillRect(renderer, &jaugeFill);
+
+            // Barre shield
+
+            SDL_FRect shieldBg   = { 50.0f, 1020.0f, 250.0f, 25.0f };
+            float shieldRatio = (float)player->currentShieldHP / (float)player->maxShieldHP;
+            SDL_FRect shieldFill = { 50.0f, 1020.0f, 250.0f * shieldRatio, 25.0f };
+
+            SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+            SDL_RenderFillRect(renderer, &shieldBg);
+
+            SDL_Color shieldColor = player->currentShield->GetColor();
+            SDL_SetRenderDrawColor(renderer, shieldColor.r, shieldColor.g, shieldColor.b, 255);
+            SDL_RenderFillRect(renderer, &shieldFill);
+
+            //Le Texte du shield et PlayerHeal qui s'affiche
+            if (dynamicPlayerHeal) {
+                int longeurW, largeurH;
+                TTF_GetTextSize(dynamicPlayerHeal, &longeurW, &largeurH);
+                TTF_DrawRendererText(dynamicPlayerHeal, healSize.x + (healSize.w - longeurW)/2, healSize.y + (healSize.h - largeurH)- 20);
+            }
+            //Mise a jour du Shield Heal Rendu
+            if (dynamicShieldHPText) {
+                int longeurW, largeurH;
+                TTF_GetTextSize(dynamicShieldHPText, &longeurW, &largeurH);
+                TTF_DrawRendererText(dynamicShieldHPText, 75, 990);
+            }
+
+            ent->RenderUpdate(renderer);
+        }
+
+        TTF_DrawRendererText(fpsText, 1800, 10);
+
+
+        //TOUT CE QUI EST DEVANT CERA TOUCHER PAR LE FONDU 
         // LE FONDU PROGRESSIF
         if (app.deathFadeAlpha < 300.0f) {
             app.deathFadeAlpha += (150.0f * deltaTime);
@@ -1930,7 +2059,6 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
         // Dessiner le fond noir a nouveau
         SDL_SetRenderDrawBlendMode(app.renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, (Uint8)app.deathFadeAlpha);
-        SDL_FRect screenRect = {0, 0, 1920, 1080};
         SDL_RenderFillRect(app.renderer, &screenRect);
 
 //si fondu est asser opaque
@@ -1944,7 +2072,6 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
                 RenderBoutons(BoutonDeathReturnMenu, DeathScreenReturnMenuText, 40, 40, 40);
             }
         }
-
         SDL_RenderPresent(app.renderer);
 
     }
@@ -1967,7 +2094,7 @@ GameApp &app = GameApp::GetInstance();
             RenderBoutons(BoutonWinReturnMenu, WinScreenReturnMenuText, 40,40,40);
 
         }
-
+        TTF_DrawRendererText(fpsText, 1800, 10);
         SDL_RenderPresent(app.renderer);
     }
 
@@ -2204,74 +2331,155 @@ GameApp &app = GameApp::GetInstance();
 
     //Fonction pour mettre en pause le jeu
     void PauseSystem(float deltaTime) {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
 
-        //On dessine les entities et UI sans les faire bouger
-        SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
-        //Rajouter le score dynamique lors du Pause
-        if (currentScore != lastScore) {
-            std::string scoreStr = std::to_string(currentScore);
-            TTF_SetTextString(dynamicscoreText, scoreStr.c_str(), 0);
-            lastScore = currentScore;
-        }
-        if (dynamicscoreText) {
-            int longeurW, largeurH;
-            TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
-            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
-        }
+    // On dessine les entities et UI sans les faire bouger
+    SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
 
-
-
-
-        for (auto &ent: entities) {
-            ent->RenderUpdate(renderer);
-        }
-        //Légé changement à l'image
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);//Peux d'opaciter
-        SDL_FRect screenRect = {0, 0, 1920, 1080};
-        //Carre rouge pour viande
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
-        SDL_RenderFillRect(renderer, &MeatInventory);
-        SDL_RenderTexture(renderer,MeatInventoryTexture, nullptr, &MeatInventory);
-        //On remet en noir l'ecran ->
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
-        SDL_RenderFillRect(renderer, &screenRect);
-        //Mise a jour du Meat rendu
-        if (InventoryText) {
-            int longeurL, largeurH;
-            TTF_GetTextSize(InventoryText, &longeurL, &largeurH);
-            float posX = MeatInventory.x + MeatInventory.w + 10.0f;
-            float posY = MeatInventory.y + (MeatInventory.h - largeurH) / 4.0f;
-            TTF_DrawRendererText(InventoryText, posX, posY);
-        }
-        UpdateBackgroundTint(deltaTime);
-
-        //Boutons de Pause
-        if (selectedButtonPause == 0) {
-            RenderBoutons(BoutonResume, TextResume, r, g, b);
-        } else {
-            RenderBoutons(BoutonResume, TextResume, 40, 40, 40);
-        }
-        if (selectedButtonPause == 1) {
-            RenderBoutons(BoutonGoShop, TextPauseGoShop, r,g,b);
-        }
-        else {
-            RenderBoutons(BoutonGoShop, TextPauseGoShop, 40,40,40);
-
-        }
-
-        if (selectedButtonPause == 2) {
-            RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, r, g, b);
-        } else {
-            RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, 40, 40, 40);
-        }
-        TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
-
-        SDL_RenderPresent(renderer);
-
+    // Rajouter le score dynamique lors du Pause
+    if (currentScore != lastScore) {
+        std::string scoreStr = std::to_string(currentScore);
+        TTF_SetTextString(dynamicscoreText, scoreStr.c_str(), 0);
+        lastScore = currentScore;
     }
+    if (dynamicscoreText) {
+        int longeurW, largeurH;
+        TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
+        TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
+    }
+
+    // Carre rouge pour viande
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &MeatInventory);
+    SDL_RenderTexture(renderer, MeatInventoryTexture, nullptr, &MeatInventory);
+
+    // Mise a jour du Meat rendu
+    if (InventoryText) {
+        int longeurL, largeurH;
+        TTF_GetTextSize(InventoryText, &longeurL, &largeurH);
+        float posX = MeatInventory.x + MeatInventory.w + 10.0f;
+        float posY = MeatInventory.y + (MeatInventory.h - largeurH) / 4.0f;
+        TTF_DrawRendererText(InventoryText, posX, posY);
+    }
+
+    UpdateBackgroundTint(deltaTime);
+
+    // Dessiner toutes les entités pour que leurs textures restent
+    for (auto &ent: entities) {
+        if (Bullet* bulletCompetenceSpecial = dynamic_cast<Bullet*>(ent)) {
+            if (bulletCompetenceSpecial->bIsRGB) {
+                bulletCompetenceSpecial->render.color = { r, g, b, 255 };
+            }
+        }
+
+        // Rendu texture fraise
+        if (BulletStrawberry* strawb = dynamic_cast<BulletStrawberry*>(ent)) {
+            if (strawb->textureStrawb != nullptr) {
+                SDL_FRect dest = {
+                    strawb->transform.position.x,
+                    strawb->transform.position.y,
+                    strawb->transform.size.x,
+                    strawb->transform.size.y
+                };
+                SDL_RenderTexture(renderer, strawb->textureStrawb, nullptr, &dest);
+                continue;
+            }
+        }
+
+        // Rendu texture Cerf
+        if (Enemy_Deer *enemy_deer = dynamic_cast<Enemy_Deer*>(ent)) {
+            if (enemy_deer->textureCerf != nullptr) {
+                SDL_FRect dest = {
+                    enemy_deer->transform.position.x,
+                    enemy_deer->transform.position.y,
+                    enemy_deer->transform.size.x,
+                    enemy_deer->transform.size.y
+                };
+                SDL_RenderTexture(renderer, enemy_deer->textureCerf, nullptr, &dest);
+                continue;
+            }
+        }
+
+        // Barre de compétence spéciale
+        SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
+        float ratio = player->competenceTimer / player->competenceCooldown;
+        SDL_FRect jaugeFill = { 50.0f, 955.0f, 250.0f * ratio, 22.0f };
+
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+        SDL_RenderFillRect(renderer, &jaugeBg);
+
+        if (player->bCompetenceActive) {
+            TTF_DrawRendererText(competenceSpecialText2, 50, 925);
+            TTF_SetTextColor(competenceSpecialText2, 40, 40, 40, 255);
+            SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+        } else if (player->bCompetenceReady) {
+            TTF_DrawRendererText(competenceSpecialText, 50, 925);
+            SDL_SetRenderDrawColor(renderer, 0, 255, 120, 255);
+        } else {
+            TTF_DrawRendererText(competenceSpecialText2, 50, 925);
+            TTF_SetTextColor(competenceSpecialText2, 40, 40, 40, 255);
+            SDL_SetRenderDrawColor(renderer, 80, 80, 220, 255);
+        }
+        SDL_RenderFillRect(renderer, &jaugeFill);
+
+        // Barre shield
+        SDL_FRect shieldBg   = { 50.0f, 1020.0f, 250.0f, 25.0f };
+        float shieldRatio = (float)player->currentShieldHP / (float)player->maxShieldHP;
+        SDL_FRect shieldFill = { 50.0f, 1020.0f, 250.0f * shieldRatio, 25.0f };
+
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+        SDL_RenderFillRect(renderer, &shieldBg);
+
+        SDL_Color shieldColor = player->currentShield->GetColor();
+        SDL_SetRenderDrawColor(renderer, shieldColor.r, shieldColor.g, shieldColor.b, 255);
+        SDL_RenderFillRect(renderer, &shieldFill);
+
+        // Texte du shield et PlayerHeal
+        if (dynamicPlayerHeal) {
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicPlayerHeal, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicPlayerHeal, healSize.x + (healSize.w - longeurW)/2, healSize.y + (healSize.h - largeurH)- 20);
+        }
+
+        // Mise a jour du Shield Heal Rendu
+        if (dynamicShieldHPText) {
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicShieldHPText, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicShieldHPText, 75, 990);
+        }
+
+        ent->RenderUpdate(renderer);
+    }
+        TTF_DrawRendererText(fpsText, 1800, 10);
+    // Rectangle de teinture sombre (TOUT CE QUI EST EN HAUT AURA LA TEINTE ->)
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_FRect screenRect = {0, 0, 1920, 1080};
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
+    SDL_RenderFillRect(renderer, &screenRect);
+
+    // Boutons dessus la teinte
+    if (selectedButtonPause == 0) {
+        RenderBoutons(BoutonResume, TextResume, r, g, b);
+    } else {
+        RenderBoutons(BoutonResume, TextResume, 40, 40, 40);
+    }
+
+    if (selectedButtonPause == 1) {
+        RenderBoutons(BoutonGoShop, TextPauseGoShop, r, g, b);
+    } else {
+        RenderBoutons(BoutonGoShop, TextPauseGoShop, 40, 40, 40);
+    }
+
+    if (selectedButtonPause == 2) {
+        RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, r, g, b);
+    } else {
+        RenderBoutons(BoutonReturnMenu, TextReturnMenuPause, 40, 40, 40);
+    }
+
+
+    SDL_RenderPresent(renderer);
+}
 
 
 
