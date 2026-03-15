@@ -42,6 +42,8 @@ public:
    bool bIsFlashing = false;
 //Pour la retation des fraises
     int strawberryCount = 0;
+
+
 float orbitAngle = 0.0f;
 
 //Textures Cerf

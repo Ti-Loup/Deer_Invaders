@@ -1290,34 +1290,31 @@ private:
 
     //Wave 3
     void SpawnWave3() {
-        //Utilisation du lambda
-
         SDL_FPoint planetCenter = {960.0f, 300.0f};
-        float radius = 450.0f;
-        float
+        float radius = 550.0f;
         int nbCerfs = 32;
 
-        // Le comportement orbite — défini une seule fois
-        auto moveCircle = [planetCenter, radius](Enemy_Deer* cerf, float dt) {
-           // cerf->orbitAngle += 1.5f * dt;// l'angle augmente chaque frame
-            cerf->transform.position.x = planetCenter.x + std::cos(cerf->orbitAngle) * radius;
-            cerf->transform.position.y = planetCenter.y + std::sin(cerf->orbitAngle) * radius;
-        };
-
-        // Spawn les cerfs répartis en cercle autour de la planète
         for (int i = 0; i < nbCerfs; i++) {
-            float angle = (2.0f * M_PI / nbCerfs) * i; // M_PI = PI 13.14...
+            float angle = (2.0f * M_PI / nbCerfs) * i; // angle pi
+
+            // Vitesse légèrement différente pour chaque cerf
+            float vitesseX = 0.8f + (static_cast<float>(i % 4) * 0.1f);
+            float vitesseY = 0.3f + (static_cast<float>(i % 3) * 0.05f);
+
+            // Chaque cerf a sa propre vitesse }} Radius similaire
+            auto moveCircle = [planetCenter, radius, vitesseX, vitesseY](Enemy_Deer* cerf, float dt) {
+                cerf->timeAlive += dt;
+                cerf->transform.position.x = planetCenter.x + std::cos(cerf->timeAlive * vitesseX + cerf->orbitAngle) * radius;
+                cerf->transform.position.y = planetCenter.y + std::sin(cerf->timeAlive * vitesseY + cerf->orbitAngle) * (radius * 0.4f);
+            };
 
             float startX = planetCenter.x + std::cos(angle) * radius;
             float startY = planetCenter.y + std::sin(angle) * radius;
 
             Enemy_Deer* cerf = new Enemy_Deer(startX, startY, false, textureCerf);
-            cerf->orbitAngle = angle; // commence à sa position de spawn
-            cerf->movementFunction = moveCircle; // assigne le comportement
+            cerf->orbitAngle = angle;
+            cerf->movementFunction = moveCircle;
             entities.push_back(cerf);
-
-
-            //Rendre le cercle grandissant et retrecissant
         }
     }
 //Fonction pour commencer une wave
