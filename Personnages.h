@@ -4,7 +4,7 @@
 #ifndef DEER_INVADERS_PERSONNAGES_H
 #define DEER_INVADERS_PERSONNAGES_H
 #include "Entity.h"
-
+#include <functional>
 
 class Personnages {
 
@@ -24,6 +24,12 @@ public:
 //  CERFS TIRE DES FRAISES
     void StrawberryShoot(std::vector<Entity *> &entity, SDL_Point dir, SDL_Texture *texture );
 
+
+    // Lambda de mouvement
+    //Elle prend 2 parametres -> Enemy_Deer + float
+    std::function<void(Enemy_Deer*, float)> movementFunction = nullptr;
+
+
     float startY;//depart
     float timeAlive = 0.f;
     float multiplicateurDirection = 1.0f;
@@ -34,9 +40,11 @@ public:
    float hitFlashTimer = 0.0f; //le timer
    const float hitFlashDuration = 0.4f;//duree
    bool bIsFlashing = false;
-
+//Pour la retation des fraises
     int strawberryCount = 0;
+float orbitAngle = 0.0f;
 
+//Textures Cerf
     SDL_Texture *textureCerf = nullptr;
 };
 

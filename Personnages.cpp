@@ -60,18 +60,22 @@ Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser, SDL_T
 //Ennemi Deer Monte et dessant progressivement
 void Enemy_Deer::HeightMovement(float deltaTime) {
 
-    timeAlive += deltaTime;
+    if (movementFunction != nullptr) {
+        movementFunction(this, deltaTime);
+    } else {
+        // Ton code actuel wave 1 — pas touché
+        timeAlive += deltaTime;
+        float amplitude = 10.0f;
+        float vitesse = 1.5f;
+        transform.position.y = startY + (std::sin(timeAlive * vitesse) * amplitude * multiplicateurDirection);
+    }
 
-    float amplitude = 10.0f; //Amplitude du mouvement
-    float vitesse = 1.5f;
 
-    //nouvelle position Y
-    transform.position.y = startY + (std::sin(timeAlive * vitesse) * amplitude * multiplicateurDirection);
 
 }
 //Methode Update Method de EnemyDeer
 void Enemy_Deer::Update(float deltaTime,std::vector<Entity*> &entities, SDL_Texture *texture) {
-    HeightMovement(deltaTime);
+    HeightMovement(deltaTime); // appel de la fonction mouvement hauteur
     //timer pour tier
     strawberryCooldown -= deltaTime;
     //Quand timer == 0

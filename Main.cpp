@@ -1290,47 +1290,35 @@ private:
 
     //Wave 3
     void SpawnWave3() {
-        //A faire
-entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(250.f, 50.0f, true, textureCerf));
-        entities.push_back(new Enemy_Deer(400.f, 50.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true, textureCerf));
+        //Utilisation du lambda
 
-        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true, textureCerf));
-        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true, textureCerf));
+        SDL_FPoint planetCenter = {960.0f, 300.0f};
+        float radius = 450.0f;
+        float
+        int nbCerfs = 32;
 
-        //Ligne 2 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 180.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(250.f, 180.0f, true, textureCerf));
-        entities.push_back(new Enemy_Deer(400.f, 180.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true, textureCerf));
+        // Le comportement orbite — défini une seule fois
+        auto moveCircle = [planetCenter, radius](Enemy_Deer* cerf, float dt) {
+           // cerf->orbitAngle += 1.5f * dt;// l'angle augmente chaque frame
+            cerf->transform.position.x = planetCenter.x + std::cos(cerf->orbitAngle) * radius;
+            cerf->transform.position.y = planetCenter.y + std::sin(cerf->orbitAngle) * radius;
+        };
 
-        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true, textureCerf));
-        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true, textureCerf));
-        //Ligne 3 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 330.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(250.f, 330.0f, true, textureCerf));
-        entities.push_back(new Enemy_Deer(400.f, 330.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(550.0f, 330.0f, true, textureCerf));
+        // Spawn les cerfs répartis en cercle autour de la planète
+        for (int i = 0; i < nbCerfs; i++) {
+            float angle = (2.0f * M_PI / nbCerfs) * i; // M_PI = PI 13.14...
 
-        entities.push_back(new Enemy_Deer(700.0f, 330.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(850.0f, 330.0f,true, textureCerf));
-        entities.push_back(new Enemy_Deer(1000.0f, 330.0f,false, textureCerf));
-        entities.push_back(new Enemy_Deer(1150.0f, 330.0f,true, textureCerf));
-        //Ligne 4 de cerfs
-        entities.push_back(new Enemy_Deer(100.f, 480.0f,false, textureCerf));
-        entities.push_back(new Enemy_Deer(250.f, 480.0f,true, textureCerf));
-        entities.push_back(new Enemy_Deer(400.f, 480.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(550.0f, 480.0f,true, textureCerf));
+            float startX = planetCenter.x + std::cos(angle) * radius;
+            float startY = planetCenter.y + std::sin(angle) * radius;
 
-        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false, textureCerf));
-        entities.push_back(new Enemy_Deer(850.0f, 480.0f,true, textureCerf));
-        entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true, textureCerf));
+            Enemy_Deer* cerf = new Enemy_Deer(startX, startY, false, textureCerf);
+            cerf->orbitAngle = angle; // commence à sa position de spawn
+            cerf->movementFunction = moveCircle; // assigne le comportement
+            entities.push_back(cerf);
+
+
+            //Rendre le cercle grandissant et retrecissant
+        }
     }
 //Fonction pour commencer une wave
     void StartWave(int wave) {
@@ -1637,7 +1625,6 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
             for (auto &ent: entities) {
                 if (ent->entityType == EntityType::Player) continue; //Le joueur a son propre mouvement alors il est exclue du Mouvements des autres. sinon il aurait 2 fois le mouvement appliquer
                 ent->MovementUpdate(deltaTime);
-                ent->HeightMovement(deltaTime);//Hauteur cerfs
                 //On verifie que seulement les ennemies bougent pas joueur !@!@
                 if (ent->entityType == EntityType::Enemy) {
                     if (ent->HasComponent(TRANSFORM)) {
