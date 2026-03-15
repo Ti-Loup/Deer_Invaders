@@ -196,7 +196,7 @@ BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture 
 
 void BulletStrawberry::Update(float deltaTime) {
     rotationAngle += rotationSpeed * rotationDirection * deltaTime;
-    
+
     MovementUpdate(deltaTime);
 }
 //  COLLECTIBLES

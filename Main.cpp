@@ -1365,6 +1365,68 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
         waveFadeAlpha = 0.0f;
     }
 
+    //Pour render tous les entitees dans Game && DeathScreen && Pause Screen
+    void RenderEntities() {
+// Dessiner toutes les entités
+        for (auto &ent: entities) {
+            if (Bullet* bulletCompetenceSpecial = dynamic_cast<Bullet*>(ent)) {
+                if (bulletCompetenceSpecial->bIsRGB) {
+                    bulletCompetenceSpecial->render.color = { r, g, b, 255 }; // r,g,b changent chaque frame
+                }
+            }
+
+            // Rendu texture fraise
+            if (BulletStrawberry* strawb = dynamic_cast<BulletStrawberry*>(ent)) {
+                if (strawb->textureStrawb != nullptr) {
+                    SDL_FRect dest = {
+                        strawb->transform.position.x,
+                        strawb->transform.position.y,
+                        strawb->transform.size.x,
+                        strawb->transform.size.y
+                    };
+                    SDL_RenderTextureRotated(
+           renderer,
+           strawb->textureStrawb,   // ← strawb->
+           nullptr,
+           &dest,                   // ← &dest (ton rect local)
+           strawb->rotationAngle,   // ← strawb->
+           nullptr,
+           SDL_FLIP_NONE
+       );
+                    continue;
+                }
+            }
+            //Rendu texture Cerf
+            if (Enemy_Deer *enemy_deer = dynamic_cast<Enemy_Deer*>(ent)) {
+                if (enemy_deer->textureCerf != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_deer->transform.position.x,
+                        enemy_deer->transform.position.y,
+                        enemy_deer->transform.size.x,
+                        enemy_deer->transform.size.y
+                    };
+
+                    if (enemy_deer->bIsFlashing) {
+                        // Calcule l'intensité du rouge selon le temps restant
+                        float ratio = enemy_deer->hitFlashTimer / enemy_deer->hitFlashDuration;
+                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255 - flashIntensity, 255 - flashIntensity);
+                    } else {
+                        // Remet la couleur normale
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255, 255);
+                    }
+
+                    SDL_RenderTexture(renderer, enemy_deer->textureCerf, nullptr, &dest);
+                    continue;
+                }
+            }
+            ent->RenderUpdate(renderer);
+        }
+
+    }
+
+
+
     // La fonction Game ne boucle
     void Game(float deltaTime) {
         SDL_Event GameEvents;
@@ -1777,65 +1839,9 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
             }
         }
 
-
-        // Dessiner toutes les entités
-        for (auto &ent: entities) {
-            if (Bullet* bulletCompetenceSpecial = dynamic_cast<Bullet*>(ent)) {
-                if (bulletCompetenceSpecial->bIsRGB) {
-                    bulletCompetenceSpecial->render.color = { r, g, b, 255 }; // r,g,b changent chaque frame
-                }
-            }
-
-            // Rendu texture fraise
-            if (BulletStrawberry* strawb = dynamic_cast<BulletStrawberry*>(ent)) {
-                if (strawb->textureStrawb != nullptr) {
-                    SDL_FRect dest = {
-                        strawb->transform.position.x,
-                        strawb->transform.position.y,
-                        strawb->transform.size.x,
-                        strawb->transform.size.y
-                    };
-                    SDL_RenderTextureRotated(
-           renderer,
-           strawb->textureStrawb,   // ← strawb->
-           nullptr,
-           &dest,                   // ← &dest (ton rect local)
-           strawb->rotationAngle,   // ← strawb->
-           nullptr,
-           SDL_FLIP_NONE
-       );
-                    continue;
-                }
-            }
-            //Rendu texture Cerf
-            if (Enemy_Deer *enemy_deer = dynamic_cast<Enemy_Deer*>(ent)) {
-                if (enemy_deer->textureCerf != nullptr) {
-                    SDL_FRect dest = {
-                        enemy_deer->transform.position.x,
-                        enemy_deer->transform.position.y,
-                        enemy_deer->transform.size.x,
-                        enemy_deer->transform.size.y
-                    };
-
-                    if (enemy_deer->bIsFlashing) {
-                        // Calcule l'intensité du rouge selon le temps restant
-                        float ratio = enemy_deer->hitFlashTimer / enemy_deer->hitFlashDuration;
-                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
-                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255 - flashIntensity, 255 - flashIntensity);
-                    } else {
-                        // Remet la couleur normale
-                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255, 255);
-                    }
-
-                    SDL_RenderTexture(renderer, enemy_deer->textureCerf, nullptr, &dest);
-                    continue;
-                }
-            }
-
-
-
-            ent->RenderUpdate(renderer);
-        }
+        //Optimisation seulement appel a RenderEtities pour Render les cerfs , fraises ...
+        //Juste a appeler la fonction pour deathscreen, winscreen, Game
+        RenderEntities();
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
         // Barre de compétence spéciale
         SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
@@ -1942,9 +1948,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
 
 
 
-        for (auto &ent: entities) {
 
-        }
         //Légé changement à l'image
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);//Peux d'opaciter
@@ -1964,41 +1968,9 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
             float posY = MeatInventory.y + (MeatInventory.h - largeurH) / 4.0f;
             TTF_DrawRendererText(InventoryText, posX, posY);
         }
-
-         // Dessiner toutes les entités meme dans le Pause pour que leurs textures restent
-        for (auto &ent: entities) {
-            if (Bullet* bulletCompetenceSpecial = dynamic_cast<Bullet*>(ent)) {
-                if (bulletCompetenceSpecial->bIsRGB) {
-                    bulletCompetenceSpecial->render.color = { r, g, b, 255 }; // r,g,b changent chaque frame
-                }
-            }
-
-            // Rendu texture fraise
-            if (BulletStrawberry* strawb = dynamic_cast<BulletStrawberry*>(ent)) {
-                if (strawb->textureStrawb != nullptr) {
-                    SDL_FRect dest = {
-                        strawb->transform.position.x,
-                        strawb->transform.position.y,
-                        strawb->transform.size.x,
-                        strawb->transform.size.y
-                    };
-                    SDL_RenderTexture(renderer, strawb->textureStrawb, nullptr, &dest);
-                    continue;
-                }
-            }
-            //Rendu texture Cerf
-            if (Enemy_Deer *enemy_deer = dynamic_cast<Enemy_Deer*>(ent)) {
-                if (enemy_deer->textureCerf != nullptr) {
-                    SDL_FRect dest = {
-                        enemy_deer->transform.position.x,
-                        enemy_deer->transform.position.y,
-                        enemy_deer->transform.size.x,
-                        enemy_deer->transform.size.y
-                    };
-                    SDL_RenderTexture(renderer, enemy_deer->textureCerf, nullptr, &dest);
-                    continue;
-                }
-            }
+        //Optimisation seulement appel a RenderEtities pour Render les cerfs , fraises ...
+        //Juste a appeler la fonction pour deathscreen, winscreen, Game
+        RenderEntities();
 
             // Barre de compétence spéciale
             SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
@@ -2051,8 +2023,6 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
                 TTF_DrawRendererText(dynamicShieldHPText, 75, 990);
             }
 
-            ent->RenderUpdate(renderer);
-        }
 
         TTF_DrawRendererText(fpsText, 1800, 10);
 
@@ -2373,41 +2343,9 @@ GameApp &app = GameApp::GetInstance();
 
     UpdateBackgroundTint(deltaTime);
 
-    // Dessiner toutes les entités pour que leurs textures restent
-    for (auto &ent: entities) {
-        if (Bullet* bulletCompetenceSpecial = dynamic_cast<Bullet*>(ent)) {
-            if (bulletCompetenceSpecial->bIsRGB) {
-                bulletCompetenceSpecial->render.color = { r, g, b, 255 };
-            }
-        }
-
-        // Rendu texture fraise
-        if (BulletStrawberry* strawb = dynamic_cast<BulletStrawberry*>(ent)) {
-            if (strawb->textureStrawb != nullptr) {
-                SDL_FRect dest = {
-                    strawb->transform.position.x,
-                    strawb->transform.position.y,
-                    strawb->transform.size.x,
-                    strawb->transform.size.y
-                };
-                SDL_RenderTexture(renderer, strawb->textureStrawb, nullptr, &dest);
-                continue;
-            }
-        }
-
-        // Rendu texture Cerf
-        if (Enemy_Deer *enemy_deer = dynamic_cast<Enemy_Deer*>(ent)) {
-            if (enemy_deer->textureCerf != nullptr) {
-                SDL_FRect dest = {
-                    enemy_deer->transform.position.x,
-                    enemy_deer->transform.position.y,
-                    enemy_deer->transform.size.x,
-                    enemy_deer->transform.size.y
-                };
-                SDL_RenderTexture(renderer, enemy_deer->textureCerf, nullptr, &dest);
-                continue;
-            }
-        }
+        //Optimisation seulement appel a RenderEtities pour Render les cerfs , fraises ...
+        //Juste a appeler la fonction pour deathscreen, winscreen, Game
+        RenderEntities();
 
         // Barre de compétence spéciale
         SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
@@ -2457,8 +2395,6 @@ GameApp &app = GameApp::GetInstance();
             TTF_DrawRendererText(dynamicShieldHPText, 75, 990);
         }
 
-        ent->RenderUpdate(renderer);
-    }
         TTF_DrawRendererText(fpsText, 1800, 10);
     // Rectangle de teinture sombre (TOUT CE QUI EST EN HAUT AURA LA TEINTE ->)
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
