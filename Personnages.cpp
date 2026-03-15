@@ -198,6 +198,11 @@ void BulletStrawberry::Update(float deltaTime) {
     rotationAngle += rotationSpeed * rotationDirection * deltaTime;
 
     MovementUpdate(deltaTime);
+
+    //detruit si les fraises sortent de l'ecran pour optimisation.
+    if (transform.position.y > 1100.0f || transform.position.y < -50.0f) {
+        bIsDestroyed = true;
+    }
 }
 //  COLLECTIBLES
 

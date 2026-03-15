@@ -1438,7 +1438,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
         TTF_SetTextColor(InventoryText, 255, 255, 255, 255);
         TTF_UpdateText(dynamicscoreText);
         TTF_UpdateText(dynamicPlayerHeal);
-        TTF_UpdateText(dynamicscoreText); // Pour update le shield amount dans Game
+        TTF_UpdateText(dynamicShieldHPText); // Pour update le shield amount dans Game
         TTF_UpdateText(waveDynamicNumberText);//Pour update le texte du Wave
         TTF_UpdateText(InventoryText);
         //PREMIERE VAGUE
@@ -1830,14 +1830,7 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
         }
 
 
-        //Mise a jour du numero de wave
-        if (showWaveUI) {
-            if (waveDynamicNumberText) {
-                int longeurW, largeurH;
-                TTF_GetTextSize(waveDynamicNumberText, &longeurW, &largeurH);
-                TTF_DrawRendererText(waveDynamicNumberText, 800, 400);
-            }
-        }
+
 
         //Optimisation seulement appel a RenderEtities pour Render les cerfs , fraises ...
         //Juste a appeler la fonction pour deathscreen, winscreen, Game
