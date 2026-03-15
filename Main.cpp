@@ -1795,7 +1795,15 @@ entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
                         strawb->transform.size.x,
                         strawb->transform.size.y
                     };
-                    SDL_RenderTexture(renderer, strawb->textureStrawb, nullptr, &dest);
+                    SDL_RenderTextureRotated(
+           renderer,
+           strawb->textureStrawb,   // ← strawb->
+           nullptr,
+           &dest,                   // ← &dest (ton rect local)
+           strawb->rotationAngle,   // ← strawb->
+           nullptr,
+           SDL_FLIP_NONE
+       );
                     continue;
                 }
             }

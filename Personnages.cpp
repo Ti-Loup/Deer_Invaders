@@ -15,6 +15,7 @@
 Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser, SDL_Texture *texture) {
     AddComponent (HEALTH);
     health.max_health = 40;
+
     health.current_health = 40;
     AddComponent (MOVEMENT);
     movement.velocity = { 50.0f,0.0f };
@@ -37,8 +38,6 @@ Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser, SDL_T
     this->strawberryCooldown = 1.0f + (static_cast<float>(rand() %9000) / 100.0f);
 
     textureCerf= texture;//assigne la texture au BulletStrawb -> deja assigner dans le constructeur main
-
-
 
 /*
     //Pour que les cerfs bouge légèrement haut et en bas de façon logique
@@ -98,7 +97,13 @@ void Enemy_Deer::StrawberryShoot(std::vector<Entity *> &entity, SDL_Point dir, S
     float spawnX = transform.position.x + (transform.size.x / 2.0f) - 10.0f;
     float spawnY = transform.position.y + transform.size.y;
     SDL_FPoint spawnPoint = {spawnX, spawnY};
-    entity.push_back(new BulletStrawberry(spawnPoint, dir, texture));
+    BulletStrawberry* bullet = new BulletStrawberry(spawnPoint, dir, texture);
+
+    // Alterne le sens à chaque fraise
+    bullet->rotationDirection = (strawberryCount % 2 == 0) ? 1.0f : -1.0f;
+    strawberryCount++;
+
+    entity.push_back(bullet);
 }
 
 
@@ -177,7 +182,7 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY) {
 //Bullets
 BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture *texture) {
     AddComponent (MOVEMENT);
-    movement.velocity = { 0.0f * dir.x,- 400.0f * dir.y };// les fraises vont vers le bas
+    movement.velocity = { 0.0f * dir.x,- 200.0f * dir.y };// les fraises vont vers le bas
     AddComponent (RENDER);
     render.color = { 255, 182, 193, 255 };//Pink for strawberry
     AddComponent (TRANSFORM);
@@ -187,7 +192,13 @@ BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture 
     textureStrawb = texture;//assigne la texture au BulletStrawb -> deja assigner dans le constructeur main
 }
 
+//BulletStrawberry Update
 
+void BulletStrawberry::Update(float deltaTime) {
+    rotationAngle += rotationSpeed * rotationDirection * deltaTime;
+    
+    MovementUpdate(deltaTime);
+}
 //  COLLECTIBLES
 
 Collectible_Meat::Collectible_Meat(float startX, float startY) {

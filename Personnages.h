@@ -35,6 +35,8 @@ public:
    const float hitFlashDuration = 0.4f;//duree
    bool bIsFlashing = false;
 
+    int strawberryCount = 0;
+
     SDL_Texture *textureCerf = nullptr;
 };
 
@@ -63,7 +65,15 @@ public:
 class BulletStrawberry : public Entity {
      public:
         BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture *texture);
-        SDL_Texture *textureStrawb = nullptr;
+       void Update(float deltaTime);
+
+    //ROTATION FRAISES
+    float rotationAngle = 0.0f;
+    float rotationSpeed = 180.0f; //La vitesse du mouvement rotatif
+    float rotationDirection = 1.0f; //1 ou -1
+
+        SDL_Texture *textureStrawb = nullptr; //creation texture
+
 
 };
 
