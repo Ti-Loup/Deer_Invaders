@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <random>
 #include <SDL3_image/SDL_image.h>
-#include "Main.h"
 
 #include "Components.h"
 
@@ -210,24 +209,29 @@ void BulletStrawberry::Update(float deltaTime) {
 }
 //  COLLECTIBLES
 
-Collectible_Meat::Collectible_Meat(float startX, float startY) {
+Collectible_Meat::Collectible_Meat(float startX, float startY, SDL_Texture *texture) {
     AddComponent (MOVEMENT);
     movement.velocity = { 0.0f,0.0f };
     AddComponent (RENDER);
     render.color = { 255, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
-    transform.size = { 18.f, 18.f };
+    transform.size = { 40.f, 40.f };
 
 
     //Le type d'entity
     entityType = EntityType::Collectable;
-
+//TEXTURE DU MEAT
+    textureMeat = texture;
+    rotationAngle = 0.0f;   // ← ajoute
+    rotationSpeed = 90.0f;
 }
 //MOUVEMENT DU COLLECTIBLE MEAT
 void Collectible_Meat::Update(float deltaTime) {
+    rotationAngle += rotationSpeed * deltaTime;
+
     const float gravity = 200.0f;
-    const float floorY = 1050.0f; // adapte au sol réel
+    const float floorY = 1020.0f; // adapte au sol réel
     static std::random_device rd;
     static std::mt19937 gen(rd());//Pour un rebond random sur l'axe des x
 

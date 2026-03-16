@@ -172,6 +172,8 @@ public:
     SDL_Texture *textureBulletNormal = nullptr;
     SDL_Texture *textureBulletFire = nullptr;
     SDL_Texture *textureBulletIce = nullptr;
+    //Texture du meat
+    SDL_Texture *textureMeat = nullptr;
 
 
     // -> WINSCREEN <-
@@ -590,8 +592,11 @@ private:
         if (textureBulletIce == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureBulletIce", SDL_GetError());
         }
-
-
+        //MEAT TEXTURE
+        textureMeat = IMG_LoadTexture(renderer, "assets/Meatv3.png");
+        if (textureMeat == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureMeat", SDL_GetError());
+        }
 
 
         //POUR PAUSE
@@ -1408,6 +1413,28 @@ private:
                     continue;
                 }
             }
+
+            // Rendu texture meat
+            if (Collectible_Meat* meatTexture = dynamic_cast<Collectible_Meat *>(ent)) {
+                if (meatTexture->textureMeat != nullptr) {
+                    SDL_FRect dest = {
+                        meatTexture->transform.position.x,
+                        meatTexture->transform.position.y,
+                        meatTexture->transform.size.x,
+                        meatTexture->transform.size.y
+                    };
+                    SDL_RenderTextureRotated(
+           renderer,
+           meatTexture->textureMeat,
+           nullptr,
+           &dest,
+           meatTexture->rotationAngle,
+           nullptr,
+           SDL_FLIP_NONE
+       );
+                    continue;
+                }
+            }
             //Rendu texture Cerf
             if (Enemy_Deer *enemy_deer = dynamic_cast<Enemy_Deer*>(ent)) {
                 if (enemy_deer->textureCerf != nullptr) {
@@ -1779,7 +1806,7 @@ private:
                                 float spawnX = ennemi->transform.position.x + (ennemi->transform.size.x / 3);
                                 float spawnY = ennemi->transform.position.y + (ennemi->transform.size.y / 3);
                                 // On CREE LE COLLECTIBLE
-                                entities.push_back(new Collectible_Meat(spawnX, spawnY));
+                                entities.push_back(new Collectible_Meat(spawnX, spawnY, textureMeat));
                             }
                             break;
                         }

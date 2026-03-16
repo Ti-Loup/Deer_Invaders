@@ -90,7 +90,7 @@ class BulletStrawberry : public Entity {
 //COLLECTIBLES
 class Collectible_Meat : public Entity {
 public:
-    Collectible_Meat(float floatX, float floatY);
+    Collectible_Meat(float floatX, float floatY, SDL_Texture *texture = nullptr);
     //Update
     void Update(float deltaTime) override;
     //bool pour faire spawn un meatCollectible apres mort d'un cerf
@@ -98,7 +98,10 @@ public:
 
     //bool pour savoir si chaque entity de CollectibleMeat touche le sol
     bool bMeatHasTouchedGround = false;
-
+    //Texture du meatCollectible
+    SDL_Texture *textureMeat = nullptr;
+    float rotationAngle = 0.0f;   // ← ajoute
+    float rotationSpeed = 90.0f;
 };
 
 #endif //DEER_INVADERS_PERSONNAGES_H
