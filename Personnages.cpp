@@ -223,12 +223,18 @@ Collectible_Meat::Collectible_Meat(float startX, float startY, SDL_Texture *text
     entityType = EntityType::Collectable;
 //TEXTURE DU MEAT
     textureMeat = texture;
-    rotationAngle = 0.0f;   // ← ajoute
+    //Rotation de depart aleatoire pour les meats entre 0 et 360
+    static std::mt19937 gen(std::random_device{}());
+    std::uniform_real_distribution<float> dis(0.0f, 360.0f);
+    rotationAngle = dis(gen); // ← angle de départ random
     rotationSpeed = 90.0f;
 }
 //MOUVEMENT DU COLLECTIBLE MEAT
 void Collectible_Meat::Update(float deltaTime) {
-    rotationAngle += rotationSpeed * deltaTime;
+    //Si vrai et qu'on a pas arreter sur le floor
+    if (!bStoppedOnFloor) {
+        rotationAngle += rotationSpeed * deltaTime;
+    }
 
     const float gravity = 200.0f;
     const float floorY = 1020.0f; // adapte au sol réel
@@ -269,6 +275,11 @@ void Collectible_Meat::Update(float deltaTime) {
             // Deuxième contact avec le sol → on arrête tout
             movement.velocity.y = 0.0f;
             movement.velocity.x = 0.0f;
+
+            bStoppedOnFloor = true; //On arrete la rotation seulement au deuxieme toucher par terre
         }
     }
+
+
+
 }

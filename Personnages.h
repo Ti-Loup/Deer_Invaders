@@ -102,6 +102,7 @@ public:
     SDL_Texture *textureMeat = nullptr;
     float rotationAngle = 0.0f;   // ← ajoute
     float rotationSpeed = 90.0f;
+    bool bStoppedOnFloor = false;
 };
 
 #endif //DEER_INVADERS_PERSONNAGES_H

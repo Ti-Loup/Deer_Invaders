@@ -1436,6 +1436,7 @@ private:
            nullptr,
            SDL_FLIP_NONE
        );
+
                     continue;
                 }
             }
