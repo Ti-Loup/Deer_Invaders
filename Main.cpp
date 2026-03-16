@@ -62,6 +62,10 @@ public:
     float colorTime = 0.0f;
 
 
+    //GENERAL
+    SDL_Texture *textureBackground = nullptr;
+
+
     //-> MENU <- Font et Texts
     TTF_Font *font = nullptr;
     TTF_Font *MenuFont = nullptr;
@@ -597,6 +601,12 @@ private:
         if (textureMeat == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureMeat", SDL_GetError());
         }
+        //BACKGROUND TEXTURE
+        textureBackground = IMG_LoadTexture(renderer, "assets/Background.png");
+        if (textureBackground == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureBackground", SDL_GetError());
+        }
+
 
 
         //POUR PAUSE
@@ -1372,6 +1382,10 @@ private:
             currentWaveType = WaveType::Elimination;
             SpawnWave3();
         }
+        else if (wave == 4) {
+            //meteorites qui tombent avec different pattern
+            survivalTimer = 0.0f;
+        }
         else {
             waveInProgress = false; // stop la logique de wave
             app.StateActuel = State::NiveauGagnerScreen;
@@ -1571,7 +1585,7 @@ private:
                         }
                     }
 
-                    // S'il n'y a plus rien, on lance la transition vers la Vague 3
+                    // S'il n'y a plus rien, on lance la transition vers la prochaine vague
                     if (!anyMeteorLeft) {
                         PreparationNextWave();
                     }
@@ -1860,6 +1874,7 @@ private:
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir pour le jeu
         SDL_RenderClear(renderer);
+        SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
         SDL_RenderTexture(renderer,HealUI,nullptr, &healSize);
 
@@ -1986,7 +2001,8 @@ private:
         // On remet le fond noir et on clear
         SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
         SDL_RenderClear(app.renderer);
-
+    //  BACKGROUND TEXTURE
+        SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
         //On dessine les entities et UI sans les faire bouger
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
         //Rajouter le score dynamique lors du Pause
@@ -2367,6 +2383,8 @@ GameApp &app = GameApp::GetInstance();
     void PauseSystem(float deltaTime) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+        //BACKGROUND
+    SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
 
     // On dessine les entities et UI sans les faire bouger
     SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
@@ -2383,8 +2401,7 @@ GameApp &app = GameApp::GetInstance();
         TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
     }
 
-    // Carre rouge pour viande
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    //Texture viande
     SDL_RenderFillRect(renderer, &MeatInventory);
     SDL_RenderTexture(renderer, textureMeat, nullptr, &MeatInventory);
 
