@@ -53,7 +53,7 @@ float competenceActiveTimer = 0.0f;
     bool ShieldUpgrade(ShieldAmount typeShield, int &meatCount);
     //Competence Special
     void UpdateCompetence(float deltaTime);
-    void ActivateCompetence();
+    void ActivateCompetence(SDL_Texture* texture = nullptr);
     void AddKillToCompetence(); //ajout du temps si ennemi tuer
 
 };
@@ -63,8 +63,11 @@ float competenceActiveTimer = 0.0f;
 class Bullet : public Entity{
     public:
 
-    Bullet (SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, bool bIsRGB = false);
+    Bullet (SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, bool bIsRGB = false, SDL_Texture *texture = nullptr);
     bool bIsRGB = false;//Pour que le rgb fonction (update la couleur a chaque frame)
+    //la texture pour tous les bullets
+    SDL_Texture *textureBullet = nullptr;
+
 };
 
 

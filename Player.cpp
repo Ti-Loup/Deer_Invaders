@@ -74,7 +74,8 @@ void Player::UpdatePhysics(float deltaTime) {
 //Pour tirer
 void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
     SDL_Color BulletColor = currentWeapon->GetColor(); //Prend la couleur de l'arme actuel
-    float centerX = transform.position.x + (transform.size.x / 2.0f) - 8.0f;
+    SDL_Texture* bulletTexture = currentWeapon->GetTexture(); // ← voir étape 4
+    float centerX = transform.position.x + (transform.size.x / 2.0f) - 20.0f; // centre la balle fix avec texture
     float bulletY = transform.position.y - 16.0f;
 
     if (dynamic_cast<FireBulletType*>(currentWeapon)) {
@@ -82,19 +83,19 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
         float decalage = 20.0f; //decalage pour tirer d'un autre angle
         // balle de gauche
         SDL_FPoint spawnGauche = { centerX - decalage, bulletY };
-        entity.push_back(new Bullet(spawnGauche, dir, BulletColor));
+        entity.push_back(new Bullet(spawnGauche, dir, BulletColor, false, bulletTexture));
 
         // balle de droite
         SDL_FPoint spawnDroite = { centerX + decalage, bulletY };
-        entity.push_back(new Bullet(spawnDroite, dir, BulletColor));
+        entity.push_back(new Bullet(spawnDroite, dir, BulletColor, false, bulletTexture));
     }//Pour ICE
     else if (dynamic_cast<IceBulletType*>(currentWeapon)) {
         //code
         float decalage = 25.0f;
         float hight = -10.0f;
-        entity.push_back(new Bullet({ centerX, bulletY + hight},          { 0.f,      -1.f    }, BulletColor)); // centre
-        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor)); // gauche droit
-        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor)); // droite droit
+        entity.push_back(new Bullet({ centerX, bulletY + hight},          { 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // centre
+        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // gauche droit
+        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // droite droit
     }
     else if (dynamic_cast<TBDBulletType*>(currentWeapon)) {
         //code
@@ -103,16 +104,16 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
         float decalage = 25.0f;
         constexpr float angleBullet = 0.577f; // l'angle de tir ~ 30 Degree
 
-        entity.push_back(new Bullet({ centerX, bulletY },          { 0.f,      -1.f    }, BulletColor, true)); // centre
-        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, true)); // gauche droit
-        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, true)); // droite droit
-        entity.push_back(new Bullet({ centerX, bulletY },          { -angleBullet, -1.f    }, BulletColor, true)); // diag gauche 30°
-        entity.push_back(new Bullet({ centerX, bulletY },          { angleBullet,  -1.f    }, BulletColor, true)); // diag droite 30°
+        entity.push_back(new Bullet({ centerX, bulletY },          { 0.f,      -1.f    }, BulletColor, true, bulletTexture)); // centre
+        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, true, bulletTexture)); // gauche droit
+        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, true, bulletTexture)); // droite droit
+        entity.push_back(new Bullet({ centerX, bulletY },          { -angleBullet, -1.f    }, BulletColor, true, bulletTexture)); // diag gauche 30°
+        entity.push_back(new Bullet({ centerX, bulletY },          { angleBullet,  -1.f    }, BulletColor, true, bulletTexture)); // diag droite 30°
     }
     else {
         // arme de base
         SDL_FPoint spawnPoint = { centerX, bulletY };
-        entity.push_back(new Bullet(spawnPoint, dir, BulletColor));
+        entity.push_back(new Bullet(spawnPoint, dir, BulletColor, false, bulletTexture));
     }
 }
 
@@ -141,7 +142,7 @@ void Player::UpdateCompetence(float deltaTime) {
     }
 }
 
-void Player::ActivateCompetence() {
+void Player::ActivateCompetence(SDL_Texture* texture) {
     if (!bCompetenceReady || bCompetenceActive) return;
 
     bCompetenceActive = true;
@@ -149,8 +150,9 @@ void Player::ActivateCompetence() {
     competenceActiveTimer = competenceActiveDuration;
 
     // Sauvegarder l'arme actuelle et équiper la compétence
-    previousWeapon = currentWeapon; // on NE delete PAS ici
+    previousWeapon = currentWeapon; // pas de delete
     currentWeapon  = new CompetenceSpecialBulletType();
+    currentWeapon->texture = texture;
 }
 //fonction si Un ennemie est detruit alors on ajoute au timer
 void Player::AddKillToCompetence() {
@@ -161,7 +163,7 @@ void Player::AddKillToCompetence() {
 }
 
 
-Bullet::Bullet(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color,bool isRGB) {
+Bullet::Bullet(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color,bool isRGB, SDL_Texture *texture) {
     //Constructeur
     AddComponent(MOVEMENT);//movement de base
     // vitesse toujours 700 peu importe l'angle passé
@@ -176,9 +178,11 @@ Bullet::Bullet(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color,bool isRGB) {
     render.color = color;
     AddComponent(TRANSFORM);
     transform.position = spawn;
-    transform.size = (SDL_FPoint){16.f, 16.f};
+    transform.size = (SDL_FPoint){40.f, 40.f};
     bIsRGB = isRGB;
     entityType = EntityType::Bullet;
+
+    textureBullet = texture;
 }
 
 float ShootCooldown = 0.f;

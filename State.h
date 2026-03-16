@@ -53,9 +53,11 @@ class BulletType{
 public:
     BulletType () = default;
     virtual ~BulletType() = default;
-
     virtual void Affect (Entity *entity);
     virtual SDL_Color GetColor () = 0;
+    virtual SDL_Texture *GetTexture() {return nullptr;} // valeur default
+    SDL_Texture *texture = nullptr;//chaque bullet different garde sa propre texture
+
 };
 
 //Si invalide
@@ -63,8 +65,8 @@ class InvalidBulletType : public BulletType{
 public:
     InvalidBulletType() = default;
     void Affect (Entity *entity) override;
-
     SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
 };
 
 //Couleur Bullet de base
@@ -72,16 +74,17 @@ class ClassicBulletType : public BulletType{
 public:
     ClassicBulletType() = default;
     void Affect (Entity *entity) override;
-
     SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
 };
 //Bullet Niveau 2(Amélioration -> Shop)
 class FireBulletType : public BulletType{
 public:
     FireBulletType () = default;
     void Affect (Entity *entity) override;
-
+//color & texture
     SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
 };
 
 //Bullet Niveau 3(Amélioration -> Shop)
@@ -91,6 +94,7 @@ public:
     void Affect (Entity *entity) override;
 
     SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
 };
 
 //Bullet Niveau 4(Amélioration -> Shop)
@@ -100,6 +104,7 @@ public:
     void Affect (Entity *entity) override;
 
     SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
 };
 
 //Bullet de la competence special (Bullets Multicolor)
@@ -109,6 +114,7 @@ class CompetenceSpecialBulletType : public BulletType{
     void Affect (Entity *entity) override;
 
     SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
 };
 //Les differents state de Shield ( petit shield bleue, moyen shield mauve, grand shield Jaune)
 class ShieldType {

@@ -168,6 +168,11 @@ public:
     SDL_Texture* textureStrawberry = nullptr;
     //Texture Cerf
     SDL_Texture *textureCerf = nullptr;
+    //Texture des differents Bullets
+    SDL_Texture *textureBulletNormal = nullptr;
+    SDL_Texture *textureBulletFire = nullptr;
+    SDL_Texture *textureBulletIce = nullptr;
+
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -572,6 +577,22 @@ private:
         if (textureCerf == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureCerf", SDL_GetError());
         }
+        //Pour les textures des differents bullets
+        textureBulletNormal = IMG_LoadTexture(renderer, "assets/BulletNormal.png");
+        if (textureBulletNormal == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureBulletNormal", SDL_GetError());
+        }
+        textureBulletFire = IMG_LoadTexture(renderer, "assets/BulletFire.png");
+        if (textureBulletFire == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureBulletFire", SDL_GetError());
+        }
+        textureBulletIce = IMG_LoadTexture(renderer, "assets/BulletIce.png");
+        if (textureBulletIce == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureBulletIce", SDL_GetError());
+        }
+
+
+
 
         //POUR PAUSE
         FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
@@ -828,7 +849,8 @@ private:
 
         //Joueur
         player = new Player();
-
+        // Assigne les textures aux types d'armes
+        player->currentWeapon->texture = textureBulletNormal;
         entities.push_back(player);
 
         //Timer FPS
@@ -1376,10 +1398,10 @@ private:
                     };
                     SDL_RenderTextureRotated(
            renderer,
-           strawb->textureStrawb,   // ← strawb->
+           strawb->textureStrawb,
            nullptr,
-           &dest,                   // ← &dest (ton rect local)
-           strawb->rotationAngle,   // ← strawb->
+           &dest,
+           strawb->rotationAngle,
            nullptr,
            SDL_FLIP_NONE
        );
@@ -1410,6 +1432,27 @@ private:
                     continue;
                 }
             }
+            //Pour le rendu des bullets
+            if (Bullet* bullet = dynamic_cast<Bullet*>(ent)) {
+                if (bullet->textureBullet != nullptr) {
+                    SDL_FRect dest = {
+                        bullet->transform.position.x,
+                        bullet->transform.position.y,
+                        bullet->transform.size.x,
+                        bullet->transform.size.y
+                    };
+                    if (bullet->bIsRGB) {
+                        SDL_SetTextureColorMod(bullet->textureBullet, r, g, b);//rgb sur la texture
+                        bullet->render.color = { r, g, b, 255 };
+                    }
+                    else {
+                        SDL_SetTextureColorMod(bullet->textureBullet, 255, 255, 255);
+                    }
+                    SDL_RenderTexture(renderer, bullet->textureBullet, nullptr, &dest);
+                    continue; // ← skip le RenderUpdate coloré
+                }
+            }
+
             ent->RenderUpdate(renderer);
         }
 
@@ -2555,7 +2598,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
                 SDL_Log("Button Down");
                 //POWER UP
-                app.player->ActivateCompetence();
+                app.player->ActivateCompetence(app.textureBulletNormal);
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_START) {
                 app.StateActuel = State::Pause;
@@ -3117,18 +3160,22 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     if (app.player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
                         app.currentWeaponLevel = 1;// on achete la prochaine arme
                         app.globalWeaponLevel = 1;
+                        app.player->currentWeapon->texture = app.textureBulletFire; //Change les textures en Feu
                     }
                 }
                 else if (app.currentWeaponLevel == 1){
                     if (app.player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
                         app.currentWeaponLevel = 2;
                         app.globalWeaponLevel = 2;
+                        app.player->currentWeapon->texture = app.textureBulletIce; //Change les textures en glace
                     }
                 }
                 else if (app.currentWeaponLevel == 2) {
                     if (app.player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
                         app.currentWeaponLevel = 3;
                         app.globalWeaponLevel = 3;
+                        app.player->currentWeapon->texture = app.textureBulletNormal;//Normal pour l'instant
+                        //TBD
                     }
                 }
             }
@@ -3222,7 +3269,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.keyBindings[event->key.scancode]->execute();
             }
             if (event->key.scancode == SDL_SCANCODE_E) {
-                app.player->ActivateCompetence();
+                app.player->ActivateCompetence(app.textureBulletNormal);
             }
             /*ancienne methode
             if (event->key.scancode == SDL_SCANCODE_D) {
