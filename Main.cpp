@@ -1462,6 +1462,7 @@ private:
 
     //WAVE 5 BOSS PART 1
    void SpawnWave5() {
+        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false, textureCerf));
 
     }
 
