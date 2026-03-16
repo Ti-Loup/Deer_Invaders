@@ -19,6 +19,20 @@
 #include "Personnages.h"
 #include "Player.h"
 
+//CURRENT BUG LISTS
+/*
+ *IF I UPGRADE A WEAPON DURING THE SPECIAL ABILITY IT WILL GO BACK TO THE OLD ONE AFTER THE END OF THE CAPACITY INSTEAD OF KEEPING THE ONE BOUGHT
+ *
+ *
+ */
+
+
+
+
+
+
+
+
 
 static constexpr Sint32 TILE_SIZE = 32;
 static constexpr Sint32 ANIM_ROW_BEGIN = 0;
@@ -178,7 +192,8 @@ public:
     SDL_Texture *textureBulletIce = nullptr;
     //Texture du meat
     SDL_Texture *textureMeat = nullptr;
-
+    //Texture boss
+    SDL_Texture *textureBossStage_1_2 = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -606,7 +621,11 @@ private:
         if (textureBackground == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureBackground", SDL_GetError());
         }
-
+        //BOSS STAGE 1 AND 2
+        textureBossStage_1_2 = IMG_LoadTexture(renderer, "assets/BossFinalDeerInvaders.png");
+        if (textureBossStage_1_2 == nullptr) {
+            SDL_LogWarn(0,"failed to load textureBossStage_1_2.png", SDL_GetError());
+        }
 
 
         //POUR PAUSE
@@ -1328,6 +1347,30 @@ private:
 
     //WAVE 2
     //Randomizer pour creer les meteorites dans la fonction Game()
+    void SpawnWave2(float deltaTime) {
+        survivalTimer += deltaTime;
+
+        if (survivalTimer < survivalDuration) {
+            meteorSpawnTimer += deltaTime;
+            if (meteorSpawnTimer >= 0.7f) {
+                float spawnX = static_cast<float>(rand() % 1800);
+                entities.push_back(new Enemy_Meteor(spawnX, -80.0f));
+                meteorSpawnTimer = 0.0f;
+            }
+        } else {
+            bool anyMeteorLeft = false;
+            for (auto& ent : entities) {
+                if (ent->entityType == EntityType::Enemy && !ent->bIsDestroyed) {
+                    anyMeteorLeft = true;
+                    break;
+                }
+            }
+            if (!anyMeteorLeft) {
+                PreparationNextWave();
+            }
+        }
+
+    }
 
     //Wave 3
     void SpawnWave3() {
@@ -1363,6 +1406,66 @@ private:
             entities.push_back(cerf);
         }
     }
+    // WAVE 4 SURVIVAL
+    void SpawnWave4(float deltaTime) {
+        survivalTimer += deltaTime;
+
+        if (survivalTimer < survivalDuration) {
+            meteorSpawnTimer += deltaTime;
+
+            // Spawn plus rapide qu'en wave 2
+            float spawnRate = 0.4f;
+
+            if (meteorSpawnTimer >= spawnRate) {
+                meteorSpawnTimer = 0.0f;
+
+                // Pattern aléatoire parmi 3 types
+                int pattern = rand() % 3;
+
+                if (pattern == 0) {
+                    // Rafale de 3 météorites en ligne
+                    float baseX = static_cast<float>(rand() % 1600);
+                    for (int i = 0; i < 3; i++) {
+                        Enemy_Meteor* m = new Enemy_Meteor(baseX + i * 100.0f, -80.0f);
+                        entities.push_back(m);
+                    }
+                }
+                else if (pattern == 1) {
+                    // Météorite diagonale (vitesse X ajoutée)
+                    float spawnX = static_cast<float>(rand() % 1800);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f);
+                    float direction = (rand() % 2 == 0) ? 1.0f : -1.0f;
+                    m->movement.velocity.x = direction * 150.0f; // Dérive latérale
+                    entities.push_back(m);
+                }
+                else {
+                    // Météorite rapide simple
+                    float spawnX = static_cast<float>(rand() % 1800);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f);
+                    m->movement.velocity.y *= 1.8f; // Plus rapide vers le bas
+                    entities.push_back(m);
+                }
+            }
+        } else {
+            bool anyMeteorLeft = false;
+            for (auto& ent : entities) {
+                if (ent->entityType == EntityType::Enemy && !ent->bIsDestroyed) {
+                    anyMeteorLeft = true;
+                    break;
+                }
+            }
+            if (!anyMeteorLeft) {
+                PreparationNextWave();
+            }
+        }
+    }
+
+    //WAVE 5 BOSS PART 1
+   void SpawnWave5() {
+
+    }
+
+
 //Fonction pour commencer une wave
     void StartWave(int wave) {
         GameApp &app = GameApp::GetInstance();
@@ -1376,6 +1479,7 @@ private:
             //Les meteorites qui tombent
             currentWaveType = WaveType::Survival;
             survivalTimer = 0.0f;
+            meteorSpawnTimer = 0.0f;
         }
         else if (wave == 3) {
             //cerfs qui bougent en cercle
@@ -1384,7 +1488,13 @@ private:
         }
         else if (wave == 4) {
             //meteorites qui tombent avec different pattern
+            currentWaveType = WaveType::Survival;
             survivalTimer = 0.0f;
+            meteorSpawnTimer = 0.0f;
+        }
+        else if (wave == 5) {
+            currentWaveType = WaveType::Elimination;
+            SpawnWave5();
         }
         else {
             waveInProgress = false; // stop la logique de wave
@@ -1560,36 +1670,14 @@ private:
         if (waveInProgress) {
             if (currentWaveType == WaveType::Survival && waveInProgress)
             {
-                survivalTimer += deltaTime;
-
-                // On spawn tant qu'on n'a pas atteint 15 secondes
-                if (survivalTimer < 15.0f)
-                {
-                    meteorSpawnTimer += deltaTime;
-                    if (meteorSpawnTimer >= 0.7f)
-                    {
-                        float spawnX = static_cast<float>(rand() % 1800);
-                        entities.push_back(new Enemy_Meteor(spawnX, -80.0f)); //<- depart au dessus de l'ecran
-                        meteorSpawnTimer = 0.0f;
+                // les waves survivals
+                    if (currentWave == 2) {
+                        SpawnWave2(deltaTime);
                     }
-                }
-                // Une fois le timer fini, verifie si reste des meteorite
-                else
-                {
-                    bool anyMeteorLeft = false;
-                    for (auto& ent : entities) {
-                        // On vérifie s'il reste des ennemis (météores) non détruits
-                        if (ent->entityType == EntityType::Enemy && !ent->bIsDestroyed) {
-                            anyMeteorLeft = true;
-                            break;
-                        }
+                    else if (currentWave == 4) {
+                        SpawnWave4(deltaTime);
                     }
 
-                    // S'il n'y a plus rien, on lance la transition vers la prochaine vague
-                    if (!anyMeteorLeft) {
-                        PreparationNextWave();
-                    }
-                }
             }
             //logique d'elimination des entiters apres wave
             if (currentWaveType == WaveType::Elimination && waveInProgress) {
