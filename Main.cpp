@@ -940,6 +940,7 @@ private:
         SDL_DestroyTexture(textureBulletFire);
         SDL_DestroyTexture(textureBulletIce);
         SDL_DestroyTexture(textureMeat);
+        SDL_DestroyTexture(textureBossStage_1_2);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         TTF_Quit();
@@ -1463,6 +1464,7 @@ private:
     //WAVE 5 BOSS PART 1
    void SpawnWave5() {
         entities.push_back(new Enemy_Deer(700.0f, 480.0f,false, textureCerf));
+        entities.push_back(new Enemy_FraiseBoss(700.0f, 500.0f , textureBossStage_1_2));
 
     }
 
@@ -1589,6 +1591,36 @@ private:
                     continue;
                 }
             }
+            //Rendu texture Cerf BOSS
+            if (Enemy_FraiseBoss *enemy_deerBoss = dynamic_cast<Enemy_FraiseBoss *>(ent)) {
+                if (enemy_deerBoss->textureBoss != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_deerBoss->transform.position.x,
+                        enemy_deerBoss->transform.position.y,
+                        enemy_deerBoss->transform.size.x,
+                        enemy_deerBoss->transform.size.y
+                    };
+
+                    // Le flashing quand toucher a faire pour le boss et
+                    /*
+                    if (enemy_deerBoss->bIsFlashing) {
+                        // Calcule l'intensité du rouge selon le temps restant
+                        float ratio = enemy_deer->hitFlashTimer / enemy_deer->hitFlashDuration;
+                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255 - flashIntensity, 255 - flashIntensity);
+                    } else {
+                        // Remet la couleur normale
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255, 255);
+                    }
+                    */
+
+                    SDL_RenderTexture(renderer, enemy_deerBoss->textureBoss, nullptr, &dest);
+                    continue;
+                }
+            }
+
+
+
             //Pour le rendu des bullets
             if (Bullet* bullet = dynamic_cast<Bullet*>(ent)) {
                 if (bullet->textureBullet != nullptr) {

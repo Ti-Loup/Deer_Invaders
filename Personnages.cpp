@@ -166,12 +166,12 @@ void Enemy_Meteor::Update(float deltaTime) {
 }
 
 //  BOSS
-Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY) {
+Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY, SDL_Texture *texture) {
     AddComponent (HEALTH);
     health.max_health = 5000;
     health.current_health = 5000;
     AddComponent (MOVEMENT);
-    movement.velocity = { 30.0f,0.0f };
+    movement.velocity = { 0.0f,0.0f };
     AddComponent (RENDER);
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
@@ -180,6 +180,7 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY) {
 
     //Le type d'entity
     entityType = EntityType::Enemy;
+    textureBoss = texture;
 }
 
 //Bullets

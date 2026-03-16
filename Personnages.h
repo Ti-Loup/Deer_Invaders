@@ -67,8 +67,9 @@ public:
 //Bosses
 class Enemy_FraiseBoss : public Entity {
 public:
-    Enemy_FraiseBoss(float startX, float startY);
-
+    Enemy_FraiseBoss(float startX, float startY, SDL_Texture *texture = nullptr);
+//Textures Cerf BOSS
+    SDL_Texture *textureBoss = nullptr;
 };
 
 //Bullets
