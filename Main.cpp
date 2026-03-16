@@ -146,7 +146,7 @@ public:
     // -> GAME <- Text et Fonts
     TTF_Font *InventoryFont = nullptr; // Game + Shop
     TTF_Text *InventoryText = nullptr; // Game + Shop
-    SDL_FRect MeatInventory ={1700.0f, 10.0f, 25.0f,25.0f};
+    SDL_FRect MeatInventory ={1700.0f, 10.0f, 60.0f,60.0f};
     SDL_Texture *MeatInventoryTexture = nullptr;
     SDL_Texture *ScoreUI = nullptr;
     SDL_Texture *HealUI = nullptr;
@@ -236,7 +236,7 @@ public:
     TTF_Text *currentMeatShop = nullptr;//savoir combien de meat on a en ce moment
     TTF_Text *resumeGameShopText = nullptr;
     //rectangle
-    SDL_FRect MeatInventoryShop ={200.0f, 100.0f, 50.0f,50.0f};
+    SDL_FRect MeatInventoryShop ={180.0f, 80.0f, 100.0f,100.0f};
     SDL_FRect BoutonResumeGameShop = {1350.0f, 900.0f, 200.0f,100.0f};
     //Boutons
     SDL_FRect BoutonUpgrade = {800, 800, 125, 100};
@@ -907,6 +907,10 @@ private:
         SDL_DestroyTexture(textureCerf);
         SDL_DestroyTexture(ScoreUI);
         SDL_DestroyTexture(HealUI);
+        SDL_DestroyTexture(textureBulletNormal);
+        SDL_DestroyTexture(textureBulletFire);
+        SDL_DestroyTexture(textureBulletIce);
+        SDL_DestroyTexture(textureMeat);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         TTF_Quit();
@@ -1857,10 +1861,9 @@ private:
         SDL_RenderClear(renderer);
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
         SDL_RenderTexture(renderer,HealUI,nullptr, &healSize);
-        //Carre rouge pour viande
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
-        SDL_RenderFillRect(renderer, &MeatInventory);
-        SDL_RenderTexture(renderer,MeatInventoryTexture, nullptr, &MeatInventory);
+
+      //  SDL_RenderFillRect(renderer, &MeatInventory);
+        SDL_RenderTexture(renderer,textureMeat, nullptr, &MeatInventory);
         //Mis a jour du score rendu
         if (dynamicscoreText) {
             int longeurW, largeurH;
@@ -2006,9 +2009,9 @@ private:
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);//Peux d'opaciter
         SDL_FRect screenRect = {0, 0, 1920, 1080};
         //Carre rouge pour viande
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
+
         SDL_RenderFillRect(renderer, &MeatInventory);
-        SDL_RenderTexture(renderer,MeatInventoryTexture, nullptr, &MeatInventory);
+        SDL_RenderTexture(renderer,textureMeat, nullptr, &MeatInventory);
         //On remet en noir l'ecran ->
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
         SDL_RenderFillRect(renderer, &screenRect);
@@ -2323,9 +2326,9 @@ GameApp &app = GameApp::GetInstance();
         }
         TTF_DrawRendererText(statusLargeShield, 100, 950 + 40);
 
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // ROUGE vif
-        SDL_RenderFillRect(renderer, &MeatInventoryShop);
-        SDL_RenderTexture(renderer,MeatInventoryTexture, nullptr, &MeatInventoryShop);
+
+        //SDL_RenderFillRect(renderer, &MeatInventoryShop);
+        SDL_RenderTexture(renderer,textureMeat, nullptr, &MeatInventoryShop);
 
         SDL_RenderPresent(renderer);
     }
@@ -2382,7 +2385,7 @@ GameApp &app = GameApp::GetInstance();
     // Carre rouge pour viande
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderFillRect(renderer, &MeatInventory);
-    SDL_RenderTexture(renderer, MeatInventoryTexture, nullptr, &MeatInventory);
+    SDL_RenderTexture(renderer, textureMeat, nullptr, &MeatInventory);
 
     // Mise a jour du Meat rendu
     if (InventoryText) {

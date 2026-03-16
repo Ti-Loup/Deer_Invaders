@@ -168,8 +168,8 @@ void Enemy_Meteor::Update(float deltaTime) {
 //  BOSS
 Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY) {
     AddComponent (HEALTH);
-    health.max_health = 100;
-    health.current_health = 100;
+    health.max_health = 5000;
+    health.current_health = 5000;
     AddComponent (MOVEMENT);
     movement.velocity = { 30.0f,0.0f };
     AddComponent (RENDER);
