@@ -1957,12 +1957,25 @@ private:
                             bullet->bIsDestroyed = true;
                             //Pv des ennemies baisses + Ajout d'un vfx rouge sur le cerf
                             ennemi->health.current_health -= 20;
-                            // Déclenche le flash rouge
+                            // Déclenche le flash rouge pour les cerfs
                             Enemy_Deer* deerHit = dynamic_cast<Enemy_Deer*>(ennemi);
                             if (deerHit != nullptr) {
                                 deerHit->bIsFlashing = true;
                                 deerHit->hitFlashTimer = deerHit->hitFlashDuration;
                             }
+                            // declenche le flash rouge pour le boss
+                            Enemy_FraiseBoss* bossHit = dynamic_cast<Enemy_FraiseBoss *>(ennemi);
+                            if (bossHit != nullptr) {
+                                bossHit->bIsFlashing = true;
+                                bossHit->hitFlashTimer = bossHit->hitFlashDuration;
+                            }
+                            //declenche le flash rouge pour les meteorites
+                            Enemy_Meteor* meteorHit = dynamic_cast<Enemy_Meteor *>(ennemi);
+                            if (meteorHit != nullptr ) {
+                                meteorHit->bIsFlashing = true;
+                                meteorHit->hitFlashTimer = meteorHit->hitFlashDuration;
+                            }
+
 
                             //si heal plus petit que 0 alors le cerf est detruit + score totaux
                             if (ennemi->health.current_health <= 0) {
