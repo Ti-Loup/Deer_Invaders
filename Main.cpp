@@ -359,7 +359,11 @@ public:
 
     //POUR TEXTE ET FONDU DES WAVES
     TTF_Font *waveDynamicNumberFont = nullptr;
+    TTF_Font *waveDynamicWaveTypeFont = nullptr;
     TTF_Text *waveDynamicNumberText = nullptr;
+    TTF_Text *waveDynamicWaveTypeText = nullptr;
+    TTF_Text *waveDynamicWaveType2Text = nullptr;
+
     //BOOL POUR DIRE SI FAUT METTRE OU PAS METTRE LE UI DES WAVES
     bool showWaveUI = false;
     //Fondu Des Waves
@@ -661,6 +665,8 @@ private:
         if (TTF_SetTextColor(TextReturnMenuPause, 65, 105, 255, 255 ) == false) {
             SDL_LogWarn(0, "failed to set the color of: TextReturnMenuPause ", SDL_GetError());
         }
+
+
         //FONT POUR LES WAVES
         waveDynamicNumberFont = TTF_OpenFont("assets/font.ttf", 70);
         waveDynamicNumberText = TTF_CreateText(textEngine, waveDynamicNumberFont, "Wave 1", 25);
@@ -670,6 +676,22 @@ private:
         if (TTF_SetTextColor(waveDynamicNumberText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(1,"Failed to set the color for waveDynamicNumberText", SDL_GetError());
         }
+        waveDynamicWaveTypeFont = TTF_OpenFont("assets/font.ttf", 40);
+        waveDynamicWaveTypeText = TTF_CreateText(textEngine, waveDynamicWaveTypeFont, "Elimination", 25);
+        if (waveDynamicWaveTypeText == nullptr) {
+            SDL_LogWarn(0,"Erreur failed to set waveDynamicWaveTypeText", SDL_GetError());
+        }
+        if (TTF_SetTextColor(waveDynamicWaveTypeText,255,255,255,255)== false) {
+            SDL_LogWarn(1,"failed to set the color for waveDynamicWaveTypeText", SDL_GetError());
+        }
+        waveDynamicWaveType2Text = TTF_CreateText(textEngine, waveDynamicWaveTypeFont, "Survival", 25);
+        if (waveDynamicWaveType2Text == nullptr) {
+            SDL_LogWarn(0,"Erreur failed to set waveDynamicWaveType2Text", SDL_GetError());
+        }
+        if (TTF_SetTextColor(waveDynamicWaveType2Text,255,255,255,255)== false) {
+            SDL_LogWarn(1,"failed to set the color for waveDynamicWaveType2Text", SDL_GetError());
+        }
+
 
         //Score
         ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Score", 25);
@@ -926,10 +948,14 @@ private:
         TTF_CloseFont(QuitFont);
         TTF_CloseFont(ScoreFont);
         TTF_CloseFont(waveDynamicNumberFont);
+        TTF_CloseFont(waveDynamicWaveTypeFont);
         TTF_CloseFont(CreditsFont);
         TTF_CloseFont(Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont);
         TTF_CloseFont(FontPause);
         TTF_DestroyText(TextStart);
+        TTF_DestroyText(waveDynamicWaveTypeText);
+        TTF_DestroyText(waveDynamicWaveType2Text);
+
         TTF_DestroyText(TextQuit);
         TTF_DestroyText(TextScore);
         TTF_DestroyText(CreditsMenuText);
@@ -1150,7 +1176,6 @@ private:
             }
             SDL_RenderFillRect(renderer, &segment);
         }
-
     }
     //Menu du jeu qui run
     void Menu(float deltaTime) {
@@ -1434,7 +1459,7 @@ private:
                 if (pattern == 0) {
                     // Rafale de 3 météorites en ligne
                     float baseX = static_cast<float>(rand() % 1600);
-                    for (int i = 0; i < 3; i++) {
+                    for (int i = 0; i < 2; i++) {
                         Enemy_Meteor* m = new Enemy_Meteor(baseX + i * 100.0f, -80.0f, textureMeteor);
                         entities.push_back(m);
                     }
@@ -1472,7 +1497,6 @@ private:
 
     //WAVE 5 BOSS PART 1
    void SpawnWave5() {
-        entities.push_back(new Enemy_Deer(700.0f, 480.0f,false, textureCerf));
         entities.push_back(new Enemy_FraiseBoss(700.0f, 300.0f , textureBossStage_1_2));
 
     }
@@ -1610,7 +1634,7 @@ private:
                         enemy_deerBoss->transform.size.y
                     };
 
-                    // Le flashing quand toucher a faire pour le boss et
+                    // Le flashing quand toucher fait !
 
                     if (enemy_deerBoss->bIsFlashing) {
                         // Calcule l'intensité du rouge selon le temps restant
@@ -1695,6 +1719,7 @@ private:
         TTF_UpdateText(dynamicPlayerHeal);
         TTF_UpdateText(dynamicShieldHPText); // Pour update le shield amount dans Game
         TTF_UpdateText(waveDynamicNumberText);//Pour update le texte du Wave
+        TTF_UpdateText(waveDynamicWaveTypeText); // Pour update le texte en dessous du wave qui dit si Elimination ou survival
         TTF_UpdateText(InventoryText);
         //PREMIERE VAGUE
         //gestion des etats entre jeu et transition
@@ -1703,12 +1728,13 @@ private:
             showWaveUI = true;
 
             // Mise à jour du texte
+            //wave
             std::string NextWave = "Wave : " + std::to_string(currentWave);
             TTF_SetTextString(waveDynamicNumberText, NextWave.c_str(), 0);
+
             // 0 a 1.5 -> on met le fondu
             if (transitionTimer <= 1.5f) {
                 app.waveFadeAlpha += (255.0f / 1.5f) * deltaTime;
-                if (app.waveFadeAlpha > 255.0f) app.waveFadeAlpha = 255.0f;
             }
             // 1.5 a 3.0 -> On revient vers le CLAIR
             else if (transitionTimer <= 3.0f) {
@@ -1739,6 +1765,7 @@ private:
                 // les waves survivals
                     if (currentWave == 2) {
                         SpawnWave2(deltaTime);
+
                     }
                     else if (currentWave == 4) {
                         SpawnWave4(deltaTime);
@@ -2140,6 +2167,17 @@ private:
                 int longeurW, largeurH;
                 TTF_GetTextSize(waveDynamicNumberText, &longeurW, &largeurH);
                 TTF_DrawRendererText(waveDynamicNumberText, 800, 400);
+
+            }
+            //Si on est en elimination wave alors on met le text elimination
+            //Sinon on est dans Survival et on met le text suvival
+            if (currentWaveType == WaveType::Elimination) {
+                TTF_DrawRendererText(waveDynamicWaveTypeText,825,475);
+
+            }
+            else if (currentWaveType == WaveType::Survival) {
+                TTF_DrawRendererText(waveDynamicWaveType2Text,825,475);
+
             }
         }
 
