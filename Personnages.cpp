@@ -119,7 +119,7 @@ Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY, SDL_Texture *tex
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
-    transform.size = { 80.f, 80.f };
+    transform.size = { 100.f, 140.f };
 
     //Le type d'entity
     entityType = EntityType::Enemy;
@@ -141,7 +141,7 @@ Enemy_MageDeer::Enemy_MageDeer(float startX, float startY, SDL_Texture *texture)
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
-    transform.size = { 80.f, 80.f };
+    transform.size = { 100.f, 140.f };
 
     //Le type d'entity
     entityType = EntityType::Enemy;

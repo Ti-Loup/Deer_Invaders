@@ -642,12 +642,12 @@ private:
             SDL_LogWarn(0, "failed to set the texture of textureMeteor", SDL_GetError());
         }
         //TEXTURE CERF HEALER
-        textureCerfHealer = IMG_LoadTexture(renderer, "assets/DeerEnnemieHealer.png");
+        textureCerfHealer = IMG_LoadTexture(renderer, "assets/DeerEnnemie Healer.png");
         if (textureCerfHealer == nullptr) {
             SDL_LogWarn (0, "failed to load textureCerfHealer", SDL_GetError());
         }
         //TEXTURE CERF MAGE
-        textureCerfMage = IMG_LoadTexture(renderer, "assets/DeerEnnemieMage.png");
+        textureCerfMage = IMG_LoadTexture(renderer, "assets/DeerEnnemiePurple.png");
         if (textureCerfMage == nullptr) {
             SDL_LogWarn (0,"failed to load textureCerfMage");
         }
@@ -1392,6 +1392,10 @@ private:
         entities.push_back(new Enemy_Deer(850.0f, 480.0f,true, textureCerf));
         entities.push_back(new Enemy_Deer(1000.0f, 480.0f, false, textureCerf));
         entities.push_back(new Enemy_Deer(1150.0f, 480.0f, true, textureCerf));
+
+        //test
+      //  entities.push_back(new Enemy_HealerDeer(500.f,400.f,textureCerfHealer));
+     //   entities.push_back(new Enemy_MageDeer(500.0f,500.f, textureCerfMage ));
     }
 
     //WAVE 2
@@ -1639,6 +1643,58 @@ private:
                     continue;
                 }
             }
+
+            //RENDU TEXTURE CERF HEALER
+            if (Enemy_HealerDeer *enemy_deerHeal = dynamic_cast<Enemy_HealerDeer *>(ent)) {
+                if (enemy_deerHeal->textureDeerHealer != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_deerHeal->transform.position.x,
+                        enemy_deerHeal->transform.position.y,
+                        enemy_deerHeal->transform.size.x,
+                        enemy_deerHeal->transform.size.y
+                    };
+
+                    /*
+                    if (enemy_deer->bIsFlashing) {
+                        // Calcule l'intensité du rouge selon le temps restant
+                        float ratio = enemy_deer->hitFlashTimer / enemy_deer->hitFlashDuration;
+                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255 - flashIntensity, 255 - flashIntensity);
+                    } else {
+                        // Remet la couleur normale
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255, 255);
+                    }
+                    */
+                    SDL_RenderTexture(renderer, enemy_deerHeal->textureDeerHealer, nullptr, &dest);
+                    continue;
+                }
+            }
+
+            //RENDU TEXTURE CERF MAGE
+            if (Enemy_MageDeer *enemy_deerMage = dynamic_cast<Enemy_MageDeer *>(ent)) {
+                if (enemy_deerMage->textureDeerMage != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_deerMage->transform.position.x,
+                        enemy_deerMage->transform.position.y,
+                        enemy_deerMage->transform.size.x,
+                        enemy_deerMage->transform.size.y
+                    };
+                    /*
+                    if (enemy_deer->bIsFlashing) {
+                        // Calcule l'intensité du rouge selon le temps restant
+                        float ratio = enemy_deer->hitFlashTimer / enemy_deer->hitFlashDuration;
+                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255 - flashIntensity, 255 - flashIntensity);
+                    } else {
+                        // Remet la couleur normale
+                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255, 255);
+                    }
+                    */
+                    SDL_RenderTexture(renderer, enemy_deerMage->textureDeerMage, nullptr, &dest);
+                    continue;
+                }
+            }
+
             //Rendu texture Cerf BOSS
             if (Enemy_FraiseBoss *enemy_deerBoss = dynamic_cast<Enemy_FraiseBoss *>(ent)) {
                 if (enemy_deerBoss->textureBoss != nullptr) {
