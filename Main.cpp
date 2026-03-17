@@ -1464,7 +1464,7 @@ private:
     //WAVE 5 BOSS PART 1
    void SpawnWave5() {
         entities.push_back(new Enemy_Deer(700.0f, 480.0f,false, textureCerf));
-        entities.push_back(new Enemy_FraiseBoss(700.0f, 500.0f , textureBossStage_1_2));
+        entities.push_back(new Enemy_FraiseBoss(700.0f, 300.0f , textureBossStage_1_2));
 
     }
 
@@ -1907,8 +1907,8 @@ private:
                         SDL_FRect rectBullet = {
                             bullet->transform.position.x,
                             bullet->transform.position.y,
-                            bullet->transform.size.x,
-                            bullet->transform.size.y
+                            bullet->transform.size.x ,
+                            bullet->transform.size.y,
                         };
                         //Creation Collision des ennemies
                         SDL_FRect rectEnnemi = {

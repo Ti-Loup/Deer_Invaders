@@ -176,7 +176,7 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY, SDL_Texture *tex
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
-    transform.size = { 80.f, 80.f };
+    transform.size = { 300.f, 400.f };
 
     //Le type d'entity
     entityType = EntityType::Enemy;
