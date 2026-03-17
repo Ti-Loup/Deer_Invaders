@@ -194,6 +194,8 @@ public:
     SDL_Texture *textureMeat = nullptr;
     //Texture boss
     SDL_Texture *textureBossStage_1_2 = nullptr;
+    //Meteor Texture
+    SDL_Texture *textureMeteor = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -626,6 +628,11 @@ private:
         if (textureBossStage_1_2 == nullptr) {
             SDL_LogWarn(0,"failed to load textureBossStage_1_2.png", SDL_GetError());
         }
+        //METEOR TEXTURE
+        textureMeteor = IMG_LoadTexture(renderer, "assets/Meteor.png");
+        if (textureMeteor == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureMeteor", SDL_GetError());
+        }
 
 
         //POUR PAUSE
@@ -910,7 +917,7 @@ private:
         TTF_DestroyText (ArmeIceText);
         TTF_DestroyText (ArmeTBDText);
 
-
+        //Game
         TTF_DestroyText(MenuTitle);
         TTF_DestroyRendererTextEngine(textEngine);
         TTF_CloseFont(font);
@@ -940,6 +947,7 @@ private:
         SDL_DestroyTexture(textureBulletFire);
         SDL_DestroyTexture(textureBulletIce);
         SDL_DestroyTexture(textureMeat);
+        SDL_DestroyTexture(textureMeteor);
         SDL_DestroyTexture(textureBossStage_1_2);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
@@ -1355,7 +1363,7 @@ private:
             meteorSpawnTimer += deltaTime;
             if (meteorSpawnTimer >= 0.7f) {
                 float spawnX = static_cast<float>(rand() % 1800);
-                entities.push_back(new Enemy_Meteor(spawnX, -80.0f));
+                entities.push_back(new Enemy_Meteor(spawnX, -80.0f, textureMeteor));
                 meteorSpawnTimer = 0.0f;
             }
         } else {
@@ -1427,14 +1435,14 @@ private:
                     // Rafale de 3 météorites en ligne
                     float baseX = static_cast<float>(rand() % 1600);
                     for (int i = 0; i < 3; i++) {
-                        Enemy_Meteor* m = new Enemy_Meteor(baseX + i * 100.0f, -80.0f);
+                        Enemy_Meteor* m = new Enemy_Meteor(baseX + i * 100.0f, -80.0f, textureMeteor);
                         entities.push_back(m);
                     }
                 }
                 else if (pattern == 1) {
                     // Météorite diagonale (vitesse X ajoutée)
                     float spawnX = static_cast<float>(rand() % 1800);
-                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f, textureMeteor);
                     float direction = (rand() % 2 == 0) ? 1.0f : -1.0f;
                     m->movement.velocity.x = direction * 150.0f; // Dérive latérale
                     entities.push_back(m);
@@ -1442,7 +1450,8 @@ private:
                 else {
                     // Météorite rapide simple
                     float spawnX = static_cast<float>(rand() % 1800);
-                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f, textureMeteor);
+                    float direction = (rand()%2 == 0) ? 1.0f : -1.0f;//gauche ou droite
                     m->movement.velocity.y *= 1.8f; // Plus rapide vers le bas
                     entities.push_back(m);
                 }
@@ -1602,24 +1611,48 @@ private:
                     };
 
                     // Le flashing quand toucher a faire pour le boss et
-                    /*
+
                     if (enemy_deerBoss->bIsFlashing) {
                         // Calcule l'intensité du rouge selon le temps restant
-                        float ratio = enemy_deer->hitFlashTimer / enemy_deer->hitFlashDuration;
+                        float ratio = enemy_deerBoss->hitFlashTimer / enemy_deerBoss->hitFlashDuration;
                         Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
-                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255 - flashIntensity, 255 - flashIntensity);
+                        SDL_SetTextureColorMod(enemy_deerBoss->textureBoss, 255, 255 - flashIntensity, 255 - flashIntensity);
                     } else {
                         // Remet la couleur normale
-                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255, 255);
+                        SDL_SetTextureColorMod(enemy_deerBoss->textureBoss, 255, 255, 255);
                     }
-                    */
+
 
                     SDL_RenderTexture(renderer, enemy_deerBoss->textureBoss, nullptr, &dest);
                     continue;
                 }
             }
+            //Rendu pour le texture Meteor
+            if (Enemy_Meteor *enemy_meteor = dynamic_cast<Enemy_Meteor *>(ent)) {
+                if (enemy_meteor->textureMeteor != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_meteor->transform.position.x,
+                        enemy_meteor->transform.position.y,
+                        enemy_meteor->transform.size.x,
+                        enemy_meteor->transform.size.y
+                    };
 
+                    // Le flashing quand toucher a faire pour la meteorite et
 
+                    if (enemy_meteor->bIsFlashing) {
+                        // Calcule l'intensité du rouge selon le temps restant
+                        float ratio = enemy_meteor->hitFlashTimer / enemy_meteor->hitFlashDuration;
+                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
+                        SDL_SetTextureColorMod(enemy_meteor->textureMeteor, 255, 255 - flashIntensity, 255 - flashIntensity);
+                    } else {
+                        // Remet la couleur normale
+                        SDL_SetTextureColorMod(enemy_meteor->textureMeteor ,255, 255, 255);
+                    }
+
+                    SDL_RenderTexture(renderer, enemy_meteor->textureMeteor, nullptr, &dest);
+                    continue;
+                }
+            }
 
             //Pour le rendu des bullets
             if (Bullet* bullet = dynamic_cast<Bullet*>(ent)) {

@@ -59,8 +59,17 @@ public:
 //Des meteorites qui tombent du ciel
 class Enemy_Meteor : public Entity{
 public:
-    Enemy_Meteor(float startX, float startY);
+    Enemy_Meteor(float startX, float startY, SDL_Texture *texture);
     void Update(float deltaTime) override;
+
+    //Creation de la texture pour meteorite
+    SDL_Texture *textureMeteor = nullptr;
+
+    //Pour un indicateur si bullet touche au meteor
+    //Un flash quand le cerf est toucher par bullet
+    float hitFlashTimer = 0.0f; //le timer
+    const float hitFlashDuration = 0.4f;//duree
+    bool bIsFlashing = false;
 };
 
 
@@ -68,8 +77,15 @@ public:
 class Enemy_FraiseBoss : public Entity {
 public:
     Enemy_FraiseBoss(float startX, float startY, SDL_Texture *texture = nullptr);
+    void Update(float deltaTime);
 //Textures Cerf BOSS
     SDL_Texture *textureBoss = nullptr;
+
+    //Un flash quand le cerf est toucher par bullet
+    float hitFlashTimer = 0.0f; //le timer
+    const float hitFlashDuration = 0.4f;//duree
+    bool bIsFlashing = false;
+
 };
 
 //Bullets

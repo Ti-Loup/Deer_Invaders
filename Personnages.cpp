@@ -126,7 +126,7 @@ Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {
     entityType = EntityType::Enemy;
 }
 
-Enemy_Meteor::Enemy_Meteor(float startX, float  startY) {
+Enemy_Meteor::Enemy_Meteor(float startX, float  startY, SDL_Texture *texture) {
     AddComponent (HEALTH);
     health.max_health = 40;
     health.current_health = 40;
@@ -147,6 +147,9 @@ Enemy_Meteor::Enemy_Meteor(float startX, float  startY) {
 
     //Le type d'entity
     entityType = EntityType::Enemy;
+
+    //Sa texture
+    textureMeteor = texture;
 }
 //Update Method de la meteorite
 void Enemy_Meteor::Update(float deltaTime) {
@@ -156,12 +159,18 @@ void Enemy_Meteor::Update(float deltaTime) {
     movement.velocity.y += gravity * deltaTime;
 
     MovementUpdate(deltaTime);
-
-
-
-
     if (transform.position.y > 1080.0f) {
         bIsDestroyed = true;
+    }
+
+    //Le flash
+    if (bIsFlashing) {
+        //timer diminue
+        hitFlashTimer -= deltaTime;
+        if (hitFlashTimer <= 0.0f) {
+            hitFlashTimer = 0.0f;
+            bIsFlashing = false;
+        }
     }
 }
 
@@ -182,6 +191,23 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY, SDL_Texture *tex
     entityType = EntityType::Enemy;
     textureBoss = texture;
 }
+    //Update method de Enemy_Boss Stage 1 et 2
+void Enemy_FraiseBoss::Update(float deltaTime) {
+    //Mouvement du boss
+
+
+
+    //Le flash
+    if (bIsFlashing) {
+        //timer diminue
+        hitFlashTimer -= deltaTime;
+        if (hitFlashTimer <= 0.0f) {
+            hitFlashTimer = 0.0f;
+            bIsFlashing = false;
+        }
+    }
+}
+
 
 //Bullets
 BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture *texture) {
