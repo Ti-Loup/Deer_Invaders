@@ -1516,7 +1516,9 @@ private:
 
     //WAVE 5 BOSS PART 1
    void SpawnWave5() {
-        entities.push_back(new Enemy_FraiseBoss(700.0f, 300.0f , textureBossStage_1_2));
+        entities.push_back(new Enemy_FraiseBoss(800.0f, 200.0f , textureBossStage_1_2));
+        entities.push_back(new Enemy_HealerDeer(300,500, textureCerfHealer));
+        entities.push_back(new Enemy_MageDeer(1600, 500, textureCerfMage));
 
     }
 
@@ -2179,6 +2181,24 @@ private:
         //Juste a appeler la fonction pour deathscreen, winscreen, Game
         RenderEntities();
         TTF_DrawRendererText(fpsText, 1800, 10); // Affiche FPS en jeu aussi
+        //Barre de vie du boss
+        for (auto& ent : entities) {
+            Enemy_FraiseBoss* boss = dynamic_cast<Enemy_FraiseBoss*>(ent);
+            if (boss != nullptr && !boss->bIsDestroyed) {
+                SDL_FRect bossBarBg = { 460.0f, 30.0f, 1000.0f, 20.0f };
+                SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+                SDL_RenderFillRect(renderer, &bossBarBg);
+
+                //On met la reponse du in (hp) en float
+                float healthRatio = (float)boss->health.current_health / (float)boss->health.max_health;
+                SDL_FRect bossBarFill = { 460.0f, 30.0f, 1000.0f * healthRatio, 20.0f };
+                SDL_SetRenderDrawColor(renderer, 200, 30, 30, 255);
+                SDL_RenderFillRect(renderer, &bossBarFill);
+                break;
+            }
+        }
+
+
         // Barre de compétence spéciale
         SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
         float ratio = player->competenceTimer / player->competenceCooldown;
