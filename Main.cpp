@@ -196,6 +196,10 @@ public:
     SDL_Texture *textureBossStage_1_2 = nullptr;
     //Meteor Texture
     SDL_Texture *textureMeteor = nullptr;
+    //Texture Cerf Mage
+    SDL_Texture *textureCerfMage = nullptr;
+    //Texture Cerf Healer
+    SDL_Texture *textureCerfHealer = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -637,7 +641,16 @@ private:
         if (textureMeteor == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureMeteor", SDL_GetError());
         }
-
+        //TEXTURE CERF HEALER
+        textureCerfHealer = IMG_LoadTexture(renderer, "assets/DeerEnnemieHealer.png");
+        if (textureCerfHealer == nullptr) {
+            SDL_LogWarn (0, "failed to load textureCerfHealer", SDL_GetError());
+        }
+        //TEXTURE CERF MAGE
+        textureCerfMage = IMG_LoadTexture(renderer, "assets/DeerEnnemieMage.png");
+        if (textureCerfMage == nullptr) {
+            SDL_LogWarn (0,"failed to load textureCerfMage");
+        }
 
         //POUR PAUSE
         FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
@@ -974,6 +987,8 @@ private:
         SDL_DestroyTexture(textureBulletIce);
         SDL_DestroyTexture(textureMeat);
         SDL_DestroyTexture(textureMeteor);
+        SDL_DestroyTexture(textureCerfHealer);
+        SDL_DestroyTexture(textureCerfMage);
         SDL_DestroyTexture(textureBossStage_1_2);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);

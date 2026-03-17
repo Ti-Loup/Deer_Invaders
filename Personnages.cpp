@@ -108,9 +108,8 @@ void Enemy_Deer::StrawberryShoot(std::vector<Entity *> &entity, SDL_Point dir, S
 
     entity.push_back(bullet);
 }
-
-
-Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {
+//CERF HEALER
+Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY, SDL_Texture *texture) {
     AddComponent (HEALTH);
     health.max_health = 100;
     health.current_health = 100;
@@ -124,7 +123,40 @@ Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY) {
 
     //Le type d'entity
     entityType = EntityType::Enemy;
+
+    textureDeerHealer = texture;
 }
+void Enemy_HealerDeer::Update(float deltaTime) {
+
+}
+
+//CERF MAGE
+Enemy_MageDeer::Enemy_MageDeer(float startX, float startY, SDL_Texture *texture) {
+    AddComponent (HEALTH);
+    health.max_health = 100;
+    health.current_health = 100;
+    AddComponent (MOVEMENT);
+    movement.velocity = { 40.0f,0.0f };
+    AddComponent (RENDER);
+    render.color = { 139, 69, 19, 255 };//couleur brun
+    AddComponent (TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size = { 80.f, 80.f };
+
+    //Le type d'entity
+    entityType = EntityType::Enemy;
+
+    //texture Mage Cerf
+    textureDeerMage = texture;
+}
+void Enemy_MageDeer::Update(float deltaTime) {
+
+}
+
+
+
+
+
 
 Enemy_Meteor::Enemy_Meteor(float startX, float  startY, SDL_Texture *texture) {
     AddComponent (HEALTH);

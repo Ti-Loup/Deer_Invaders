@@ -53,13 +53,30 @@ float orbitAngle = 0.0f;
 //Les soigneurs
 class Enemy_HealerDeer : public Entity{
 public:
-    Enemy_HealerDeer(float startX, float startY);
+    Enemy_HealerDeer(float startX, float startY, SDL_Texture *texture = nullptr);
+    void Update (float deltaTime)override;
+
+    //texture du cerf Healer
+    SDL_Texture *textureDeerHealer = nullptr;
 };
+//Les mages
+class Enemy_MageDeer : public Entity {
+    public:
+    Enemy_MageDeer(float startX, float startY, SDL_Texture *texture = nullptr);
+    void Update(float deltaTime);
+
+    //texture du cerf Mage
+   SDL_Texture  *textureDeerMage = nullptr;
+
+};
+
+
+
 
 //Des meteorites qui tombent du ciel
 class Enemy_Meteor : public Entity{
 public:
-    Enemy_Meteor(float startX, float startY, SDL_Texture *texture);
+    Enemy_Meteor(float startX, float startY, SDL_Texture *texture = nullptr);
     void Update(float deltaTime) override;
 
     //Creation de la texture pour meteorite
