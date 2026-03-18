@@ -1750,31 +1750,53 @@ private:
                     continue;
                 }
             }
-
-            //Pour le rendu des bullets
-            if (Bullet* bullet = dynamic_cast<Bullet*>(ent)) {
-                if (bullet->textureBullet != nullptr) {
+            //RENDU DES 4 TEXTURES / PART
+            if (EnemyPart *partTexture = dynamic_cast<EnemyPart *>(ent)) {
+                if (partTexture->texturePart != nullptr) {
                     SDL_FRect dest = {
-                        bullet->transform.position.x,
-                        bullet->transform.position.y,
-                        bullet->transform.size.x,
-                        bullet->transform.size.y
+                        partTexture->transform.position.x,
+                        partTexture->transform.position.y,
+                        partTexture->transform.size.x,
+                        partTexture->transform.size.y
                     };
-                    if (bullet->bIsRGB) {
-                        SDL_SetTextureColorMod(bullet->textureBullet, r, g, b);//rgb sur la texture
-                        bullet->render.color = { r, g, b, 255 };
-                    }
-                    else {
-                        SDL_SetTextureColorMod(bullet->textureBullet, 255, 255, 255);
-                    }
-                    SDL_RenderTexture(renderer, bullet->textureBullet, nullptr, &dest);
-                    continue; // ← skip le RenderUpdate coloré
+                    // Fade out progressif
+                    Uint8 alpha = (Uint8)(255.f * (1.f - partTexture->lifeTimer / partTexture->lifeDuration));
+                    SDL_SetTextureAlphaMod(partTexture->texturePart, alpha);
+
+                    SDL_RenderTextureRotated(renderer, partTexture->texturePart,
+                        &partTexture->srcRect, &dest,
+                        partTexture->rotationAngle, nullptr, SDL_FLIP_NONE);
+
+                    SDL_SetTextureAlphaMod(partTexture->texturePart, 255); // reset alpha pour pas affecter les autres
+                    continue;
+
                 }
             }
 
-            ent->RenderUpdate(renderer);
-        }
 
+                //Pour le rendu des bullets
+                if (Bullet* bullet = dynamic_cast<Bullet*>(ent)) {
+                    if (bullet->textureBullet != nullptr) {
+                        SDL_FRect dest = {
+                            bullet->transform.position.x,
+                            bullet->transform.position.y,
+                            bullet->transform.size.x,
+                            bullet->transform.size.y
+                        };
+                        if (bullet->bIsRGB) {
+                            SDL_SetTextureColorMod(bullet->textureBullet, r, g, b);//rgb sur la texture
+                            bullet->render.color = { r, g, b, 255 };
+                        }
+                        else {
+                            SDL_SetTextureColorMod(bullet->textureBullet, 255, 255, 255);
+                        }
+                        SDL_RenderTexture(renderer, bullet->textureBullet, nullptr, &dest);
+                        continue; // ← skip le RenderUpdate coloré
+                    }
+                }
+
+                ent->RenderUpdate(renderer);
+            }
     }
 
 
@@ -2078,21 +2100,80 @@ private:
 
 
                             //si heal plus petit que 0 alors le cerf est detruit + score totaux
+                            //LES 4 BOUTS DE LA TEXTURE QUI EXPLOSE
                             if (ennemi->health.current_health <= 0) {
                                 ennemi->bIsDestroyed = true;
-                                SDL_LogWarn(0, "Un cerf est mort");
 
-                                //Ajout score
-                                currentScore += scorePerDeerKilled;
-                                SDL_LogWarn(0, "Le score est de %d", currentScore);
-                                player->AddKillToCompetence();// Appel de la fonction AddKillToCompetence pour reduire le timer quand un cerf est mort
+                            // Récupère texture selon le type d'ennemi
+                            SDL_Texture* textureEnnemie = nullptr;
 
-                                // On drop un collectible a collecter
-                                //Creation Collision Bullet Entity
-                                float spawnX = ennemi->transform.position.x + (ennemi->transform.size.x / 3);
-                                float spawnY = ennemi->transform.position.y + (ennemi->transform.size.y / 3);
-                                // On CREE LE COLLECTIBLE
-                                entities.push_back(new Collectible_Meat(spawnX, spawnY, textureMeat));
+                                //LES DIFFERENTS TYPES DE CERFS ET METEOR
+                            if (Enemy_Deer* deer = dynamic_cast<Enemy_Deer*>(ennemi)) {
+                               textureEnnemie = deer->textureCerf;
+                            }
+                             else if (Enemy_HealerDeer* healer = dynamic_cast<Enemy_HealerDeer*>(ennemi)) {
+                                textureEnnemie = healer->textureDeerHealer;
+                            }
+                             else if (Enemy_MageDeer* mage = dynamic_cast<Enemy_MageDeer*>(ennemi)) {
+                              textureEnnemie = mage->textureDeerMage;
+                            }
+                             else if (Enemy_FraiseBoss* boss = dynamic_cast<Enemy_FraiseBoss*>(ennemi)) {
+                                textureEnnemie = boss->textureBoss;
+                             }
+
+    // Position centre de l'ennemi mort
+    float posX = ennemi->transform.position.x + ennemi->transform.size.x / 2;
+    float posY = ennemi->transform.position.y + ennemi->transform.size.y / 2;
+    float halfW = ennemi->transform.size.x / 2;
+    float halfH = ennemi->transform.size.y / 2;
+    //chaque persone a sa propre texture ,mais ils sont tous commun a textureEnnemie->
+    if (textureEnnemie != nullptr) {
+        // Récupère la taille réelle de la texture
+        float texW, texH;
+        SDL_GetTextureSize(textureEnnemie, &texW, &texH);
+        float halfTexW = texW / 2;
+        float halfTexH = texH / 2;
+
+        // Haut-gauche
+        entities.push_back(new EnemyPart(
+            {posX - halfW / 2, posY - halfH / 2},
+            {0.f, 0.f, halfTexW, halfTexH},
+            {-150.f, -150.f},
+            textureEnnemie,
+            {halfW, halfH}  // <- taille d'affichage
+        ));
+        // Haut-droite
+        entities.push_back(new EnemyPart(
+            {posX + halfW / 2, posY - halfH / 2},
+            {halfTexW, 0.f, halfTexW, halfTexH},
+            {150.f, -150.f},
+            textureEnnemie,
+            {halfW, halfH}
+        ));
+        // Bas-gauche
+        entities.push_back(new EnemyPart(
+            {posX - halfW / 2, posY + halfH / 2},
+            {0.f, halfTexH, halfTexW, halfTexH},
+            {-150.f, 150.f},
+            textureEnnemie,
+            {halfW, halfH}
+        ));
+        // Bas-droite
+        entities.push_back(new EnemyPart(
+            {posX + halfW / 2, posY + halfH / 2},
+            {halfTexW, halfTexH, halfTexW, halfTexH},
+            {150.f, 150.f},
+            textureEnnemie,
+            {halfW, halfH}
+        ));
+    }
+
+                        // Score et collectible comme avant
+                        currentScore += scorePerDeerKilled;
+                        player->AddKillToCompetence();
+                        float spawnX = ennemi->transform.position.x + (ennemi->transform.size.x / 3);
+                        float spawnY = ennemi->transform.position.y + (ennemi->transform.size.y / 3);
+                        entities.push_back(new Collectible_Meat(spawnX, spawnY, textureMeat));
                             }
                             break;
                         }

@@ -16,6 +16,7 @@ Bullet,//2
 Shield,//3
 EnemyBullet,//4
 Collectable,//5
+Particle //6
 };
 
 class Entity {
@@ -57,8 +58,36 @@ public:
 
     //Bool pour savoir si un object est detruit ou non
     bool bIsDestroyed = false;
+};
 
+//La classe pour les 4 parties de la texture qui pars
+class EnemyPart : public Entity{
+public:
+    SDL_Texture *texturePart = nullptr;
+    float rotationAngle = 0.0f;
+    float rotationSpeed = 200.0f;
+    float lifeTimer = 0.0f;
+    float lifeDuration = 2.5f;//0.8 est nice et 4.0 aussi
+//rect vide
+SDL_FRect srcRect{};
 
+    EnemyPart(SDL_FPoint pos, SDL_FRect src, SDL_FPoint velocity, SDL_Texture *texture, SDL_FPoint displaySize) : texturePart(texture), srcRect(src) {
+        entityType = EntityType::Particle;
+        transform.position = pos;
+        transform.size = displaySize; // <- utilise la taille d'affichage
+        movement.velocity = velocity;
+    }
+    void Update(float deltaTime) override {
+        // Mouvement && rotation
+        transform.position.x += movement.velocity.x * deltaTime;
+        transform.position.y += movement.velocity.y * deltaTime;
+        rotationAngle += rotationSpeed * deltaTime;
+        // cmb de temps avant que les particles ce supp
+        lifeTimer += deltaTime;
+        if (lifeTimer >= lifeDuration) {
+            bIsDestroyed = true;
+        }
+    }
 
 };
 
