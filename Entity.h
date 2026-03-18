@@ -65,9 +65,9 @@ class EnemyPart : public Entity{
 public:
     SDL_Texture *texturePart = nullptr;
     float rotationAngle = 0.0f;
-    float rotationSpeed = 200.0f;
+    float rotationSpeed = 200.0f;//rotation des textures cass/s
     float lifeTimer = 0.0f;
-    float lifeDuration = 2.5f;//0.8 est nice et 4.0 aussi
+    float lifeDuration = 1.5f;//0.8 est nice et 4.0 aussi
 //rect vide
 SDL_FRect srcRect{};
 
