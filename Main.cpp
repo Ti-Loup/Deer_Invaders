@@ -373,7 +373,10 @@ public:
     //Fondu Des Waves
     float waveFadeAlpha = 0.0f;
 
-
+    //Pour une petite opaciter rouge si joueur ce fait toucher par une fraise ou ennemie
+    bool bIsDamageUI = false;
+    float damageFlashTimer = 0.0f;
+    const float damageFlashDuration = 0.3f;
 
 private:
     //Score Lorsque Cerf Mort
@@ -1816,6 +1819,15 @@ private:
         TTF_UpdateText(waveDynamicNumberText);//Pour update le texte du Wave
         TTF_UpdateText(waveDynamicWaveTypeText); // Pour update le texte en dessous du wave qui dit si Elimination ou survival
         TTF_UpdateText(InventoryText);
+
+        //La duration du UI quand joueur touche fraise ou deer
+        if (damageFlashTimer > 0.0f) {
+            damageFlashTimer -= deltaTime;
+            if (damageFlashTimer <= 0.0f) {
+                damageFlashTimer = 0.0f;
+                bIsDamageUI = false;
+            }
+        }
         //PREMIERE VAGUE
         //gestion des etats entre jeu et transition
         if (isTransitioning) {
@@ -1950,12 +1962,17 @@ private:
                                     player->health.current_health += player->currentShieldHP; // currentShieldHP est negatif ici
                                     player->currentShieldHP = 0;
                                 }
+                                bIsDamageUI = false; // false si le shield prend le degat
                             } else {
                                 player->health.current_health -= damage;
+                                bIsDamageUI = true; /// <<- c'est le joueur qui prend le degats alors c'est true pour le UIRouge
+                                damageFlashTimer = damageFlashDuration;
                             }
                             currentHP = player->health.current_health;
                             if (player->health.current_health <= 0) {
                                 player->health.current_health = 0;
+                                bIsDamageUI = true;
+                                damageFlashTimer = damageFlashDuration;
                                 PlayerDeath();
                             }
                         }
@@ -1968,12 +1985,17 @@ private:
                                     player->health.current_health += player->currentShieldHP;
                                     player->currentShieldHP = 0;
                                 }
+                                bIsDamageUI = false; // si un shield alors pas de Indicateur UI
                             } else {
                                 player->health.current_health -= damage;
+                                bIsDamageUI = true;
+                                damageFlashTimer = damageFlashDuration;
                             }
                             currentHP = player->health.current_health;
                             if (player->health.current_health <= 0) {
                                 player->health.current_health = 0;
+                                bIsDamageUI = true;
+                                damageFlashTimer = damageFlashDuration;
                                 PlayerDeath();
                             }
                         }
@@ -2318,6 +2340,16 @@ private:
         SDL_SetRenderDrawColor(renderer, shieldColor.r, shieldColor.g, shieldColor.b, 255);
         SDL_RenderFillRect(renderer, &shieldFill);
 
+
+        //Indicateur a l'ecran quand toucher par une fraise ou ennemie
+        if (bIsDamageUI) {
+            Uint8 flashAlpha = (Uint8)(100.0f * (damageFlashTimer / damageFlashDuration));
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, flashAlpha);
+            SDL_FRect screenGotHit = { 0.0f, 0.0f, 1920.0f, 1080.0f };
+            SDL_RenderFillRect(renderer, &screenGotHit);
+
+        }
 
 
 // Tout ce qui est en HAUT aura l'opaciter
