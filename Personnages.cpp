@@ -128,6 +128,16 @@ Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY, SDL_Texture *tex
 }
 void Enemy_HealerDeer::Update(float deltaTime) {
 
+
+    //Le flash rouge
+    if (bIsFlashing) {
+        //timer diminue
+        hitFlashTimer -= deltaTime;
+        if (hitFlashTimer <= 0.0f) {
+            hitFlashTimer = 0.0f;
+            bIsFlashing = false;
+        }
+    }
 }
 
 //CERF MAGE
@@ -151,6 +161,16 @@ Enemy_MageDeer::Enemy_MageDeer(float startX, float startY, SDL_Texture *texture)
 }
 void Enemy_MageDeer::Update(float deltaTime) {
 
+
+    //Le flash Rouge
+    if (bIsFlashing) {
+        //timer diminue
+        hitFlashTimer -= deltaTime;
+        if (hitFlashTimer <= 0.0f) {
+            hitFlashTimer = 0.0f;
+            bIsFlashing = false;
+        }
+    }
 }
 
 
@@ -195,7 +215,7 @@ void Enemy_Meteor::Update(float deltaTime) {
         bIsDestroyed = true;
     }
 
-    //Le flash
+    //Le flash rouge
     if (bIsFlashing) {
         //timer diminue
         hitFlashTimer -= deltaTime;
@@ -229,7 +249,7 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
 
 
 
-    //Le flash
+    //Le flash rouge
     if (bIsFlashing) {
         //timer diminue
         hitFlashTimer -= deltaTime;

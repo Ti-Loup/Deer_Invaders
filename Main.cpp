@@ -1659,17 +1659,17 @@ private:
                         enemy_deerHeal->transform.size.y
                     };
 
-                    /*
-                    if (enemy_deer->bIsFlashing) {
+
+                    if (enemy_deerHeal->bIsFlashing) {
                         // Calcule l'intensité du rouge selon le temps restant
-                        float ratio = enemy_deer->hitFlashTimer / enemy_deer->hitFlashDuration;
+                        float ratio = enemy_deerHeal->hitFlashTimer / enemy_deerHeal->hitFlashDuration;
                         Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
-                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255 - flashIntensity, 255 - flashIntensity);
+                        SDL_SetTextureColorMod(enemy_deerHeal->textureDeerHealer, 255, 255 - flashIntensity, 255 - flashIntensity);
                     } else {
                         // Remet la couleur normale
-                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255, 255);
+                        SDL_SetTextureColorMod(enemy_deerHeal->textureDeerHealer, 255, 255, 255);
                     }
-                    */
+
                     SDL_RenderTexture(renderer, enemy_deerHeal->textureDeerHealer, nullptr, &dest);
                     continue;
                 }
@@ -1684,17 +1684,17 @@ private:
                         enemy_deerMage->transform.size.x,
                         enemy_deerMage->transform.size.y
                     };
-                    /*
-                    if (enemy_deer->bIsFlashing) {
+
+                    if (enemy_deerMage->bIsFlashing) {
                         // Calcule l'intensité du rouge selon le temps restant
-                        float ratio = enemy_deer->hitFlashTimer / enemy_deer->hitFlashDuration;
+                        float ratio = enemy_deerMage->hitFlashTimer / enemy_deerMage->hitFlashDuration;
                         Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
-                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255 - flashIntensity, 255 - flashIntensity);
+                        SDL_SetTextureColorMod(enemy_deerMage->textureDeerMage, 255, 255 - flashIntensity, 255 - flashIntensity);
                     } else {
                         // Remet la couleur normale
-                        SDL_SetTextureColorMod(enemy_deer->textureCerf, 255, 255, 255);
+                        SDL_SetTextureColorMod(enemy_deerMage->textureDeerMage, 255, 255, 255);
                     }
-                    */
+
                     SDL_RenderTexture(renderer, enemy_deerMage->textureDeerMage, nullptr, &dest);
                     continue;
                 }
@@ -1736,8 +1736,6 @@ private:
                         enemy_meteor->transform.size.x,
                         enemy_meteor->transform.size.y
                     };
-
-                    // Le flashing quand toucher a faire pour la meteorite et
 
                     if (enemy_meteor->bIsFlashing) {
                         // Calcule l'intensité du rouge selon le temps restant
@@ -2113,12 +2111,25 @@ private:
                                 bossHit->bIsFlashing = true;
                                 bossHit->hitFlashTimer = bossHit->hitFlashDuration;
                             }
+                            //declenche le flash rouge pour le cerf Healer
+                            Enemy_HealerDeer *healerHit = dynamic_cast<Enemy_HealerDeer *>(ennemi);
+                            if (healerHit != nullptr) {
+                                healerHit->bIsFlashing = true;
+                                healerHit->hitFlashTimer = healerHit->hitFlashDuration;
+                            }
+                            //declenche le flash rouge pour le cerf Mage
+                            Enemy_MageDeer *mageHit = dynamic_cast<Enemy_MageDeer *>(ennemi);
+                            if (mageHit != nullptr) {
+                                mageHit->bIsFlashing = true;
+                                mageHit->hitFlashTimer = mageHit->hitFlashDuration;
+                            }
                             //declenche le flash rouge pour les meteorites
                             Enemy_Meteor* meteorHit = dynamic_cast<Enemy_Meteor *>(ennemi);
                             if (meteorHit != nullptr ) {
                                 meteorHit->bIsFlashing = true;
                                 meteorHit->hitFlashTimer = meteorHit->hitFlashDuration;
                             }
+
 
 
                             //si heal plus petit que 0 alors le cerf est detruit + score totaux
@@ -2141,6 +2152,9 @@ private:
                             }
                              else if (Enemy_FraiseBoss* boss = dynamic_cast<Enemy_FraiseBoss*>(ennemi)) {
                                 textureEnnemie = boss->textureBoss;
+                             }
+                             else if (Enemy_Meteor *meteor = dynamic_cast<Enemy_Meteor *>(ennemi)) {
+                                 textureEnnemie = meteor->textureMeteor;
                              }
 
     // Position centre de l'ennemi mort

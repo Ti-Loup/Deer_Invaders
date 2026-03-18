@@ -58,6 +58,12 @@ public:
 
     //texture du cerf Healer
     SDL_Texture *textureDeerHealer = nullptr;
+
+
+    //Un flash quand le healer est toucher par bullet
+      float hitFlashTimer = 0.0f; //le timer
+      const float hitFlashDuration = 0.4f;//duree
+      bool bIsFlashing = false;
 };
 //Les mages
 class Enemy_MageDeer : public Entity {
@@ -68,6 +74,10 @@ class Enemy_MageDeer : public Entity {
     //texture du cerf Mage
    SDL_Texture  *textureDeerMage = nullptr;
 
+ //Un flash quand le mage est toucher par bullet
+   float hitFlashTimer = 0.0f; //le timer
+   const float hitFlashDuration = 0.4f;//duree
+   bool bIsFlashing = false;
 };
 
 
