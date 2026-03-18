@@ -3390,12 +3390,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             if (app.player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
                                 app.currentWeaponLevel = 1;// on achete la prochaine arme
                                 app.globalWeaponLevel = 1;
+                                app.player->currentWeapon->texture = app.textureBulletFire;
                             }
                         }
                         else if (app.currentWeaponLevel == 1){
                             if (app.player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
                                 app.currentWeaponLevel = 2;
                                 app.globalWeaponLevel = 2;
+                                app.player->currentWeapon->texture = app.textureBulletIce;
                             }
                         }
                         else if (app.currentWeaponLevel == 2) {
@@ -3407,7 +3409,26 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         break;
                     case 1:
                         //Rien Encore Pour Upgrade HP
-                        SDL_Log("HP Upgrade");
+                        SDL_Log("Achat Upgrade HP");
+                        // player->ShieldUpgrade();
+                        if (app.currentShieldLevel == 0) {
+                            if (app.player->ShieldUpgrade(ShieldAmount::SmallShield, app.currentMeat)) {
+                                app.currentShieldLevel = 1; // On achete le prochain shield
+                                app.globalShieldLevel = 1;
+                            }
+                        }
+                        else if (app.currentShieldLevel == 1) {
+                            if (app.player->ShieldUpgrade(ShieldAmount::MediumShield, app.currentMeat)) {
+                                app.currentShieldLevel = 2;
+                                app.globalShieldLevel = 2;
+                            }
+                        }
+                        else if (app.currentShieldLevel == 2) {
+                            if (app.player->ShieldUpgrade(ShieldAmount::LargeShield, app.currentMeat)) {
+                                app.currentShieldLevel = 3;
+                                app.globalShieldLevel = 3;
+                            }
+                        }
                         break;
                     case 2:
                         //Retour menu
