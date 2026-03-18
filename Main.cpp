@@ -84,6 +84,9 @@ public:
     TTF_Font *font = nullptr;
     TTF_Font *MenuFont = nullptr;
     TTF_Font *ShopFont = nullptr;
+    TTF_Font *tutoFont = nullptr;//<- juste pour montrer les touches
+    TTF_Text *tutoText = nullptr;
+    TTF_Text *tutoText2 = nullptr;
     TTF_TextEngine *textEngine = nullptr;
     TTF_Text *fpsText = nullptr;
     TTF_Text *MenuTitle = nullptr; //Pour rajouter un Titre
@@ -472,6 +475,8 @@ private:
         if (TTF_SetTextColor(MenuTitle, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
         }
+
+        //MENU
         //special font
         MenuSpecialFont = TTF_OpenFont("assets/Space.ttf", 120);
         if (MenuSpecialFont == nullptr) {
@@ -541,8 +546,26 @@ private:
         if (TTF_SetTextColor(TextQuitReturnMenu, 0, 0, 0, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set color TextQuitScore %s", SDL_GetError());
         }
+        tutoFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
+        tutoText = TTF_CreateText(textEngine, tutoFont, " Keyboard : \n Pause : P \n FullScreen : F \n Special Ability : E \n Shoot : SpaceBar ", 125);
+        if (tutoText == nullptr) {
+            SDL_LogWarn(0, "SDL_TTF failed to set the tutotext", SDL_GetError());
+        }
+        if (TTF_SetTextColor(tutoText, 255, 255, 255, 255) == false) {
+            SDL_LogWarn(0,"SDL_ttf failed to set the tutotext color", SDL_GetError());
+        }
+        tutoText2 = TTF_CreateText(textEngine, tutoFont, " Gamepad : \n Pause : Start \n FullScreen : Back \n Special Ability : X \n Shoot : RT ", 125);
+        if (tutoText2 == nullptr) {
+            SDL_LogWarn(0, "SDL_TTF failed to set the tutotext", SDL_GetError());
+        }
+        if (TTF_SetTextColor(tutoText2, 255, 255, 255, 255) == false) {
+            SDL_LogWarn(0,"SDL_ttf failed to set the tutotext color", SDL_GetError());
+        }
+
         //FONT POUR TITRE SCORE, SHOP, CREDITS, DeathScreen
         Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+
+
         // CHOIX NIVEAU
         ChoixNiveauFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 30);
         if (ChoixNiveauFont == nullptr) {
@@ -963,12 +986,15 @@ private:
         TTF_CloseFont(StartFont);
         TTF_CloseFont(QuitFont);
         TTF_CloseFont(ScoreFont);
+        TTF_CloseFont(tutoFont);
         TTF_CloseFont(waveDynamicNumberFont);
         TTF_CloseFont(waveDynamicWaveTypeFont);
         TTF_CloseFont(CreditsFont);
         TTF_CloseFont(Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont);
         TTF_CloseFont(FontPause);
         TTF_DestroyText(TextStart);
+        TTF_DestroyText(tutoText);
+        TTF_DestroyText(tutoText2);
         TTF_DestroyText(waveDynamicWaveTypeText);
         TTF_DestroyText(waveDynamicWaveType2Text);
 
@@ -1271,7 +1297,8 @@ private:
         else {
             RenderBoutons(BoutonCredits, BoutonCreditsText, 20, 20, 20);
         }
-
+        TTF_DrawRendererText(tutoText, 10, 750);//Text du petit tuto
+        TTF_DrawRendererText(tutoText2, 10, 450);//Text du petit tuto
         TTF_DrawRendererText(fpsText, 1800, 10);
         SDL_RenderPresent(renderer);
     }
