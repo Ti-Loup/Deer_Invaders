@@ -1850,8 +1850,6 @@ private:
             }
     }
 
-
-
     // La fonction Game ne boucle
     void Game(float deltaTime) {
         SDL_Event GameEvents;
@@ -2646,7 +2644,6 @@ GameApp &app = GameApp::GetInstance();
         SDL_RenderClear(renderer);
         RenderScoreTitle();
         UpdateBackgroundTint(deltaTime);
-
         if (selectedButtonScore == 0) {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
         }else {
@@ -2975,6 +2972,74 @@ GameApp &app = GameApp::GetInstance();
 
     //L'execution cera appeler par SDL a chaque frame au lieu du main ou on devait faire une boucle while pour faire la boucle Run a l'infini
 public:
+
+    //Fonction pour reset le jeu si on meur ou si on gagne (Sans les touches)
+    void ResetGame() {
+        //supp les entites existant
+        for (auto& entity: entities) {
+            delete entity;
+        }
+        entities.clear();
+
+        //Recree les entities et leurs valeurs
+        player = new Player();
+        player->texturePlayerShip = texturePlayerShip;
+        entities.push_back(player);
+
+        // Reset waves
+        currentWave = 0;
+        waveInProgress = false;
+        isTransitioning = false;
+        transitionTimer = 0.0f;
+        survivalTimer = 0.0f;
+        meteorSpawnTimer = 0.0f;
+        waveFadeAlpha = 0.0f;
+        showWaveUI = false;
+
+        // Reset score seulement
+        currentScore = 0;
+        lastScore = -1;
+        currentHP = 150;
+        lastHP = 1;
+        lastShield = 1;
+
+        // Remettre les upgrades achetés sur le nouveau joueur
+        // si le joueur avait une arme achetée on la remet
+        if (globalWeaponLevel == 1) {
+            player->ArmeUpgrade(ArmeNiveau::Fire, currentMeat);
+            player->currentWeapon->texture = textureBulletFire;
+        }
+        else if (globalWeaponLevel == 2) {
+            player->ArmeUpgrade(ArmeNiveau::Ice, currentMeat);
+            player->currentWeapon->texture = textureBulletIce;
+        }
+        // Pareil pour le shield
+        if (globalShieldLevel == 1) {
+            player->ShieldUpgrade(ShieldAmount::SmallShield, currentMeat);
+        }
+        else if (globalShieldLevel == 2) {
+            player->ShieldUpgrade(ShieldAmount::MediumShield, currentMeat);
+        }
+        else if (globalShieldLevel == 3) {
+            player->ShieldUpgrade(ShieldAmount::LargeShield, currentMeat);
+        }
+
+        //Les commandes sont reset dans une autre fonction
+
+    }
+
+
+
+
+    //La fonction pour rebind les boutons apres le reset de niveau
+    void RebindKeys() {
+        for (auto& [key, cmd] : keyBindings) delete cmd;
+        keyBindings.clear();
+        for (auto& [key, cmd] : keyReleaseBindings) delete cmd;
+        keyReleaseBindings.clear();
+    }
+
+
     //Void ne renvoie rien alors on utilise SDL_AppResult pour retourner SDL_APP_SUCCESS && SDL_APP_CONTINUE
     SDL_AppResult RunCallBacks() {
         static uint64_t lastTime = SDL_GetTicks();
@@ -3086,7 +3151,6 @@ SDL_AppInit(void **appstate, int argc, char *argv[]) {
     app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
     app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
     app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
-
 
     return SDL_APP_CONTINUE;
 }
@@ -3349,9 +3413,20 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 //SwitchCase
                 switch (app.selectedButtonDeath) {
                     case 0:
-                        //Rien Encore Pour L'upgrade
-                        SDL_Log("Retour Menu");
-                        app.StateActuel = State::Menu;
+
+
+
+                                //Securiter, reset des touches clavier meme si gamepad
+                                app.ResetGame();
+                                app.RebindKeys();
+                                app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                                app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                                app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                                app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                                app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                                app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+                                app.StateActuel = State::Menu;
+
                         break;
                 }
             }
@@ -3675,6 +3750,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //DANS LE DEATHSCREEN
         else if (app.StateActuel == State::DeathScreen) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonDeathReturnMenu)) {
+                app.ResetGame();
+                app.RebindKeys();
+                // Recréer les bindings ici, APRÈS GameApp
+                app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+
                 app.StateActuel = State::Menu;
             }
         }
