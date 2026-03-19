@@ -18,6 +18,12 @@ public:
 
 
     bool isCurrentlyShooting = false;
+    float recoilVelocity = 0.0f;      // vitesse de recul actuelle
+    float recoilDecay = 400.0f;       // retour apres letire
+    float originY = 0.0f;      // position Y de base
+    bool recoilReturning = false; // phase de retour
+
+
   float shootCooldown = 0.f;
   float shootDefaultCooldown = 90.0f;//la vitesse de tire
 

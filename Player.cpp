@@ -19,7 +19,7 @@ Player::Player() {
     render.color = (SDL_Color){125, 125, 125, 125};
     AddComponent(TRANSFORM);
     //position depart
-    transform.position = (SDL_FPoint){960, 1000};
+    transform.position = (SDL_FPoint){960, 980};
     transform.size = (SDL_FPoint){64.0f, 64.0f};
     //ClassicBulletType par défaut
     currentWeapon = new ClassicBulletType();
@@ -28,6 +28,8 @@ Player::Player() {
 
     //Le Type d'entity
     entityType = EntityType::Player;
+    // memorise la position de départ
+    originY = transform.position.y;
 }
 
 //destructeur
@@ -69,6 +71,32 @@ void Player::UpdatePhysics(float deltaTime) {
     //Pour pas depacer la vitesse maximal
     if (movement.velocity.x > maxSpeed) movement.velocity.x = maxSpeed;
     if (movement.velocity.x < -maxSpeed) movement.velocity.x = -maxSpeed;
+
+    if (recoilVelocity > 0.0f) {
+        // pousse vers le bas
+        transform.position.y += recoilVelocity * deltaTime;
+        //pour revenir progressivement
+        recoilVelocity -= recoilDecay * deltaTime;
+
+        if (recoilVelocity <= 0.0f) {
+            recoilVelocity = 0.0f;
+            recoilReturning = true; // commence le retour
+        }
+    }
+
+    if (recoilReturning) {
+        // glisse vers originY
+        float returnSpeed = 150.0f;
+        float diff = originY - transform.position.y;
+
+        if (std::abs(diff) <= returnSpeed * deltaTime) {
+            transform.position.y = originY; // snap final
+            recoilReturning = false;
+        } else {
+            transform.position.y += returnSpeed * deltaTime * (diff > 0 ? 1 : -1);
+        }
+    }
+
 }
 
 //Pour tirer
@@ -185,19 +213,21 @@ Bullet::Bullet(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color,bool isRGB, SDL
     textureBullet = texture;
 }
 
-float ShootCooldown = 0.f;
-float ShootDefaultCooldown = 90.f;
 
 //Tick cooldown des tires
 void Player::ShootUpdate(std::vector<Entity *> &entity, SDL_FPoint dir, float deltaTime) {
     // Cooldown réduit de moitié si compétence active
-    float activeCooldown = bCompetenceActive ? ShootDefaultCooldown / 2.0f : ShootDefaultCooldown;
+    float activeCooldown = bCompetenceActive ? shootDefaultCooldown / 2.0f : shootDefaultCooldown;
 
-    if (ShootCooldown <= 0.f && isCurrentlyShooting) {
+    if (shootCooldown <= 0.f && isCurrentlyShooting) {
         Shoot(entity, dir);
-        ShootCooldown = activeCooldown; // <- utilise le bon cooldown
+        shootCooldown = activeCooldown; // <- utilise le bon cooldown
+
+        if (!bCompetenceActive) {
+            recoilVelocity = 150.0f;
+        }
     } else {
-        ShootCooldown -= deltaTime * 150.f;
+        shootCooldown -= deltaTime * 150.f;
     }
 }
 
