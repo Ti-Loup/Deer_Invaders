@@ -3003,27 +3003,43 @@ public:
         lastHP = 1;
         lastShield = 1;
 
+        // Sauvegarder le meat avant les upgrades
+        int savedMeat = currentMeat;
+
         // Remettre les upgrades achetés sur le nouveau joueur
         // si le joueur avait une arme achetée on la remet
         if (globalWeaponLevel == 1) {
-            player->ArmeUpgrade(ArmeNiveau::Fire, currentMeat);
+            delete player->currentWeapon;
+            player->currentWeapon = new FireBulletType();
             player->currentWeapon->texture = textureBulletFire;
         }
         else if (globalWeaponLevel == 2) {
-            player->ArmeUpgrade(ArmeNiveau::Ice, currentMeat);
+            delete player->currentWeapon;
+            player->currentWeapon = new IceBulletType();
             player->currentWeapon->texture = textureBulletIce;
         }
         // Pareil pour le shield
         if (globalShieldLevel == 1) {
-            player->ShieldUpgrade(ShieldAmount::SmallShield, currentMeat);
+            delete player->currentShield;
+            player->currentShield = new SmallShieldType();
+            player->maxShieldHP = player->currentShield->GetMaxShieldHP();
+            player->currentShieldHP = player->maxShieldHP;
         }
         else if (globalShieldLevel == 2) {
-            player->ShieldUpgrade(ShieldAmount::MediumShield, currentMeat);
+            delete player->currentShield;
+            player->currentShield = new MediumShieldType();
+            player->maxShieldHP = player->currentShield->GetMaxShieldHP();
+            player->currentShieldHP = player->maxShieldHP;
         }
         else if (globalShieldLevel == 3) {
-            player->ShieldUpgrade(ShieldAmount::LargeShield, currentMeat);
+            delete player->currentShield;
+            player->currentShield = new LargeShieldType();
+            player->maxShieldHP = player->currentShield->GetMaxShieldHP();
+            player->currentShieldHP = player->maxShieldHP;
         }
 
+        currentMeat = savedMeat;
+        lastMeat = -1; //
         //Les commandes sont reset dans une autre fonction
 
     }
@@ -3385,7 +3401,15 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 switch (app.selectedButtonWin) {
                     case 0:
 
-                        SDL_Log("Retour Menu");
+                        //Securiter, reset des touches clavier meme si gamepad quand on gagne
+                        app.ResetGame();
+                        app.RebindKeys();
+                        app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                        app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                        app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                        app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                        app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                        app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
                         app.StateActuel = State::Menu;
                         break;
                 }
@@ -3743,6 +3767,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //DANS LE WINSCREEN
         else if (app.StateActuel == State::NiveauGagnerScreen) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonWinReturnMenu)) {
+                app.ResetGame();
+                app.RebindKeys();
+                // Recréer les bindings ici, APRÈS GameApp
+                app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+
                 app.StateActuel = State::Menu;
             }
         }
