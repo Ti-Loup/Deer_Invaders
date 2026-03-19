@@ -3003,11 +3003,11 @@ public:
         lastHP = 1;
         lastShield = 1;
 
-        // Sauvegarder le meat avant les upgrades
+        // Sauvegarder le meat avant les upgrades alors gratuit
         int savedMeat = currentMeat;
 
-        // Remettre les upgrades achetés sur le nouveau joueur
-        // si le joueur avait une arme achetée on la remet
+        // Remettre les upgrades achetes sur le nouveau joueur
+        // si le joueur avait une arme achetee on la remet
         if (globalWeaponLevel == 1) {
             delete player->currentWeapon;
             player->currentWeapon = new FireBulletType();
@@ -3018,7 +3018,7 @@ public:
             player->currentWeapon = new IceBulletType();
             player->currentWeapon->texture = textureBulletIce;
         }
-        // Pareil pour le shield
+        // Pareil pour le shield que les armes
         if (globalShieldLevel == 1) {
             delete player->currentShield;
             player->currentShield = new SmallShieldType();
@@ -3037,7 +3037,7 @@ public:
             player->maxShieldHP = player->currentShield->GetMaxShieldHP();
             player->currentShieldHP = player->maxShieldHP;
         }
-
+//save le meat
         currentMeat = savedMeat;
         lastMeat = -1; //
         //Les commandes sont reset dans une autre fonction

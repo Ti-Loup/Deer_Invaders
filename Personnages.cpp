@@ -227,6 +227,13 @@ void Enemy_Meteor::Update(float deltaTime) {
 }
 
 //  BOSS
+
+/**
+ *Si le boss a > 100 hp il est en mode normal
+ *Entre 50 et 75 il est enragee
+ *Entre 25 et 50 il est tres facher et bouge differament
+ *entre 0 et 25 (partie la plus difficile. mouvements rapide, tire rapide, laser rajouter)
+ */
 Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY, SDL_Texture *texture) {
     AddComponent (HEALTH);
     health.max_health = 5000;
