@@ -10,7 +10,7 @@
 
 class Player : public Entity{
 public:
-    Player ();
+    Player (SDL_Texture *texture = nullptr);
     ~Player();
 
      bool bIsMovingRight = false;
@@ -19,7 +19,7 @@ public:
 
     bool isCurrentlyShooting = false;
     float recoilVelocity = 0.0f;      // vitesse de recul actuelle
-    float recoilDecay = 400.0f;       // retour apres letire
+    float recoilDecay = 600.0f;       // retour apres letire
     float originY = 0.0f;      // position Y de base
     bool recoilReturning = false; // phase de retour
 
@@ -44,6 +44,8 @@ bool bCompetenceActive = false;
 float competenceActiveDuration = 4.0f; // combien de temps la capaciter dure
 float competenceActiveTimer = 0.0f;
 
+//texture du Player
+   SDL_Texture  *texturePlayerShip = nullptr;
 
 //fonctions
 

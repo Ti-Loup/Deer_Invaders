@@ -203,6 +203,8 @@ public:
     SDL_Texture *textureCerfMage = nullptr;
     //Texture Cerf Healer
     SDL_Texture *textureCerfHealer = nullptr;
+    //Texture Player Ship
+    SDL_Texture *texturePlayerShip = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -677,6 +679,12 @@ private:
         if (textureCerfMage == nullptr) {
             SDL_LogWarn (0,"failed to load textureCerfMage");
         }
+        //TEXTURE PLAYER SHIP
+        texturePlayerShip = IMG_LoadTexture(renderer, "assets/PlayerShip.png");
+        if (texturePlayerShip == nullptr) {
+            SDL_LogWarn(0,"failed to load texturePlayerShip", SDL_GetError());
+        }
+
 
         //POUR PAUSE
         FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
@@ -953,6 +961,7 @@ private:
         player = new Player();
         // Assigne les textures aux types d'armes
         player->currentWeapon->texture = textureBulletNormal;
+        player->texturePlayerShip = texturePlayerShip;
         entities.push_back(player);
 
         //Timer FPS
@@ -1017,6 +1026,7 @@ private:
         SDL_DestroyTexture(textureMeat);
         SDL_DestroyTexture(textureMeteor);
         SDL_DestroyTexture(textureCerfHealer);
+        SDL_DestroyTexture(texturePlayerShip);
         SDL_DestroyTexture(textureCerfMage);
         SDL_DestroyTexture(textureBossStage_1_2);
         SDL_DestroyRenderer(renderer);
@@ -1801,6 +1811,19 @@ private:
                 }
             }
 
+            //Pour le rendu du personnage Ship
+            if (Player* playerShip = dynamic_cast<Player*>(ent)) {
+                if (playerShip->texturePlayerShip != nullptr) {
+                    SDL_FRect dest = {
+                        playerShip->transform.position.x,
+                        playerShip->transform.position.y,
+                        playerShip->transform.size.x,
+                        playerShip->transform.size.y
+                    };
+                    SDL_RenderTexture(renderer, playerShip->texturePlayerShip, nullptr, &dest);
+                    continue; // ← skip le RenderUpdate coloré
+                }
+            }
 
                 //Pour le rendu des bullets
                 if (Bullet* bullet = dynamic_cast<Bullet*>(ent)) {

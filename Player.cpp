@@ -8,7 +8,7 @@
 #include "SDL3/SDL_timer.h"
 #include <cmath>
 
-Player::Player() {
+Player::Player(SDL_Texture *texture) {
     //constructeur
     AddComponent(HEALTH);
     health.max_health = 150;
@@ -19,8 +19,8 @@ Player::Player() {
     render.color = (SDL_Color){125, 125, 125, 125};
     AddComponent(TRANSFORM);
     //position depart
-    transform.position = (SDL_FPoint){960, 980};
-    transform.size = (SDL_FPoint){64.0f, 64.0f};
+    transform.position = (SDL_FPoint){960, 950};
+    transform.size = (SDL_FPoint){90.0f, 90.0f};
     //ClassicBulletType par défaut
     currentWeapon = new ClassicBulletType();
     //Aucun shield par default
@@ -30,6 +30,9 @@ Player::Player() {
     entityType = EntityType::Player;
     // memorise la position de départ
     originY = transform.position.y;
+
+    //Texture Player
+    texturePlayerShip = texture;
 }
 
 //destructeur
@@ -86,7 +89,7 @@ void Player::UpdatePhysics(float deltaTime) {
 
     if (recoilReturning) {
         // glisse vers originY
-        float returnSpeed = 150.0f;
+        float returnSpeed = 100.0f;
         float diff = originY - transform.position.y;
 
         if (std::abs(diff) <= returnSpeed * deltaTime) {
