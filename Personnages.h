@@ -112,7 +112,9 @@ public:
     float hitFlashTimer = 0.0f; //le timer
     const float hitFlashDuration = 0.4f;//duree
     bool bIsFlashing = false;
-
+    //boss different types de mouvements
+    int currentPhase = 0;
+    bool bPhaseInitialized = false;
 };
 
 //Bullets

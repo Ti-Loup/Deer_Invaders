@@ -62,7 +62,7 @@ void Enemy_Deer::HeightMovement(float deltaTime) {
     if (movementFunction != nullptr) {
         movementFunction(this, deltaTime);
     } else {
-        // Ton code actuel wave 1 — pas touché
+
         timeAlive += deltaTime;
         float amplitude = 10.0f;
         float vitesse = 1.5f;
@@ -253,8 +253,60 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY, SDL_Texture *tex
     //Update method de Enemy_Boss Stage 1 et 2
 void Enemy_FraiseBoss::Update(float deltaTime) {
     //Mouvement du boss
+    //hp plus grand que 75% -> mode normal (facile)
+    //velocity normal
+    // Phase 1 100% à 75%
+    if (health.current_health > 3750) {
+        if (currentPhase != 1) {
+            currentPhase = 1;
+            movement.velocity.x = 30.0f;
+            movement.velocity.y = 0.0f;
+        }
+    }
+    // Phase 2 75% à 50%
+    else if (health.current_health > 2500) {
+        if (currentPhase != 2) {
+            currentPhase = 2;
+            movement.velocity.x = 60.0f;
+            movement.velocity.y = 10.0f;
+        }
+    }
+    // Phase 3 50% à 25%
+    else if (health.current_health > 1250) {
+        if (currentPhase != 3) {
+            currentPhase = 3;
+            movement.velocity.x = 100.0f;
+            movement.velocity.y = 25.0f;
+        }
+    }
+    // Phase 4 25% à 0%
+    else {
+        if (currentPhase != 4) {
+            currentPhase = 4;
+            movement.velocity.x = 150.0f;
+            movement.velocity.y = 50.0f;
+        }
+    }
 
+    // Bordures manuelles pour le boss
+    if (transform.position.x <= 0.0f) {
+        transform.position.x = 0.0f;
+        movement.velocity.x = std::abs(movement.velocity.x); // rebond droite
+    }
+    else if (transform.position.x + transform.size.x >= 1920.0f) {
+        transform.position.x = 1920.0f - transform.size.x;
+        movement.velocity.x = -std::abs(movement.velocity.x); // rebond gauche
+    }
 
+    if (transform.position.y <= 0.0f) {
+        transform.position.y = 0.0f;
+        movement.velocity.y = std::abs(movement.velocity.y); // rebond bas
+    }
+    else if (transform.position.y + transform.size.y >= 700.0f) {
+        transform.position.y = 700.0f - transform.size.y;
+        movement.velocity.y = -std::abs(movement.velocity.y); // rebond haut
+    }
+    MovementUpdate(deltaTime);
 
     //Le flash rouge
     if (bIsFlashing) {

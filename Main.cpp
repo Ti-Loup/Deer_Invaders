@@ -1972,14 +1972,23 @@ private:
             for (auto& entity : entities) {
                 if (entity->bIsDestroyed) continue; // ignore ce qui est mort
                 if (entity->entityType == EntityType::Player) continue;
-                entity->Update(deltaTime);
-
+                Enemy_FraiseBoss* bossCheck = dynamic_cast<Enemy_FraiseBoss*>(entity);
+                if (bossCheck == nullptr) {
+                    entity->Update(deltaTime); //update tout sauf le boss
+                }
                 // Si c'est un ennemi
                 if (entity->entityType == EntityType::Enemy) {
                     Enemy_Deer* deer = dynamic_cast<Enemy_Deer*>(entity);
                     if (deer != nullptr) {
                         deer->Update(deltaTime, entities, app.textureStrawberry); // Gère son tir et son mouvement
                     }
+                    Enemy_FraiseBoss* deerBoss = dynamic_cast<Enemy_FraiseBoss *>(entity);{
+                        if (deerBoss != nullptr) {
+                            deerBoss->Update(deltaTime);//appel de la fonction de mouvement du cerf boos
+                        }
+                    }
+
+
                 }
 
                 // Si fraise (EnemyBullet) ou Viande (Collectable) ou meteorite cerf (Enemy)
@@ -2063,6 +2072,11 @@ private:
                 //On verifie que seulement les ennemies bougent pas joueur !@!@
                 if (ent->entityType == EntityType::Enemy) {
                     if (ent->HasComponent(TRANSFORM)) {
+                        //Les entities exlues
+                        Enemy_Meteor* meteor = dynamic_cast<Enemy_Meteor*>(ent);
+                        if (meteor != nullptr) continue;
+                        Enemy_FraiseBoss* bossMove = dynamic_cast<Enemy_FraiseBoss*>(ent);
+                        if (bossMove != nullptr) continue;
                         // Verifie Gauche
                         if (ent->transform.position.x <= 0.0f) {
                             ToucheMurGauche = true;
@@ -2087,6 +2101,17 @@ private:
                                 MaxPushBack = depassement;
                             }
                         }
+
+                        // Haut
+                        if (ent->transform.position.y <= 0.0f) {
+                            ent->transform.position.y = 0.0f;
+                            ent->movement.velocity.y = std::abs(ent->movement.velocity.y); // force vers le bas
+                        }
+                        // Bas
+                        else if ((ent->transform.position.y + ent->transform.size.y) >= 800.0f) { // 800 distance maximal en bas
+                            ent->transform.position.y = 600.0f - ent->transform.size.y;
+                            ent->movement.velocity.y = -std::abs(ent->movement.velocity.y); // force vers le haut
+                        }
                     }
                 }
             }
@@ -2097,6 +2122,11 @@ private:
                 for (auto &ent: entities) {
                     //Verifie que c'est bien seulement les ennemis qui ont la correction
                     if (ent->entityType == EntityType::Enemy && ent->HasComponent(TRANSFORM)) {
+                        //les entities exlues
+                        Enemy_Meteor* meteor = dynamic_cast<Enemy_Meteor*>(ent);
+                        if (meteor != nullptr) continue;
+                        Enemy_FraiseBoss* bossMove = dynamic_cast<Enemy_FraiseBoss*>(ent);
+                        if (bossMove != nullptr) continue;
                         //vitesse en positif std::abs (droite)
                         ent->movement.velocity.x = std::abs(ent->movement.velocity.x);
                         ent->transform.position.x += (MaxPushBack + 1.0f);
@@ -2108,9 +2138,15 @@ private:
                 for (auto &ent: entities) {
                     //Verifie que c'est bien seulement les ennemis qui ont la correction
                     if (ent->entityType == EntityType::Enemy && ent->HasComponent(TRANSFORM)) {
+                        //les entities exlues de enemy
+                        Enemy_Meteor* meteor = dynamic_cast<Enemy_Meteor*>(ent);
+                        if (meteor != nullptr) continue;
+                        Enemy_FraiseBoss* bossMove = dynamic_cast<Enemy_FraiseBoss*>(ent);
+                        if (bossMove != nullptr) continue;
                         // vitesse en Negatif -std::abs (gauche)
                         ent->movement.velocity.x = -std::abs(ent->movement.velocity.x);
                         ent->transform.position.x -= (MaxPushBack + 1.0f);
+
                     }
                 }
             }
