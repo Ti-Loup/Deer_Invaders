@@ -123,13 +123,26 @@ public:
 class Missile : public Entity {
     Missile(float startX, float startY, float playerX, SDL_Texture* texture);
     void Update(float deltaTime) override;
+
+    float targetX = 0.0f; //position du target
+    bool bIsGoingUp = false;//position monte si vrai
+    float maxHeight = 200.0f; //hauteur max
+
+    //texture missile
+    SDL_Texture *textureMissile = nullptr;
+
 };
 
 //laser de boss
 class Laser : Entity {
 public:
-    Laser (float posX);
+    Laser (float posX, SDL_Texture* texture);
     void Update(float deltaTime);
+
+    //texture Laser
+    SDL_Texture *textureLaser = nullptr;
+
+
 };
 
 

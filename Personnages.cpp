@@ -3,6 +3,8 @@
 //
 #include <random>
 #include "Personnages.h"
+
+#include <algorithm>
 #include <cstdlib>
 #include <random>
 #include <SDL3_image/SDL_image.h>
@@ -339,21 +341,52 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
 //Missile
 Missile::Missile(float startX, float startY, float playerX, SDL_Texture *texture) {
 AddComponent (MOVEMENT);
-
+movement.velocity = { 0.0f,-300.0f };
 AddComponent (RENDER);
-
 AddComponent (TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size = { 30.0f, 50.0f };
 
+    //le target est la derniere position du  joueur
+    targetX = playerX;
+    //texture
+    textureMissile = texture;
+    //type entity
+    entityType = EntityType::EnemyBullet;
 }
 void Missile::Update(float deltaTime) {
-
+//si les missiles vont vers le haut
+    if (bIsGoingUp) {
+    MovementUpdate(deltaTime);
+        //si attein hauteurmax -> direction targetX (playerX)
+        if (transform.position.y <= maxHeight) {
+            bIsGoingUp = false;
+            // direction -> joueur
+            float dirX = targetX - transform.position.x;
+            float dist = std::abs(dirX);//calcul distance entre positionX du joueur et le missile. (abs -> toujours positifff)
+            movement.velocity.x = (dist > 0) ? (dirX / dist) * 200.0f : 0.0f;
+            movement.velocity.y = 400.0f; // descend vers positionX joueur
+        }
+    }
+    else {
+        MovementUpdate(deltaTime);
+        //destruction
+        if (transform.position.y > 1100.0f) {
+            bIsDestroyed = true;
+        }
+    }
 }
 
 //Laser
-Laser::Laser(float posX) {
+Laser::Laser(float posX, SDL_Texture *texture) {
     AddComponent (RENDER);
 
     AddComponent (TRANSFORM);
+
+    //texture
+    textureLaser = texture;
+    //type entity
+    entityType = EntityType::EnemyBullet;
 }
 void Laser::Update(float deltaTime) {
 
