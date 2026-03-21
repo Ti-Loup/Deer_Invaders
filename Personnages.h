@@ -104,7 +104,7 @@ public:
 class Enemy_FraiseBoss : public Entity {
 public:
     Enemy_FraiseBoss(float startX, float startY, SDL_Texture *texture = nullptr);
-    void Update(float deltaTime);
+    void Update(float deltaTime, std::vector<Entity*> &entities, float playerX, SDL_Texture* strawbTexture);
 //Textures Cerf BOSS
     SDL_Texture *textureBoss = nullptr;
 
@@ -116,16 +116,24 @@ public:
     int currentPhase = 0;
     bool bPhaseInitialized = false;
 
+    //Le timer des tire
+    float shootTimer = 0.0f;
+    float missileTimer = 0.0f;
+    float laserTimer = 0.0f;
+
+
+
    //pour qu'il retourne au centre entre chaque etat
    bool bIsReturningCenter = false;
 };
 //missile de boss
 class Missile : public Entity {
+public:
     Missile(float startX, float startY, float playerX, SDL_Texture* texture);
     void Update(float deltaTime) override;
 
     float targetX = 0.0f; //position du target
-    bool bIsGoingUp = false;//position monte si vrai
+    bool bIsGoingUp = true;//position monte si vrai
     float maxHeight = 200.0f; //hauteur max
 
     //texture missile
@@ -134,10 +142,10 @@ class Missile : public Entity {
 };
 
 //laser de boss
-class Laser : Entity {
+class Laser : public Entity {
 public:
     Laser (float posX, SDL_Texture* texture);
-    void Update(float deltaTime);
+    void Update(float deltaTime) override;
 
 //Le warning
 bool bWarning = true; //indicateur ou laser

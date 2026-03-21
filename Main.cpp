@@ -1824,7 +1824,37 @@ private:
                     continue; // ← skip le RenderUpdate coloré
                 }
             }
-
+            // Rendu Missile
+            if (Missile* missile = dynamic_cast<Missile*>(ent)) {
+                SDL_FRect dest = {
+                    missile->transform.position.x,
+                    missile->transform.position.y,
+                    missile->transform.size.x,
+                    missile->transform.size.y
+                };
+                SDL_SetRenderDrawColor(renderer, 255, 140, 0, 255);
+                SDL_RenderFillRect(renderer, &dest);
+                continue;
+            }
+            // Rendu Laser
+            if (Laser* laser = dynamic_cast<Laser*>(ent)) {
+                SDL_FRect dest = {
+                    laser->transform.position.x,
+                    laser->transform.position.y,
+                    laser->transform.size.x,
+                    laser->transform.size.y
+                };
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                // Rouge s/transparent si warning, rouge vif si actif
+                if (laser->bWarning) {
+                    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 80);
+                } else {
+                    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+                }
+                SDL_RenderFillRect(renderer, &dest);
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                continue;
+            }
                 //Pour le rendu des bullets
                 if (Bullet* bullet = dynamic_cast<Bullet*>(ent)) {
                     if (bullet->textureBullet != nullptr) {
@@ -1984,19 +2014,24 @@ private:
                     }
                     Enemy_FraiseBoss* deerBoss = dynamic_cast<Enemy_FraiseBoss *>(entity);{
                         if (deerBoss != nullptr) {
-                            deerBoss->Update(deltaTime);//appel de la fonction de mouvement du cerf boos
+                            deerBoss->Update(deltaTime, entities, player->transform.position.x, app.textureStrawberry);//appel de la fonction de mouvement du cerf boss + les tires + savoir position du joueur
                         }
                     }
 
 
                 }
 
-                // Si fraise (EnemyBullet) ou Viande (Collectable) ou meteorite cerf (Enemy)
+                // Si fraise (EnemyBullet) ou Viande (Collectable) ou meteorite cerf (Enemy) + missile + laser
                 if (entity->entityType == EntityType::Collectable || entity->entityType == EntityType::EnemyBullet || entity->entityType == EntityType::Enemy) {
 
                     // On crée les Rects pour la collision
                     SDL_FRect rectPlayer = { player->transform.position.x, player->transform.position.y, player->transform.size.x, player->transform.size.y };
                     SDL_FRect rectEnt = { entity->transform.position.x, entity->transform.position.y, entity->transform.size.x, entity->transform.size.y };
+
+                    // Laser pendant warning ne fait pas de degats
+                    Laser* laserCheck = dynamic_cast<Laser*>(entity);
+                    if (laserCheck != nullptr && laserCheck->bWarning) continue;
+
 
                     //si collision
                     if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectEnt)) {

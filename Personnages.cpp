@@ -10,6 +10,7 @@
 #include <SDL3_image/SDL_image.h>
 
 #include "Components.h"
+#include "Player.h"
 
 
 //enemy_Deer
@@ -253,7 +254,7 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY, SDL_Texture *tex
     textureBoss = texture;
 }
     //Update method de Enemy_Boss Stage 1 et 2
-void Enemy_FraiseBoss::Update(float deltaTime) {
+void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, float playerX, SDL_Texture *strawbTexture) {
     //Mouvement du boss
     //hp plus grand que 75% -> mode normal (facile)
     //velocity normal
@@ -323,7 +324,6 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
             bIsReturningCenter = false;
         }
     }
-
     if (!bIsReturningCenter) {
         MovementUpdate(deltaTime);
     }
@@ -334,6 +334,62 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
         if (hitFlashTimer <= 0.0f) {
             hitFlashTimer = 0.0f;
             bIsFlashing = false;
+        }
+    }
+    //Les 4 differentes phases de tires.
+    //1 -> fraises
+    //2 -> fraises++
+    //3 -> missiles
+    //4 -> Tous + laser
+    shootTimer+=deltaTime;
+    float centreX = transform.position.x + transform.size.x / 2.0f;
+    if (currentPhase == 1 && shootTimer >= 2.0f) {
+        shootTimer = 0.0f;//remet timer a 0
+        //spawn fraise
+        SDL_FPoint spawnFraise = {centreX - 25.0f, transform.position.y + transform.size.y};
+        entities.push_back(new BulletStrawberry(spawnFraise, {0,-1}, strawbTexture));
+    }
+    else if (currentPhase == 2 && shootTimer >= 1.5f) {
+        shootTimer = 0.0f;
+        for (int i = -1; i <= 1; i++) {
+            SDL_FPoint spawnFraise = { centreX + (i * 80.0f), transform.position.y + transform.size.y };
+            entities.push_back(new BulletStrawberry(spawnFraise, {0, -1}, strawbTexture));
+        }
+    }
+    else if (currentPhase == 3) {
+        missileTimer += deltaTime;
+        if (missileTimer >= 3.0f) {
+            missileTimer = 0.0f;
+            entities.push_back(new Missile(centreX - 100.0f, transform.position.y, playerX, nullptr));
+            entities.push_back(new Missile(centreX,          transform.position.y, playerX, nullptr));
+            entities.push_back(new Missile(centreX + 100.0f, transform.position.y, playerX, nullptr));
+        }
+    }
+    else if (currentPhase == 4) {
+        // fraises
+        if (shootTimer >= 1.0f) {
+            shootTimer = 0.0f;
+            for (int i = -2; i <= 2; i++) {
+                SDL_FPoint spawn = { centreX + (i * 60.0f), transform.position.y + transform.size.y };
+                entities.push_back(new BulletStrawberry(spawn, {0, -1}, strawbTexture));
+            }
+        }
+        // missiles
+        missileTimer += deltaTime;
+        if (missileTimer >= 2.0f) {
+            missileTimer = 0.0f;
+            entities.push_back(new Missile(centreX - 100.0f, transform.position.y, playerX, nullptr));
+            entities.push_back(new Missile(centreX,          transform.position.y, playerX, nullptr));
+            entities.push_back(new Missile(centreX + 100.0f, transform.position.y, playerX, nullptr));
+        }
+        // lasers
+        laserTimer += deltaTime;
+        if (laserTimer >= 4.0f) {
+            laserTimer = 0.0f;
+            for (int i = 0; i < 3; i++) {
+                float laserX = static_cast<float>(rand() % 1800);
+                entities.push_back(new Laser(laserX, nullptr));
+            }
         }
     }
 }
