@@ -1394,8 +1394,6 @@ private:
     }
     //Pour la premiere vague d'ennemies
     void SpawnWave1() {
-        entities.push_back(new Enemy_FraiseBoss(800.0f, 200.0f , textureBossStage_1_2));
-
         entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
         entities.push_back(new Enemy_Deer(250.f, 50.0f, true, textureCerf));
         entities.push_back(new Enemy_Deer(400.f, 50.0f, false, textureCerf));
