@@ -119,6 +119,20 @@ public:
    //pour qu'il retourne au centre entre chaque etat
    bool bIsReturningCenter = false;
 };
+//missile de boss
+class Missile : public Entity {
+    Missile(float startX, float startY, float playerX, SDL_Texture* texture);
+    void Update(float deltaTime) override;
+};
+
+//laser de boss
+class Laser : Entity {
+public:
+    Laser (float posX);
+    void Update(float deltaTime);
+};
+
+
 
 //Bullets
 class BulletStrawberry : public Entity {

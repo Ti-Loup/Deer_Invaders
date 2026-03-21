@@ -336,6 +336,31 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
     }
 }
 
+//Missile
+Missile::Missile(float startX, float startY, float playerX, SDL_Texture *texture) {
+AddComponent (MOVEMENT);
+
+AddComponent (RENDER);
+
+AddComponent (TRANSFORM);
+
+}
+void Missile::Update(float deltaTime) {
+
+}
+
+//Laser
+Laser::Laser(float posX) {
+    AddComponent (RENDER);
+
+    AddComponent (TRANSFORM);
+}
+void Laser::Update(float deltaTime) {
+
+}
+
+
+
 
 //Bullets
 BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture *texture) {
