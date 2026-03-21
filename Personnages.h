@@ -139,6 +139,16 @@ public:
     Laser (float posX, SDL_Texture* texture);
     void Update(float deltaTime);
 
+//Le warning
+bool bWarning = true; //indicateur ou laser
+float warningTimer = 0.0f;
+float warningDuration = 1.5f; // duree indicateur
+//Le Laser
+float laserWidth = 40.0f;//grosseur laser
+float laserX = 0.0f; //position laser
+float laserTimer = 0.0f;
+float laserDuration = 0.5f; // duree du laser actif
+
     //texture Laser
     SDL_Texture *textureLaser = nullptr;
 

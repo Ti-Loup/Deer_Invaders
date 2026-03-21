@@ -382,14 +382,32 @@ Laser::Laser(float posX, SDL_Texture *texture) {
     AddComponent (RENDER);
 
     AddComponent (TRANSFORM);
-
+    transform.position = { posX, 0.0f };
+    transform.size = { laserWidth, 1080.0f };
+    laserX = posX;
     //texture
     textureLaser = texture;
     //type entity
     entityType = EntityType::EnemyBullet;
+    //indicateur color
+    render.color = {255,0,0,80};
 }
 void Laser::Update(float deltaTime) {
-
+//si warning -> timer commence
+    //timer fini -> laser
+    if (bWarning) {
+        warningTimer += deltaTime;
+        if (warningTimer >= warningDuration) {
+            bWarning = false;
+            //le laser qui tire
+            render.color = { 255,0,0,255 };
+        }
+    }else {
+        laserTimer += deltaTime;
+        if (laserTimer >= laserDuration) {
+            bIsDestroyed = true; // supp le laser apres
+        }
+    }
 }
 
 
