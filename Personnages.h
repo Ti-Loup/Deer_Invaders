@@ -104,7 +104,7 @@ public:
 class Enemy_FraiseBoss : public Entity {
 public:
     Enemy_FraiseBoss(float startX, float startY, SDL_Texture *texture = nullptr);
-    void Update(float deltaTime, std::vector<Entity*> &entities, float playerX, SDL_Texture* strawbTexture);
+    void Update(float deltaTime, std::vector<Entity*> &entities, float playerX, SDL_Texture* strawbTexture, SDL_Texture *missileTexture);
 //Textures Cerf BOSS
     SDL_Texture *textureBoss = nullptr;
 
@@ -134,7 +134,9 @@ public:
 
     float targetX = 0.0f; //position du target
     bool bIsGoingUp = true;//position monte si vrai
-    float maxHeight = 200.0f; //hauteur max
+    bool bWaiting = false; //attend en hauteur
+    bool *loopFinished = nullptr; // partager entre les 3 missiles
+    float maxHeight = 50.0f; //hauteur max
 
     //texture missile
     SDL_Texture *textureMissile = nullptr;
@@ -175,7 +177,7 @@ class BulletStrawberry : public Entity {
     float rotationAngle = 0.0f;
     float rotationSpeed = 180.0f; //La vitesse du mouvement rotatif
     float rotationDirection = 1.0f; //1 ou -1
-
+    bool bHasGravity = false;
         SDL_Texture *textureStrawb = nullptr; //creation texture
 
 

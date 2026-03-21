@@ -205,6 +205,8 @@ public:
     SDL_Texture *textureCerfHealer = nullptr;
     //Texture Player Ship
     SDL_Texture *texturePlayerShip = nullptr;
+    //Texture missile
+    SDL_Texture *textureMissile = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -1392,6 +1394,8 @@ private:
     }
     //Pour la premiere vague d'ennemies
     void SpawnWave1() {
+        entities.push_back(new Enemy_FraiseBoss(800.0f, 200.0f , textureBossStage_1_2));
+
         entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
         entities.push_back(new Enemy_Deer(250.f, 50.0f, true, textureCerf));
         entities.push_back(new Enemy_Deer(400.f, 50.0f, false, textureCerf));
@@ -2014,7 +2018,7 @@ private:
                     }
                     Enemy_FraiseBoss* deerBoss = dynamic_cast<Enemy_FraiseBoss *>(entity);{
                         if (deerBoss != nullptr) {
-                            deerBoss->Update(deltaTime, entities, player->transform.position.x, app.textureStrawberry);//appel de la fonction de mouvement du cerf boss + les tires + savoir position du joueur
+                            deerBoss->Update(deltaTime, entities, player->transform.position.x, app.textureStrawberry, app.textureMissile);//appel de la fonction de mouvement du cerf boss + les tires + savoir position du joueur
                         }
                     }
 

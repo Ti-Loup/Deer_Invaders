@@ -254,7 +254,7 @@ Enemy_FraiseBoss::Enemy_FraiseBoss(float startX, float  startY, SDL_Texture *tex
     textureBoss = texture;
 }
     //Update method de Enemy_Boss Stage 1 et 2
-void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, float playerX, SDL_Texture *strawbTexture) {
+void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, float playerX, SDL_Texture *strawbTexture, SDL_Texture *missileTexture) {
     //Mouvement du boss
     //hp plus grand que 75% -> mode normal (facile)
     //velocity normal
@@ -351,36 +351,59 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
     }
     else if (currentPhase == 2 && shootTimer >= 1.5f) {
         shootTimer = 0.0f;
+        float centreX = transform.position.x + transform.size.x / 2.0f;
+        float centreY = transform.position.y + transform.size.y;
+
+        static std::mt19937 gen(std::random_device{}());
+        std::uniform_real_distribution<float> disX(-100.0f, 100.0f);
+        std::uniform_real_distribution<float> disY(-200.0f, 50.0f); // certaines montent un peu avant de retomber
+
         for (int i = -1; i <= 1; i++) {
-            SDL_FPoint spawnFraise = { centreX + (i * 80.0f), transform.position.y + transform.size.y };
-            entities.push_back(new BulletStrawberry(spawnFraise, {0, -1}, strawbTexture));
+            SDL_FPoint spawn = { centreX + (i * 80.0f), centreY };
+            BulletStrawberry* fraise = new BulletStrawberry(spawn, {0, -1}, strawbTexture);
+            fraise->bHasGravity = true; // graviter pour les fraises du boss
+            fraise->movement.velocity.x = disX(gen); // direction X aleatoire
+            fraise->movement.velocity.y = disY(gen); // certaines montent avant de retomber
+            entities.push_back(fraise);
         }
     }
     else if (currentPhase == 3) {
         missileTimer += deltaTime;
         if (missileTimer >= 3.0f) {
             missileTimer = 0.0f;
-            entities.push_back(new Missile(centreX - 100.0f, transform.position.y, playerX, nullptr));
-            entities.push_back(new Missile(centreX,          transform.position.y, playerX, nullptr));
-            entities.push_back(new Missile(centreX + 100.0f, transform.position.y, playerX, nullptr));
+            entities.push_back(new Missile(centreX - 100.0f, transform.position.y, playerX, missileTexture));
+            entities.push_back(new Missile(centreX,          transform.position.y, playerX, missileTexture));
+            entities.push_back(new Missile(centreX + 100.0f, transform.position.y, playerX, missileTexture));
         }
     }
     else if (currentPhase == 4) {
         // fraises
         if (shootTimer >= 1.0f) {
             shootTimer = 0.0f;
-            for (int i = -2; i <= 2; i++) {
-                SDL_FPoint spawn = { centreX + (i * 60.0f), transform.position.y + transform.size.y };
-                entities.push_back(new BulletStrawberry(spawn, {0, -1}, strawbTexture));
+            float centreX = transform.position.x + transform.size.x / 2.0f;
+            float centreY = transform.position.y + transform.size.y;
+
+            static std::mt19937 gen(std::random_device{}());
+            std::uniform_real_distribution<float> disX(-100.0f, 100.0f);
+            std::uniform_real_distribution<float> disY(-200.0f, 50.0f); // certaines montent un peu avant de retomber
+
+            //spawn 3 fraises
+            for (int i = -1; i <= 2; i++) {
+                SDL_FPoint spawn = { centreX + (i * 80.0f), centreY };
+                BulletStrawberry* fraise = new BulletStrawberry(spawn, {0, -1}, strawbTexture);
+                fraise->bHasGravity = true; // graviter pour les fraises du boss
+                fraise->movement.velocity.x = disX(gen); // direction X aleatoire
+                fraise->movement.velocity.y = disY(gen); // certaines montent avant de retomber
+                entities.push_back(fraise);
             }
         }
         // missiles
         missileTimer += deltaTime;
         if (missileTimer >= 2.0f) {
             missileTimer = 0.0f;
-            entities.push_back(new Missile(centreX - 100.0f, transform.position.y, playerX, nullptr));
-            entities.push_back(new Missile(centreX,          transform.position.y, playerX, nullptr));
-            entities.push_back(new Missile(centreX + 100.0f, transform.position.y, playerX, nullptr));
+            entities.push_back(new Missile(centreX - 100.0f, transform.position.y, playerX, missileTexture));
+            entities.push_back(new Missile(centreX,          transform.position.y, playerX, missileTexture));
+            entities.push_back(new Missile(centreX + 100.0f, transform.position.y, playerX, missileTexture));
         }
         // lasers
         laserTimer += deltaTime;
@@ -397,11 +420,11 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
 //Missile
 Missile::Missile(float startX, float startY, float playerX, SDL_Texture *texture) {
 AddComponent (MOVEMENT);
-movement.velocity = { 0.0f,-300.0f };
+movement.velocity = { 0.0f,-150.0f };
 AddComponent (RENDER);
 AddComponent (TRANSFORM);
     transform.position = { startX, startY };
-    transform.size = { 30.0f, 50.0f };
+    transform.size = { 15.0f, 40.0f };
 
     //le target est la derniere position du  joueur
     targetX = playerX;
@@ -409,24 +432,41 @@ AddComponent (TRANSFORM);
     textureMissile = texture;
     //type entity
     entityType = EntityType::EnemyBullet;
+
+    // Vitesse X et  de y aleatoire pour monter de facon irreguliere
+    static std::mt19937 gen(std::random_device{}());
+    std::uniform_real_distribution<float> disX(-150.0f, 150.0f);
+    std::uniform_real_distribution<float> disY(-250.0f, -100.0f); // vitesse montee variable
+
+    movement.velocity.x = disX(gen);
+    movement.velocity.y = disY(gen);
 }
 void Missile::Update(float deltaTime) {
-//si les missiles vont vers le haut
+
     if (bIsGoingUp) {
-    MovementUpdate(deltaTime);
-        //si attein hauteurmax -> direction targetX (playerX)
-        if (transform.position.y <= maxHeight) {
-            bIsGoingUp = false;
-            // direction -> joueur
-            float dirX = targetX - transform.position.x;
-            float dist = std::abs(dirX);//calcul distance entre positionX du joueur et le missile. (abs -> toujours positifff)
-            movement.velocity.x = (dist > 0) ? (dirX / dist) * 200.0f : 0.0f;
-            movement.velocity.y = 400.0f; // descend vers positionX joueur
-        }
-    }
-    else {
+        // Gravite ralentit la montee progressivement
+        movement.velocity.y += 200.0f * deltaTime;
         MovementUpdate(deltaTime);
-        //destruction
+
+        // Quand il ralentit assez -> vise le joueur
+        if (movement.velocity.y >= 0.0f) {
+            bIsGoingUp = false;
+            // Imprecision aleatoire
+            static std::mt19937 gen(std::random_device{}());
+            std::uniform_real_distribution<float> dis(-250.0f, 250.0f);
+            float imprecision = dis(gen);
+            float dirX = (targetX + imprecision) - transform.position.x;
+            float dirY = 1080.0f - transform.position.y;
+            float length = std::sqrt(dirX * dirX + dirY * dirY);
+            float speed = 500.0f;
+
+            movement.velocity.x = (length > 0) ? (dirX / length) * speed : 0.0f;
+            movement.velocity.y = (length > 0) ? (dirY / length) * speed : speed;
+        }
+    } else {
+        // Gravite accelere la descente
+        movement.velocity.y += 150.0f * deltaTime;
+        MovementUpdate(deltaTime);
         if (transform.position.y > 1100.0f) {
             bIsDestroyed = true;
         }
@@ -486,6 +526,11 @@ BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture 
 
 void BulletStrawberry::Update(float deltaTime) {
     rotationAngle += rotationSpeed * rotationDirection * deltaTime;
+
+    if (bHasGravity) {
+        // Gravite pour les fraises du boss
+        movement.velocity.y += 200.0f * deltaTime;
+    }
 
     MovementUpdate(deltaTime);
 
