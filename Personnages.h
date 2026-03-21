@@ -115,6 +115,9 @@ public:
     //boss different types de mouvements
     int currentPhase = 0;
     bool bPhaseInitialized = false;
+
+   //pour qu'il retourne au centre entre chaque etat
+   bool bIsReturningCenter = false;
 };
 
 //Bullets

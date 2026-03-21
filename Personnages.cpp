@@ -259,6 +259,7 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
     if (health.current_health > 3750) {
         if (currentPhase != 1) {
             currentPhase = 1;
+            bIsReturningCenter = true;
             movement.velocity.x = 30.0f;
             movement.velocity.y = 0.0f;
         }
@@ -267,6 +268,7 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
     else if (health.current_health > 2500) {
         if (currentPhase != 2) {
             currentPhase = 2;
+            bIsReturningCenter = true;
             movement.velocity.x = 60.0f;
             movement.velocity.y = 10.0f;
         }
@@ -275,6 +277,7 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
     else if (health.current_health > 1250) {
         if (currentPhase != 3) {
             currentPhase = 3;
+            bIsReturningCenter = true;
             movement.velocity.x = 100.0f;
             movement.velocity.y = 25.0f;
         }
@@ -283,6 +286,7 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
     else {
         if (currentPhase != 4) {
             currentPhase = 4;
+            bIsReturningCenter = true;
             movement.velocity.x = 150.0f;
             movement.velocity.y = 50.0f;
         }
@@ -306,8 +310,21 @@ void Enemy_FraiseBoss::Update(float deltaTime) {
         transform.position.y = 700.0f - transform.size.y;
         movement.velocity.y = -std::abs(movement.velocity.y); // rebond haut
     }
-    MovementUpdate(deltaTime);
 
+    // Retour au centre
+    if (bIsReturningCenter) {
+        float centerX = 1920.0f / 2.0f - transform.size.x / 2.0f; //centre ecran
+        float direction = (centerX - transform.position.x);
+        if (std::abs(direction) > 5.0f) { // si pas encore au centre
+            transform.position.x += (direction > 0 ? 1.0f : -1.0f) * 500.0f * deltaTime; // on retourne au centre
+        } else {
+            bIsReturningCenter = false;
+        }
+    }
+
+    if (!bIsReturningCenter) {
+        MovementUpdate(deltaTime);
+    }
     //Le flash rouge
     if (bIsFlashing) {
         //timer diminue
