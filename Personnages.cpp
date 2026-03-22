@@ -347,7 +347,11 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
         shootTimer = 0.0f;//remet timer a 0
         //spawn fraise
         SDL_FPoint spawnFraise = {centreX - 25.0f, transform.position.y + transform.size.y};
-        entities.push_back(new BulletStrawberry(spawnFraise, {0,-1}, strawbTexture));
+        BulletStrawberry* fraise = new BulletStrawberry(spawnFraise, {0,-1}, strawbTexture);
+        fraise->rotationDirection = (strawberryCount % 2 == 0) ? 1.0f : -1.0f; // ←rotation gauche ou droite de kla fraise
+        strawberryCount++;
+        entities.push_back(fraise);
+
     }
     else if (currentPhase == 2 && shootTimer >= 1.5f) {
         shootTimer = 0.0f;
@@ -364,6 +368,8 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
             fraise->bHasGravity = true; // graviter pour les fraises du boss
             fraise->movement.velocity.x = disX(gen); // direction X aleatoire
             fraise->movement.velocity.y = disY(gen); // certaines montent avant de retomber
+            fraise->rotationDirection = (strawberryCount % 2 == 0) ? 1.0f : -1.0f; // ←rotation gauche ou droite de kla fraise
+            strawberryCount++;
             entities.push_back(fraise);
         }
     }
@@ -374,6 +380,15 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
             entities.push_back(new Missile(centreX - 100.0f, transform.position.y, playerX, missileTexture));
             entities.push_back(new Missile(centreX,          transform.position.y, playerX, missileTexture));
             entities.push_back(new Missile(centreX + 100.0f, transform.position.y, playerX, missileTexture));
+        }
+        // lasers
+        laserTimer += deltaTime;
+        if (laserTimer >= 4.0f) {
+            laserTimer = 0.0f;
+            for (int i = 0; i < 3; i++) {
+                float laserX = static_cast<float>(rand() % 1800);
+                entities.push_back(new Laser(laserX, nullptr));
+            }
         }
     }
     else if (currentPhase == 4) {
@@ -394,6 +409,9 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
                 fraise->bHasGravity = true; // graviter pour les fraises du boss
                 fraise->movement.velocity.x = disX(gen); // direction X aleatoire
                 fraise->movement.velocity.y = disY(gen); // certaines montent avant de retomber
+                //rotation des fraises
+                fraise->rotationDirection = (strawberryCount % 2 == 0) ? 1.0f : -1.0f; // ←rotation gauche ou droite de kla fraise
+                strawberryCount++;
                 entities.push_back(fraise);
             }
         }

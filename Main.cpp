@@ -207,7 +207,12 @@ public:
     SDL_Texture *texturePlayerShip = nullptr;
     //Texture missile
     SDL_Texture *textureMissile = nullptr;
-
+    //Texture Laser
+    SDL_Texture *textureLaser = nullptr;
+    //Texture Shields
+    SDL_Texture *textureSmallShield = nullptr;
+    SDL_Texture *textureMediumShield = nullptr;
+    SDL_Texture *textureLargeShield = nullptr;
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
     TTF_Font *WinScreenSousFont = nullptr;
@@ -686,7 +691,29 @@ private:
         if (texturePlayerShip == nullptr) {
             SDL_LogWarn(0,"failed to load texturePlayerShip", SDL_GetError());
         }
-
+        //Texture Missile
+        textureMissile = IMG_LoadTexture(renderer, "assets/Missile.png");//assets a modifier
+        if (textureMissile == nullptr) {
+            SDL_LogWarn(0, "failed to load textureMissile");
+        }
+        //TEXTURE LASER
+        textureLaser = IMG_LoadTexture(renderer, "assets/Laser.png");
+        if (textureLaser == nullptr) {
+            SDL_LogWarn(0, "failed to load textureLaser", SDL_GetError());
+        }
+        //TEXTURE SHIELDS
+        textureSmallShield = IMG_LoadTexture(renderer, "assets/SmallShield.png");
+        if (textureSmallShield == nullptr) {
+            SDL_LogWarn(0, "failed to load textureSmallShield", SDL_GetError());
+        }
+        textureMediumShield = IMG_LoadTexture(renderer, "assets/MediumShield.png");
+        if (textureMediumShield == nullptr) {
+            SDL_LogWarn(0, "failed to load textureMediumShield", SDL_GetError());
+        }
+        textureLargeShield = IMG_LoadTexture(renderer, "assets/LargeShield.png");
+        if (textureLargeShield == nullptr) {
+            SDL_LogWarn(0, "failed to load textureLargeShield", SDL_GetError());
+        }
 
         //POUR PAUSE
         FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
@@ -1031,6 +1058,11 @@ private:
         SDL_DestroyTexture(texturePlayerShip);
         SDL_DestroyTexture(textureCerfMage);
         SDL_DestroyTexture(textureBossStage_1_2);
+        SDL_DestroyTexture(textureMissile);
+        SDL_DestroyTexture(textureLaser);
+        SDL_DestroyTexture(textureSmallShield);
+        SDL_DestroyTexture(textureMediumShield);
+        SDL_DestroyTexture(textureLargeShield);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         TTF_Quit();
@@ -1823,8 +1855,28 @@ private:
                         playerShip->transform.size.y
                     };
                     SDL_RenderTexture(renderer, playerShip->texturePlayerShip, nullptr, &dest);
-                    continue; // ← skip le RenderUpdate coloré
                 }
+                // Shield visuel devant le joueurw
+                if (playerShip->currentShieldHP > 0) {
+                    SDL_Color shieldColor = playerShip->currentShield->GetColor();
+
+                    // Opacite proportionnelle aux HP restants
+                    float ratio = (float)playerShip->currentShieldHP / (float)playerShip->maxShieldHP;
+                    Uint8 alpha = (Uint8)(150.0f * ratio); // pour voir le joueur en dessous
+
+                    SDL_FRect shieldRect = {
+                        playerShip->transform.position.x - 10.0f, // un peu plus large que le joueur
+                        playerShip->transform.position.y - 10.0f,
+                        playerShip->transform.size.x + 20.0f,
+                        playerShip->transform.size.y + 20.0f
+                    };
+
+                    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                    SDL_SetRenderDrawColor(renderer, shieldColor.r, shieldColor.g, shieldColor.b, alpha);
+                    SDL_RenderFillRect(renderer, &shieldRect);
+                    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                }
+                continue;
             }
             // Rendu Missile
             if (Missile* missile = dynamic_cast<Missile*>(ent)) {

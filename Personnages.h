@@ -121,7 +121,8 @@ public:
     float missileTimer = 0.0f;
     float laserTimer = 0.0f;
 
-
+//Pour la retation des fraises
+    int strawberryCount = 0;
 
    //pour qu'il retourne au centre entre chaque etat
    bool bIsReturningCenter = false;
