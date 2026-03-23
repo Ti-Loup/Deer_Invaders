@@ -390,6 +390,13 @@ public:
     float damageFlashTimer = 0.0f;
     const float damageFlashDuration = 0.3f;
 
+
+    //bool pour savoir si un stage est complete (Si complete on peut appuyer sur le 2eme bouton pour le stage 2)
+
+    bool bStage1Completed = false;//quand stage 1 est fini
+    bool bStage2Completed = false;//quand stage 2 est fini
+    bool bStage3Completed = false;//quand stage 3 est fini
+
 private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
@@ -398,6 +405,7 @@ private:
 
     //SCORE DU RENDER JEU
     int lastScore = -1;
+
 
     GameApp() //Constructeur
     {
@@ -1362,20 +1370,32 @@ private:
         if (selectedButtonChoixNiveau== 0) {
             RenderBoutons(BoutonChoixNiveau1, nullptr, r, g, b);//Couleur si selectionner
         }else {
-            RenderBoutons(BoutonChoixNiveau1, nullptr, 40, 40, 40);//gris foncer de base
+            RenderBoutons(BoutonChoixNiveau1, nullptr, 100, 100, 100);//gris foncer de base
         }
         //BOUTON Niveau 2
         if (selectedButtonChoixNiveau == 1) {
-            RenderBoutons(BoutonChoixNiveau2, nullptr, r, g, b);
+            if (bStage1Completed) {
+                RenderBoutons(BoutonChoixNiveau2, nullptr, r, g, b);
+            }
+            else {
+                RenderBoutons(BoutonChoixNiveau2, nullptr, 100, 100, 100);//gris foncer de base
+            }
         }else {
             RenderBoutons(BoutonChoixNiveau2, nullptr, 40, 40, 40);//gris foncer de base
         }
         //BOUTON Niveau 3
         if (selectedButtonChoixNiveau == 2) {
-            RenderBoutons(BoutonChoixNiveau3, nullptr, r, g, b);
+            if (bStage2Completed) {
+                RenderBoutons(BoutonChoixNiveau3, nullptr, r, g, b);
+            }
+            else {
+                RenderBoutons(BoutonChoixNiveau3, nullptr, 100, 100, 100);//gris foncer de base
+            }
         }else {
             RenderBoutons(BoutonChoixNiveau3, nullptr, 40, 40, 40);//gris foncer de base
+
         }
+
         TTF_DrawRendererText(ChoixNiveau1Text, 200, 900);
         TTF_DrawRendererText(ChoixNiveau2Text, 800, 900);
         TTF_DrawRendererText(ChoixNiveau3Text, 1400, 900);
@@ -3449,14 +3469,18 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.StateActuel = State::IntroNiveau1;
                         break;
                     case 1:
-                        app.indexMessageIntroNiveau2 = 0;
-                        TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
-                        app.StateActuel = State::IntroNiveau2; // <-A FAIRE LES DIFFERENTS INTRO
+                        if (app.bStage1Completed) {
+                            app.indexMessageIntroNiveau2 = 0;
+                            TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
+                            app.StateActuel = State::IntroNiveau2; // <-A FAIRE LES DIFFERENTS INTRO
+                        }
                         break;
                     case 2:
-                        app.indexMessageIntroNiveau3 = 0;
-                        TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
-                        app.StateActuel = State::IntroNiveau3; // <- A FAIRE LES DIFFERENTS INTRO
+                        if (app.bStage2Completed) {
+                            app.indexMessageIntroNiveau3 = 0;
+                            TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
+                            app.StateActuel = State::IntroNiveau3; // <- A FAIRE LES DIFFERENTS INTRO
+                        }
                         break;
                 }
 
@@ -3525,6 +3549,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 //SwitchCase
                 switch (app.selectedButtonWin) {
                     case 0:
+                        app.bStage1Completed = true;
 
                         //Securiter, reset des touches clavier meme si gamepad quand on gagne
                         app.ResetGame();
@@ -3836,15 +3861,19 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             //va vers intro de niveau 2
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau2)) {
+                if (app.bStage1Completed){
                 app.indexMessageIntroNiveau2 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
                 app.StateActuel = State::IntroNiveau2;
+                }
             }
             //va vers intro de niveau 3
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau3)) {
+                if (app.bStage2Completed){
                 app.indexMessageIntroNiveau3 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
                 app.StateActuel = State::IntroNiveau3;
+                }
             }
         }
         //Dans Le IntroNiveau1
@@ -3892,6 +3921,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //DANS LE WINSCREEN
         else if (app.StateActuel == State::NiveauGagnerScreen) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonWinReturnMenu)) {
+                app.bStage1Completed = true;
                 app.ResetGame();
                 app.RebindKeys();
                 // Recréer les bindings ici, APRÈS GameApp
