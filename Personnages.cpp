@@ -402,8 +402,8 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
             std::uniform_real_distribution<float> disX(-100.0f, 100.0f);
             std::uniform_real_distribution<float> disY(-200.0f, 50.0f); // certaines montent un peu avant de retomber
 
-            //spawn 3 fraises
-            for (int i = -1; i <= 2; i++) {
+            //spawn 2 fraises
+            for (int i = -1; i <= 1; i++) {
                 SDL_FPoint spawn = { centreX + (i * 80.0f), centreY };
                 BulletStrawberry* fraise = new BulletStrawberry(spawn, {0, -1}, strawbTexture);
                 fraise->bHasGravity = true; // graviter pour les fraises du boss

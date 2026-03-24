@@ -128,6 +128,10 @@ public:
     TTF_Text *ChoixNiveau2Text = nullptr;
     TTF_Text *ChoixNiveau3Text = nullptr;
 
+    //text pour dire si accecible ou non
+    TTF_Text *StageLocked = nullptr;
+    TTF_Text *StageAvailable = nullptr;
+
     SDL_FRect BoutonChoixNiveau1 ={200, 550, 300,300};
     SDL_FRect BoutonChoixNiveau2 ={800, 550, 300,300};
     SDL_FRect BoutonChoixNiveau3 ={1400, 550, 300,300};
@@ -396,6 +400,8 @@ public:
     bool bStage1Completed = false;//quand stage 1 est fini
     bool bStage2Completed = false;//quand stage 2 est fini
     bool bStage3Completed = false;//quand stage 3 est fini
+    int currentStage = 1;
+
 
 private:
     //Score Lorsque Cerf Mort
@@ -589,9 +595,12 @@ private:
             SDL_LogWarn(0, "SDL_ttf failed to set the font", SDL_GetError());
         }
         ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Chose Your Level", 25);
-        ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend The Sky", 25);
-        ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Work In Progress", 25);
+        ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend Earth", 25);
+        ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Invasion Of DeeroLand", 25);
         ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "TBD", 25);
+        StageAvailable = TTF_CreateText(textEngine, ChoixNiveauFont, "Available", 25);
+        StageLocked = TTF_CreateText(textEngine, ChoixNiveauFont, "Locked", 25);
+
 
 
         //DANS INTROGAME
@@ -1043,6 +1052,8 @@ private:
         TTF_DestroyText(tutoText2);
         TTF_DestroyText(waveDynamicWaveTypeText);
         TTF_DestroyText(waveDynamicWaveType2Text);
+        TTF_DestroyText(StageAvailable);
+        TTF_DestroyText(StageLocked);
 
         TTF_DestroyText(TextQuit);
         TTF_DestroyText(TextScore);
@@ -1369,31 +1380,46 @@ private:
         //Bouton Niveau 1
         if (selectedButtonChoixNiveau== 0) {
             RenderBoutons(BoutonChoixNiveau1, nullptr, r, g, b);//Couleur si selectionner
+            TTF_DrawRendererText(StageAvailable, 270, 810);
         }else {
             RenderBoutons(BoutonChoixNiveau1, nullptr, 100, 100, 100);//gris foncer de base
+            TTF_DrawRendererText(StageAvailable, 270, 810);
         }
         //BOUTON Niveau 2
         if (selectedButtonChoixNiveau == 1) {
             if (bStage1Completed) {
                 RenderBoutons(BoutonChoixNiveau2, nullptr, r, g, b);
+                TTF_DrawRendererText(StageAvailable, 890, 810);
+            } else {
+                RenderBoutons(BoutonChoixNiveau2, nullptr, 100, 100, 100);
+                TTF_DrawRendererText(StageLocked, 890, 810);
             }
-            else {
-                RenderBoutons(BoutonChoixNiveau2, nullptr, 100, 100, 100);//gris foncer de base
+        } else {
+            if (bStage1Completed) {
+                RenderBoutons(BoutonChoixNiveau2, nullptr, 40, 40, 40);
+                TTF_DrawRendererText(StageAvailable, 890, 810); // ← Available même non sélectionné
+            } else {
+                RenderBoutons(BoutonChoixNiveau2, nullptr, 40, 40, 40);
+                TTF_DrawRendererText(StageLocked, 890, 810);
             }
-        }else {
-            RenderBoutons(BoutonChoixNiveau2, nullptr, 40, 40, 40);//gris foncer de base
         }
         //BOUTON Niveau 3
         if (selectedButtonChoixNiveau == 2) {
             if (bStage2Completed) {
                 RenderBoutons(BoutonChoixNiveau3, nullptr, r, g, b);
+                TTF_DrawRendererText(StageAvailable, 1500, 810);
+            } else {
+                RenderBoutons(BoutonChoixNiveau3, nullptr, 100, 100, 100);
+                TTF_DrawRendererText(StageLocked, 1500, 810);
             }
-            else {
-                RenderBoutons(BoutonChoixNiveau3, nullptr, 100, 100, 100);//gris foncer de base
+        } else {
+            if (bStage2Completed) {
+                RenderBoutons(BoutonChoixNiveau3, nullptr, 40, 40, 40);
+                TTF_DrawRendererText(StageAvailable, 1500, 810); // ← Available même non sélectionné
+            } else {
+                RenderBoutons(BoutonChoixNiveau3, nullptr, 40, 40, 40);
+                TTF_DrawRendererText(StageLocked, 1500, 810);
             }
-        }else {
-            RenderBoutons(BoutonChoixNiveau3, nullptr, 40, 40, 40);//gris foncer de base
-
         }
 
         TTF_DrawRendererText(ChoixNiveau1Text, 200, 900);
@@ -1649,6 +1675,9 @@ private:
         }
         else {
             waveInProgress = false; // stop la logique de wave
+            if (currentStage == 1) bStage1Completed = true;
+            else if (currentStage == 2) bStage2Completed = true;
+            else if (currentStage == 3) bStage3Completed = true;
             app.StateActuel = State::NiveauGagnerScreen;
         }
     }
@@ -3470,6 +3499,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         break;
                     case 1:
                         if (app.bStage1Completed) {
+                            app.currentStage = 2;
                             app.indexMessageIntroNiveau2 = 0;
                             TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
                             app.StateActuel = State::IntroNiveau2; // <-A FAIRE LES DIFFERENTS INTRO
@@ -3477,6 +3507,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         break;
                     case 2:
                         if (app.bStage2Completed) {
+                            app.currentStage = 3;
                             app.indexMessageIntroNiveau3 = 0;
                             TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
                             app.StateActuel = State::IntroNiveau3; // <- A FAIRE LES DIFFERENTS INTRO
@@ -3549,7 +3580,6 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 //SwitchCase
                 switch (app.selectedButtonWin) {
                     case 0:
-                        app.bStage1Completed = true;
 
                         //Securiter, reset des touches clavier meme si gamepad quand on gagne
                         app.ResetGame();
@@ -3862,6 +3892,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //va vers intro de niveau 2
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau2)) {
                 if (app.bStage1Completed){
+                app.currentStage = 2;
                 app.indexMessageIntroNiveau2 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
                 app.StateActuel = State::IntroNiveau2;
@@ -3870,6 +3901,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //va vers intro de niveau 3
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau3)) {
                 if (app.bStage2Completed){
+                app.currentStage = 3;
                 app.indexMessageIntroNiveau3 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
                 app.StateActuel = State::IntroNiveau3;
