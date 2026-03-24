@@ -15,7 +15,9 @@ add_executable(Deer_Invaders
         Personnages.cpp
         Personnages.h
         Entity.cpp
-        Entity.h)
+        Entity.h
+        Database.cpp
+        Database.h)
 
 target_link_libraries(Deer_Invaders PRIVATE SDL3 SDL3_image SDL3_ttf)
 
