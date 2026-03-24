@@ -19,7 +19,7 @@ add_executable(Deer_Invaders
         Database.cpp
         Database.h)
 
-target_link_libraries(Deer_Invaders PRIVATE SDL3 SDL3_image SDL3_ttf)
+target_link_libraries(Deer_Invaders PRIVATE SDL3 SDL3_image SDL3_ttf sqlite3)
 
 set(ASSETS_SRC_DIR ${CMAKE_SOURCE_DIR}/assets)
 set(ASSETS_BINARY_DIR ${CMAKE_BINARY_DIR}/assets)
