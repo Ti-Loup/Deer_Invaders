@@ -101,14 +101,87 @@ Sint32 DataBaseStage::InsertScore (const ScoreRecord &score) {
 
 //Obtenir le score maximal
 Sint32 DataBaseStage::GetHighScores(std::vector<ScoreRecord> &scores, Sint32 limit) {
+std::string query = "SELECT player_name, score "
+                      "FROM highscores "
+                      "ORDER BY score DESC "
+                      "LIMIT ?;";
 
+  sqlite3_stmt *prepared_statement;
+  Sint32 result = sqlite3_prepare_v2 (database, query.c_str (), -1, &prepared_statement, nullptr);
+
+  if (result != SQLITE_OK)
+    {
+      SDL_LogError (SDL_LOG_CATEGORY_ERROR,
+                    "Failed to prepare statement: %s",
+                    sqlite3_errmsg (database));
+      return result;
+    }
+
+  result = sqlite3_bind_int (prepared_statement, 1, limit);
+  if (result != SQLITE_OK)
+    {
+      SDL_LogError (SDL_LOG_CATEGORY_ERROR, "Failed to bind limit: %s",
+                    sqlite3_errmsg (database));
+      sqlite3_finalize (prepared_statement);
+      return result;
+    }
+
+  scores.clear ();
+
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Fetching top %d scores", limit);
+  Sint32 rowCount = 0;
+  while ((result = sqlite3_step (prepared_statement)) == SQLITE_ROW)
+    {
+      rowCount++;
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Processing row %d", rowCount);
+
+      ScoreRecord score;
+      const unsigned char *name = sqlite3_column_text (prepared_statement, 0);
+      if (name)
+        {
+          score.player_name = reinterpret_cast<const char *> (name);
+          SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Player: %s", score.player_name.c_str());
+        }
+      score.value = sqlite3_column_int (prepared_statement, 1);
+      SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Score: %d", score.value);
+
+      scores.push_back (score);
+    }
+
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Total rows retrieved: %d", rowCount);
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Vector size after loop: %zu", scores.size());
+
+  if (result != SQLITE_DONE)
+    {
+      SDL_LogError (SDL_LOG_CATEGORY_ERROR, "Failed to fetch scores: %s",
+                    sqlite3_errmsg (database));
+      sqlite3_finalize (prepared_statement);
+      return result;
+    }
+
+  sqlite3_finalize (prepared_statement);
+  return SQLITE_OK;
 
 }
 
 
 //Supprimer les scores
 Sint32 DataBaseStage::DeleteAllScores() {
+    const char* sql = "DELETE FROM highscores;";
+    char* error_message = nullptr;
 
+    Sint32 result = sqlite3_exec (database, sql, nullptr, nullptr, &error_message);
+
+    if (result != SQLITE_OK)
+    {
+        SDL_LogError (SDL_LOG_CATEGORY_ERROR, "Failed to delete all scores: %s!",
+                      error_message);
+        sqlite3_free (error_message);
+        return result;
+    }
+
+    SDL_LogInfo (SDL_LOG_CATEGORY_APPLICATION, "All scores deleted successfully!");
+    return SQLITE_OK;
 }
 
 //Fermer la database
