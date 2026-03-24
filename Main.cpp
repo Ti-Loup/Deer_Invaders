@@ -19,19 +19,21 @@
 #include "Personnages.h"
 #include "Player.h"
 
-//CURRENT BUG LISTS
+//CURRENT STUFF TO DO FOR TUESDAY PLAYTEST LISTS
 /*
  *IF I UPGRADE A WEAPON DURING THE SPECIAL ABILITY IT WILL GO BACK TO THE OLD ONE AFTER THE END OF THE CAPACITY INSTEAD OF KEEPING THE ONE BOUGHT
  *
  *
  *
- */
-//A AMELIORER
-/*
  *LES FONTS
  *
  *LE UI DU SHOP A REFAIRE.
  *
+ *Posibilité. comme Vampire survivor upgrade pop pup en jeu si on veut upgrade ou attendre
+ *
+ *La database
+ *
+ *debut Stage 2
  */
 
 
@@ -3699,14 +3701,20 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             if (app.player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
                                 app.currentWeaponLevel = 1;// on achete la prochaine arme
                                 app.globalWeaponLevel = 1;
-                                app.player->currentWeapon->texture = app.textureBulletFire;
+                                BulletType* target = app.player->bCompetenceActive
+                             ? app.player->previousWeapon
+                             : app.player->currentWeapon;
+                                target->texture = app.textureBulletFire;
                             }
                         }
                         else if (app.currentWeaponLevel == 1){
                             if (app.player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
                                 app.currentWeaponLevel = 2;
                                 app.globalWeaponLevel = 2;
-                                app.player->currentWeapon->texture = app.textureBulletIce;
+                                BulletType* target = app.player->bCompetenceActive
+                                 ? app.player->previousWeapon
+                                 : app.player->currentWeapon;
+                                target->texture = app.textureBulletIce;
                             }
                         }
                         else if (app.currentWeaponLevel == 2) {
@@ -4015,14 +4023,21 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     if (app.player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
                         app.currentWeaponLevel = 1;// on achete la prochaine arme
                         app.globalWeaponLevel = 1;
-                        app.player->currentWeapon->texture = app.textureBulletFire; //Change les textures en Feu
+                        // Assigne la texture sur la bonne arme
+                        BulletType* target = app.player->bCompetenceActive
+                            ? app.player->previousWeapon
+                            : app.player->currentWeapon;
+                        target->texture = app.textureBulletFire;
                     }
                 }
                 else if (app.currentWeaponLevel == 1){
                     if (app.player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
                         app.currentWeaponLevel = 2;
                         app.globalWeaponLevel = 2;
-                        app.player->currentWeapon->texture = app.textureBulletIce; //Change les textures en glace
+                        BulletType* target = app.player->bCompetenceActive
+                         ? app.player->previousWeapon
+                         : app.player->currentWeapon;
+                        target->texture = app.textureBulletIce;
                     }
                 }
                 else if (app.currentWeaponLevel == 2) {

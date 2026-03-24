@@ -254,24 +254,35 @@ int weaponPrice = 0;
         SDL_Log("Pas asser de viande !");
         return false;//fin fonction bool
     }
-    //Si on a deja une arme on la supprime pour en mettre une autre
-    if (currentWeapon != nullptr) {
-        delete currentWeapon;
-    }
+
+    // Creation de la nouvelle arme
+    BulletType* newWeapon = nullptr;
+
     //On met l'etat qui correspond a l'enum
     switch (type) {
         case ArmeNiveau::Classic:
-            currentWeapon = new ClassicBulletType();
+            newWeapon = new ClassicBulletType();
             break;
         case ArmeNiveau::Fire:
-            currentWeapon = new FireBulletType();
+            newWeapon = new FireBulletType();
             break;
         case ArmeNiveau::Ice:
-            currentWeapon = new IceBulletType();
+            newWeapon = new IceBulletType();
             break;
         case ArmeNiveau::Tbd:
-            currentWeapon = new TBDBulletType();
+            newWeapon = new TBDBulletType();
             break;
+    }
+
+    if (bCompetenceActive) {
+        // remplace previousWeapon lors de competence
+        // (currentWeapon est la CompetenceSpecial, on la garde active)
+        if (previousWeapon != nullptr) delete previousWeapon;
+        previousWeapon = newWeapon;
+    } else {
+        // Comportement normal
+        if (currentWeapon != nullptr) delete currentWeapon;
+        currentWeapon = newWeapon;
     }
 
     //On fait la soustraction du nombre de viande Total - viande restante
