@@ -298,6 +298,11 @@ public:
     TTF_Text *CreditsRoleText2 = nullptr;
     TTF_Text *CreditsRoleText3 = nullptr;
 
+    // -> UpgradePopUp <- Text et Fonts
+    TTF_Font *fontWaitPopUp = nullptr;
+    SDL_FRect BoutonWaitPopUp = {1600.0f, 900.0f, 200.0f,100.0f};
+    TTF_Text *textWaitPopUp = nullptr;
+
 // -> TOUCHE CLAVIER PATTERN COMMAND<-
     Player* player = nullptr;
     std::map<SDL_Scancode, Command*> keyBindings;
@@ -337,6 +342,7 @@ public:
     int selectedButtonWin = 0;
     int selectedButtonDeath = 0;
     int selectedButtonShop = 0;
+    int selectedButtonPopUp = 0;
     int selectedButtonCredits = 0;
     int selectedButtonPause = 0;
 
@@ -403,7 +409,8 @@ public:
     bool bStage3Completed = false;//quand stage 3 est fini
     int currentStage = 1;
 
-
+    //pour atteindre le dernier seuil attein
+    int lastPopupMeatThreshold = -1;
 private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
@@ -412,6 +419,7 @@ private:
 
     //SCORE DU RENDER JEU
     int lastScore = -1;
+
 
 
     GameApp() //Constructeur
@@ -1983,6 +1991,131 @@ private:
                 ent->RenderUpdate(renderer);
             }
     }
+    //Fonction pour popup
+
+    void UpgradePopUp(float deltaTime) {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+        //BACKGROUND
+        SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
+
+        // On dessine les entities et UI sans les faire bouger
+        SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
+
+        // Rajouter le score dynamique lors du Pause
+        if (currentScore != lastScore) {
+            std::string scoreStr = std::to_string(currentScore);
+            TTF_SetTextString(dynamicscoreText, scoreStr.c_str(), 0);
+            lastScore = currentScore;
+        }
+        if (dynamicscoreText) {
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
+        }
+
+        //Texture viande
+        SDL_RenderFillRect(renderer, &MeatInventory);
+        SDL_RenderTexture(renderer, textureMeat, nullptr, &MeatInventory);
+
+        // Mise a jour du Meat rendu
+        if (InventoryText) {
+            int longeurL, largeurH;
+            TTF_GetTextSize(InventoryText, &longeurL, &largeurH);
+            float posX = MeatInventory.x + MeatInventory.w + 10.0f;
+            float posY = MeatInventory.y + (MeatInventory.h - largeurH) / 4.0f;
+            TTF_DrawRendererText(InventoryText, posX, posY);
+        }
+
+        UpdateBackgroundTint(deltaTime);// pour le rgb
+
+        //Optimisation seulement appel a RenderEtities pour Render les cerfs , fraises ...
+        //Juste a appeler la fonction pour deathscreen, winscreen, Game
+        RenderEntities();
+
+        // Barre de compétence spéciale
+        SDL_FRect jaugeBg   = { 50.0f, 955.0f, 250.0f, 22.0f };
+        float ratio = player->competenceTimer / player->competenceCooldown;
+        SDL_FRect jaugeFill = { 50.0f, 955.0f, 250.0f * ratio, 22.0f };
+
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+        SDL_RenderFillRect(renderer, &jaugeBg);
+
+        if (player->bCompetenceActive) {
+            TTF_DrawRendererText(competenceSpecialText2, 50, 925);
+            TTF_SetTextColor(competenceSpecialText2, 40, 40, 40, 255);
+            SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+        } else if (player->bCompetenceReady) {
+            TTF_DrawRendererText(competenceSpecialText, 50, 925);
+            SDL_SetRenderDrawColor(renderer, 0, 255, 120, 255);
+        } else {
+            TTF_DrawRendererText(competenceSpecialText2, 50, 925);
+            TTF_SetTextColor(competenceSpecialText2, 40, 40, 40, 255);
+            SDL_SetRenderDrawColor(renderer, 80, 80, 220, 255);
+        }
+        SDL_RenderFillRect(renderer, &jaugeFill);
+
+        // Barre shield
+        SDL_FRect shieldBg   = { 50.0f, 1020.0f, 250.0f, 25.0f };
+        float shieldRatio = (float)player->currentShieldHP / (float)player->maxShieldHP;
+        SDL_FRect shieldFill = { 50.0f, 1020.0f, 250.0f * shieldRatio, 25.0f };
+
+        SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+        SDL_RenderFillRect(renderer, &shieldBg);
+
+        SDL_Color shieldColor = player->currentShield->GetColor();
+        SDL_SetRenderDrawColor(renderer, shieldColor.r, shieldColor.g, shieldColor.b, 255);
+        SDL_RenderFillRect(renderer, &shieldFill);
+
+        // Texte du shield et PlayerHeal
+        if (dynamicPlayerHeal) {
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicPlayerHeal, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicPlayerHeal, healSize.x + (healSize.w - longeurW)/2, healSize.y + (healSize.h - largeurH)- 20);
+        }
+
+        // Mise a jour du Shield Heal Rendu
+        if (dynamicShieldHPText) {
+            int longeurW, largeurH;
+            TTF_GetTextSize(dynamicShieldHPText, &longeurW, &largeurH);
+            TTF_DrawRendererText(dynamicShieldHPText, 75, 990);
+        }
+
+        TTF_DrawRendererText(fpsText, 1800, 10);
+    // Rectangle de teinture sombre (TOUT CE QUI EST EN HAUT AURA LA TEINTE ->)
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_FRect screenRect = {0, 0, 1920, 1080};
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
+    SDL_RenderFillRect(renderer, &screenRect);
+
+        //boutons ->
+        RenderGlobalWeaponProgresBar(805, 750);// Pour render les cubes pour les armes.
+        RenderGlobalShieldProgresBar(1005, 750);// Pour render les cubes pour les shields
+        //Bouton Upgrade Weapon
+        if (selectedButtonPopUp == 0) {
+            RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
+        }else {
+            RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 80, 80, 80);
+        }//Bouton HP
+        if (selectedButtonPopUp == 1) {
+            RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, r, g, b);
+        }else {
+            RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, 80, 80, 80);
+        }//Bouton Wait
+        if (selectedButtonPopUp == 2) {
+            RenderBoutons(BoutonWaitPopUp, textWaitPopUp, r, g, b);
+        }else {
+            RenderBoutons(BoutonWaitPopUp, textWaitPopUp, 80,80,80);
+        }
+
+    SDL_RenderPresent(renderer);
+
+
+    }
+
+
+
+
 
     // La fonction Game ne boucle
     void Game(float deltaTime) {
@@ -2144,6 +2277,31 @@ private:
                         if (entity->entityType == EntityType::Collectable) {
                             SDL_Log("Viande collectée -> +1");
                             currentMeat++;
+                            // Verifie si une upgrade est disponible
+                            //si dispo alors on change de state vers UpgradePopup avec sa fonction
+                            // Calcule le seuil actuel applicable
+                            int threshold = -1;
+
+                            if (currentMeat >= 10 &&
+                                (currentWeaponLevel == 0 || currentShieldLevel == 0) &&
+                                lastPopupMeatThreshold < 10) {
+                                threshold = 10;
+                                }
+                            else if (currentMeat >= 50 &&
+                                (currentWeaponLevel <= 1 || currentShieldLevel <= 1) &&
+                                lastPopupMeatThreshold < 50) {
+                                threshold = 50;
+                                }
+                            else if (currentMeat >= 100 &&
+                                (currentWeaponLevel <= 2 || currentShieldLevel <= 2) &&
+                                lastPopupMeatThreshold < 100) {
+                                threshold = 100;
+                                }
+
+                            if (threshold != -1) {
+                                lastPopupMeatThreshold = threshold;
+                                StateActuel = State::UpgradePopup;
+                            }
                         }
                         // si Fraise
                         else if (entity->entityType == EntityType::EnemyBullet) {
@@ -2833,9 +2991,6 @@ GameApp &app = GameApp::GetInstance();
     void Shop(float deltaTime) {
         SDL_Event ShopEvents;
 
-
-
-
         //Render
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //Fond noir
        //clean
@@ -3250,6 +3405,10 @@ public:
 
             case State::ChoixNiveau:
                 ChoixNiveau(deltaTime);
+                break;
+
+            case State::UpgradePopup:
+                UpgradePopUp(deltaTime);
                 break;
 
             case State::Game:
@@ -3667,6 +3826,100 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         }
 
         //GERER SELECTION SHOP AVEC GAMEPAD
+        else if (app.StateActuel == State::UpgradePopup) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT){
+            app.selectedButtonPopUp++;
+                if (app.selectedButtonPopUp > 2) {
+                    app.selectedButtonPopUp = 0;//Retourne au premier
+                }
+            }
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
+                app.selectedButtonPopUp--;
+                if (app.selectedButtonPopUp < 0) {
+                    app.selectedButtonPopUp = 2;//retourne au dernier
+                }
+            }
+            //Verification
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("Button A Down");
+                //SwitchCase
+                switch (app.selectedButtonPopUp) {
+                    case 0:
+                        //Rien Encore Pour L'upgrade
+                        SDL_Log("Weapon Upgrade");
+                        // player->ArmeUpgrade();
+                        if (app.currentWeaponLevel == 0) {
+                            if (app.player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
+                                app.currentWeaponLevel = 1;// on achete la prochaine arme
+                                app.globalWeaponLevel = 1;
+                                app.lastPopupMeatThreshold = -1;
+                                BulletType* target = app.player->bCompetenceActive
+                             ? app.player->previousWeapon
+                             : app.player->currentWeapon;
+                                target->texture = app.textureBulletFire;
+                                app.StateActuel = State::Game;
+                            }
+                        }
+                        else if (app.currentWeaponLevel == 1){
+                            if (app.player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
+                                app.currentWeaponLevel = 2;
+                                app.globalWeaponLevel = 2;
+                                app.lastPopupMeatThreshold = -1;
+                                BulletType* target = app.player->bCompetenceActive
+                                 ? app.player->previousWeapon
+                                 : app.player->currentWeapon;
+                                target->texture = app.textureBulletIce;
+                                app.StateActuel = State::Game;
+                            }
+                        }
+                        else if (app.currentWeaponLevel == 2) {
+                            if (app.player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                                app.currentWeaponLevel = 3;
+                                app.globalWeaponLevel = 3;
+                                app.lastPopupMeatThreshold = -1;
+                                app.StateActuel = State::Game;
+                            }
+                        }
+                        break;
+                    case 1:
+                        //Rien Encore Pour Upgrade SHIELD
+                        SDL_Log("Achat Upgrade Shield");
+                        // player->ShieldUpgrade();
+                        if (app.currentShieldLevel == 0) {
+                            if (app.player->ShieldUpgrade(ShieldAmount::SmallShield, app.currentMeat)) {
+                                app.currentShieldLevel = 1; // On achete le prochain shield
+                                app.globalShieldLevel = 1;
+                                app.lastPopupMeatThreshold = -1;
+                                app.StateActuel = State::Game;
+                            }
+                        }
+                        else if (app.currentShieldLevel == 1) {
+                            if (app.player->ShieldUpgrade(ShieldAmount::MediumShield, app.currentMeat)) {
+                                app.currentShieldLevel = 2;
+                                app.globalShieldLevel = 2;
+                                app.lastPopupMeatThreshold = -1;
+                                app.StateActuel = State::Game;
+                            }
+                        }
+                        else if (app.currentShieldLevel == 2) {
+                            if (app.player->ShieldUpgrade(ShieldAmount::LargeShield, app.currentMeat)) {
+                                app.currentShieldLevel = 3;
+                                app.globalShieldLevel = 3;
+                                app.lastPopupMeatThreshold = -1;
+                                app.StateActuel = State::Game;
+                            }
+                        }
+                        break;
+                    case 2:
+                        //Retour dans Game
+                        app.StateActuel = State::Game;
+                        app.selectedButtonPopUp = 0;
+                        break;
+                }
+            }
+        }
+
+        //GERER SELECTION SHOP AVEC GAMEPAD
         else if (app.StateActuel == State::Shop) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT){
             app.selectedButtonShop++;
@@ -3717,8 +3970,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         }
                         break;
                     case 1:
-                        //Rien Encore Pour Upgrade HP
-                        SDL_Log("Achat Upgrade HP");
+                        //Rien Encore Pour Upgrade SHIELD
+                        SDL_Log("Achat Upgrade Shield");
                         // player->ShieldUpgrade();
                         if (app.currentShieldLevel == 0) {
                             if (app.player->ShieldUpgrade(ShieldAmount::SmallShield, app.currentMeat)) {
@@ -3992,13 +4245,94 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
         }
 
-
         // Dans le Score
         else if (app.StateActuel == State::ScoreBoard) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
                 app.StateActuel = State::Menu;
             }
         }
+
+        //Dans le UpgradePopUp
+        else if (app.StateActuel == State::UpgradePopup) {
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonWaitPopUp)) {
+                app.StateActuel = State::Game;
+            }
+            // Bouton Upgrade Arme
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonUpgrade)) {
+                SDL_Log("Achat Upgrade Arme");
+                // player->ArmeUpgrade();
+                if (app.currentWeaponLevel == 0) {
+                    if (app.player->ArmeUpgrade(ArmeNiveau::Fire, app.currentMeat)) {
+                        app.currentWeaponLevel = 1;// on achete la prochaine arme
+                        app.globalWeaponLevel = 1;
+                        app.lastPopupMeatThreshold = -1;
+                        // Assigne la texture sur la bonne arme
+                        BulletType* target = app.player->bCompetenceActive
+                            ? app.player->previousWeapon
+                            : app.player->currentWeapon;
+                        target->texture = app.textureBulletFire;
+                        app.StateActuel = State::Game;
+                    }
+                }
+                else if (app.currentWeaponLevel == 1){
+                    if (app.player->ArmeUpgrade(ArmeNiveau::Ice, app.currentMeat)) {
+                        app.currentWeaponLevel = 2;
+                        app.globalWeaponLevel = 2;
+                        app.lastPopupMeatThreshold = -1;
+                        BulletType* target = app.player->bCompetenceActive
+                         ? app.player->previousWeapon
+                         : app.player->currentWeapon;
+                        target->texture = app.textureBulletIce;
+                        app.StateActuel = State::Game;
+                    }
+                }
+                else if (app.currentWeaponLevel == 2) {
+                    if (app.player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                        app.currentWeaponLevel = 3;
+                        app.globalWeaponLevel = 3;
+                        app.lastPopupMeatThreshold = -1;
+                        app.player->currentWeapon->texture = app.textureBulletNormal;//Normal pour l'instant
+                        app.StateActuel = State::Game;
+                        //TBD
+                    }
+                }
+            }
+
+            // Bouton Upgrade HP
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonShieldUpgrade)) {
+                SDL_Log("Achat Upgrade SHIELD");
+                // player->ShieldUpgrade();
+                if (app.currentShieldLevel == 0) {
+                    if (app.player->ShieldUpgrade(ShieldAmount::SmallShield, app.currentMeat)) {
+                        app.currentShieldLevel = 1; // On achete le prochain shield
+                        app.globalShieldLevel = 1;
+                        app.lastPopupMeatThreshold = -1;
+                        app.StateActuel = State::Game;
+                    }
+                }
+                else if (app.currentShieldLevel == 1) {
+                    if (app.player->ShieldUpgrade(ShieldAmount::MediumShield, app.currentMeat)) {
+                        app.currentShieldLevel = 2;
+                        app.globalShieldLevel = 2;
+                        app.lastPopupMeatThreshold = -1;
+                        app.StateActuel = State::Game;
+                    }
+                }
+                else if (app.currentShieldLevel == 2) {
+                    if (app.player->ShieldUpgrade(ShieldAmount::LargeShield, app.currentMeat)) {
+                        app.currentShieldLevel = 3;
+                        app.globalShieldLevel = 3;
+                        app.lastPopupMeatThreshold = -1;
+                        app.StateActuel = State::Game;
+                    }
+                }
+            }
+        }
+
+
+
+
+
         //Dans le Shop
         else if (app.StateActuel == State::Shop) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
@@ -4065,7 +4399,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     }
                 }
             }
-        } else if (app.StateActuel == State::Credits) {
+        }
+        //pour les credits
+        else if (app.StateActuel == State::Credits) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
                 app.StateActuel = State::Menu;
             }
