@@ -21,15 +21,14 @@
 
 //CURRENT STUFF TO DO FOR TUESDAY PLAYTEST LISTS
 /*
- *FIXED :
- *
+ *FINISHED:
  *      IF I UPGRADE A WEAPON DURING THE SPECIAL ABILITY IT WILL GO BACK TO THE OLD ONE AFTER THE END OF THE CAPACITY INSTEAD OF KEEPING THE ONE BOUGHT
- *
+ *      Posibilité. comme Vampire survivor upgrade pop pup en jeu si on veut upgrade ou attendre
  *
  *TO DO :
  *LES FONTS
  *LE UI DU SHOP A REFAIRE.
- *Posibilité. comme Vampire survivor upgrade pop pup en jeu si on veut upgrade ou attendre
+ *
  *La database
  *debut Stage 2
  */
@@ -409,8 +408,11 @@ public:
     bool bStage3Completed = false;//quand stage 3 est fini
     int currentStage = 1;
 
-    //pour atteindre le dernier seuil attein
+    //pour atteindre le dernier seuil attein (Pour les weapons upgrade fix du bug)
     int lastPopupMeatThreshold = -1;
+
+
+
 private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
@@ -2300,6 +2302,7 @@ private:
 
                             if (threshold != -1) {
                                 lastPopupMeatThreshold = threshold;
+                                ResetPlayerInputs();//pour reset les touches
                                 StateActuel = State::UpgradePopup;
                             }
                         }
@@ -3373,6 +3376,14 @@ public:
         //Les commandes sont reset dans une autre fonction
 
     }
+//Pour reset les inputs quand joueur change de State
+    void ResetPlayerInputs() {
+        if (player != nullptr) {
+            player->bIsMovingRight = false;
+            player->bIsMovingLeft = false;
+            player->isCurrentlyShooting = false;
+        }
+    }
 
 
 
@@ -3536,6 +3547,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.player->ActivateCompetence(app.textureBulletNormal);
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_START) {
+                app.ResetPlayerInputs();
                 app.StateActuel = State::Pause;
             }
         }
@@ -4414,6 +4426,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //Si on est dans notre jeu alors on peut appuyer pour bouger notre personnage
         if (event->key.scancode == SDL_SCANCODE_P) {
             if (app.StateActuel==State::Game) {
+                app.ResetPlayerInputs();
                 app.StateActuel = State::Pause;
             }
             else if (app.StateActuel == State::Pause) {
