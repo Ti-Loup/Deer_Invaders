@@ -1481,8 +1481,8 @@ private:
         //Tout afficher
         SDL_RenderPresent(renderer);
     }
-    //Pour la premiere vague d'ennemies
-    void SpawnWave1() {
+    //Pour la premiere vague d'ennemies STAGE 1
+    void SpawnWave1Stage1() {
         entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
         entities.push_back(new Enemy_Deer(250.f, 50.0f, true, textureCerf));
         entities.push_back(new Enemy_Deer(400.f, 50.0f, false, textureCerf));
@@ -1531,7 +1531,7 @@ private:
 
     //WAVE 2
     //Randomizer pour creer les meteorites dans la fonction Game()
-    void SpawnWave2(float deltaTime) {
+    void SpawnWave2Stage1(float deltaTime) {
         survivalTimer += deltaTime;
 
         if (survivalTimer < survivalDuration) {
@@ -1557,7 +1557,7 @@ private:
     }
 
     //Wave 3
-    void SpawnWave3() {
+    void SpawnWave3Stage1() {
         SDL_FPoint planetCenter = {960.0f, 300.0f};
         float radius = 550.0f;//radius auquel les cerfs tournent autour de la planet
         int nbCerfs = 32;
@@ -1591,7 +1591,7 @@ private:
         }
     }
     // WAVE 4 SURVIVAL
-    void SpawnWave4(float deltaTime) {
+    void SpawnWave4Stage1(float deltaTime) {
         survivalTimer += deltaTime;
 
         if (survivalTimer < survivalDuration) {
@@ -1646,51 +1646,124 @@ private:
     }
 
     //WAVE 5 BOSS PART 1
-   void SpawnWave5() {
+   void SpawnWave5Stage1() {
         entities.push_back(new Enemy_FraiseBoss(800.0f, 200.0f , textureBossStage_1_2));
         entities.push_back(new Enemy_HealerDeer(300,500, textureCerfHealer));
         entities.push_back(new Enemy_MageDeer(1600, 500, textureCerfMage));
 
     }
 
+    //STAGE 2 WAVES
+    void SpawnWave1Stage2() {
+
+        // Pointe du triangle (haut centre)
+        entities.push_back(new Enemy_MageDeer(960, 80, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(760, 200, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1160, 200, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(560, 320, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1360, 320, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(360, 440, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(760, 440, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1160, 440, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1560, 440, textureCerfMage));
+
+        // HealerDeer au centre du triangle
+        entities.push_back(new Enemy_HealerDeer(960, 320, textureCerfHealer));
+    }
+    void SpawnWave2Stage2() {
+        //carre 1
+        entities.push_back(new Enemy_MageDeer(250, 80, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(450, 80, textureCerfMage));
+        entities.push_back(new Enemy_HealerDeer(350, 160, textureCerfHealer));
+        entities.push_back(new Enemy_MageDeer(250, 240, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(450, 240, textureCerfMage));
+        // Carre2
+        entities.push_back(new Enemy_MageDeer(850, 220, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1050, 220, textureCerfMage));
+        entities.push_back(new Enemy_HealerDeer(950, 300, textureCerfHealer));
+        entities.push_back(new Enemy_MageDeer(850, 380, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1050, 380, textureCerfMage));
+
+        //carre 5
+        entities.push_back(new Enemy_MageDeer(1450, 80, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1650, 80, textureCerfMage));
+        entities.push_back(new Enemy_HealerDeer(1550, 160, textureCerfHealer));
+        entities.push_back(new Enemy_MageDeer(1450, 240, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1650, 240, textureCerfMage));
+    }
+
+
+
 
 //Fonction pour commencer une wave
+    // Le else represente lorsque tous les waves sont passer alors jouer gagner
     void StartWave(int wave) {
         GameApp &app = GameApp::GetInstance();
         waveInProgress = true;
-        if (wave == 1) {
-            //Les cerfs normaux
+        //delimitation des differentes stage et wave
+        if (currentStage == 1){
+            if (wave == 1) {
+                //Les cerfs normaux
+                currentWaveType = WaveType::Elimination;
+                SpawnWave1Stage1();
+            }
+            else if (wave == 2) {
+                //Les meteorites qui tombent
+                currentWaveType = WaveType::Survival;
+                survivalTimer = 0.0f;
+                meteorSpawnTimer = 0.0f;
+            }
+            else if (wave == 3) {
+                //cerfs qui bougent en cercle
+                currentWaveType = WaveType::Elimination;
+                SpawnWave3Stage1();
+            }
+            else if (wave == 4) {
+                //meteorites qui tombent avec different pattern
+                currentWaveType = WaveType::Survival;
+                survivalTimer = 0.0f;
+                meteorSpawnTimer = 0.0f;
+            }
+            else if (wave == 5) {
+                currentWaveType = WaveType::Elimination;
+                SpawnWave5Stage1();
+            }
+            else {
+                waveInProgress = false; // stop la logique de wave
+                if (currentStage == 1) bStage1Completed = true;
+                app.StateActuel = State::NiveauGagnerScreen;
+            }
+        }
+        //Le stage 2 du jeu
+
+        else if (currentStage == 2) {
+
+            if (wave == 1) {
             currentWaveType = WaveType::Elimination;
-            SpawnWave1();
+                SpawnWave1Stage2();
+            }
+            else if (wave == 2) {
+                currentWaveType = WaveType::Elimination;
+                SpawnWave2Stage2();
+            }
+            else if (wave == 3) {
+                currentWaveType = WaveType::Elimination;
+            }
+            else if (wave == 4) {
+
+            }
+            else if (wave == 5) {
+
+            }
+            else {
+                waveInProgress = false;
+                if (currentStage == 2) bStage2Completed = true;
+                app.StateActuel = State::NiveauGagnerScreen;
+            }
         }
-        else if (wave == 2) {
-            //Les meteorites qui tombent
-            currentWaveType = WaveType::Survival;
-            survivalTimer = 0.0f;
-            meteorSpawnTimer = 0.0f;
-        }
-        else if (wave == 3) {
-            //cerfs qui bougent en cercle
-            currentWaveType = WaveType::Elimination;
-            SpawnWave3();
-        }
-        else if (wave == 4) {
-            //meteorites qui tombent avec different pattern
-            currentWaveType = WaveType::Survival;
-            survivalTimer = 0.0f;
-            meteorSpawnTimer = 0.0f;
-        }
-        else if (wave == 5) {
-            currentWaveType = WaveType::Elimination;
-            SpawnWave5();
-        }
-        else {
-            waveInProgress = false; // stop la logique de wave
-            if (currentStage == 1) bStage1Completed = true;
-            else if (currentStage == 2) bStage2Completed = true;
-            else if (currentStage == 3) bStage3Completed = true;
-            app.StateActuel = State::NiveauGagnerScreen;
-        }
+
+
+
     }
     //fonction de transition
     void PreparationNextWave() {
@@ -2017,7 +2090,7 @@ private:
         }
 
         //Texture viande
-        SDL_RenderFillRect(renderer, &MeatInventory);
+     //   SDL_RenderFillRect(renderer, &MeatInventory);
         SDL_RenderTexture(renderer, textureMeat, nullptr, &MeatInventory);
 
         // Mise a jour du Meat rendu
@@ -2186,11 +2259,11 @@ private:
             {
                 // les waves survivals
                     if (currentWave == 2) {
-                        SpawnWave2(deltaTime);
+                        SpawnWave2Stage1(deltaTime);
 
                     }
                     else if (currentWave == 4) {
-                        SpawnWave4(deltaTime);
+                        SpawnWave4Stage1(deltaTime);
                     }
 
             }
@@ -3205,7 +3278,7 @@ GameApp &app = GameApp::GetInstance();
     }
 
     //Texture viande
-    SDL_RenderFillRect(renderer, &MeatInventory);
+    //SDL_RenderFillRect(renderer, &MeatInventory);
     SDL_RenderTexture(renderer, textureMeat, nullptr, &MeatInventory);
 
     // Mise a jour du Meat rendu
@@ -3316,6 +3389,7 @@ public:
 
         //Recree les entities et leurs valeurs
         player = new Player();
+        player->currentWeapon->texture = textureBulletNormal;
         player->texturePlayerShip = texturePlayerShip;
         entities.push_back(player);
 
@@ -3665,12 +3739,29 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 //switch case ChoixNiveau
                 switch (app.selectedButtonChoixNiveau) {
                     case 0:
+                        app.ResetGame();
+                        app.RebindKeys();
+                        app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                        app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                        app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                        app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                        app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                        app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+                        app.currentStage = 1;
                         app.indexMessageIntroNiveau1 = 0;
                         TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[0], 0);
                         app.StateActuel = State::IntroNiveau1;
                         break;
                     case 1:
                         if (app.bStage1Completed) {
+                            app.ResetGame();
+                            app.RebindKeys();
+                            app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                            app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                            app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                            app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                            app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                            app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
                             app.currentStage = 2;
                             app.indexMessageIntroNiveau2 = 0;
                             TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
@@ -3679,6 +3770,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         break;
                     case 2:
                         if (app.bStage2Completed) {
+                            app.ResetGame();
+                            app.RebindKeys();
+                            app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                            app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                            app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                            app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                            app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                            app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
                             app.currentStage = 3;
                             app.indexMessageIntroNiveau3 = 0;
                             TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
@@ -4157,6 +4256,15 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         else if (app.StateActuel == State::ChoixNiveau) {
             //va vers intro de niveau 1
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau1)) {
+                app.ResetGame();
+                app.RebindKeys();
+                app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+                app.currentStage = 1;
                 app.indexMessageIntroNiveau1 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[0], 0);
                 app.StateActuel = State::IntroNiveau1;
@@ -4164,6 +4272,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //va vers intro de niveau 2
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau2)) {
                 if (app.bStage1Completed){
+                    app.ResetGame();
+                    app.RebindKeys();
+                    app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                    app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                    app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                    app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                    app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                    app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
                 app.currentStage = 2;
                 app.indexMessageIntroNiveau2 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
@@ -4173,6 +4289,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //va vers intro de niveau 3
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixNiveau3)) {
                 if (app.bStage2Completed){
+                    app.ResetGame();
+                    app.RebindKeys();
+                    app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                    app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                    app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                    app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                    app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                    app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
                 app.currentStage = 3;
                 app.indexMessageIntroNiveau3 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
