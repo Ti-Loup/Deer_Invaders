@@ -217,6 +217,9 @@ public:
     SDL_Texture *textureSmallShield = nullptr;
     SDL_Texture *textureMediumShield = nullptr;
     SDL_Texture *textureLargeShield = nullptr;
+    //texture terre
+    SDL_Texture *textureTerre = nullptr;
+    SDL_FRect planetSize{825,300,275,275};
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
     TTF_Font *WinScreenSousFont = nullptr;
@@ -613,7 +616,7 @@ private:
         if (ChoixNiveauFont == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set the font", SDL_GetError());
         }
-        ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Chose Your Level", 25);
+        ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Chose Your Stage", 25);
         ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend Earth", 25);
         ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Invasion Of DeeroLand", 25);
         ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "TBD", 25);
@@ -749,6 +752,11 @@ private:
         textureLargeShield = IMG_LoadTexture(renderer, "assets/LargeShield.png");
         if (textureLargeShield == nullptr) {
             SDL_LogWarn(0, "failed to load textureLargeShield", SDL_GetError());
+        }
+        //TEXURE TERRE
+        textureTerre = IMG_LoadTexture(renderer, "assets/PlanetColor.png");
+        if (textureTerre == nullptr) {
+            SDL_LogWarn(0, "failed to load textureTerre", SDL_GetError());
         }
 
         //POUR PAUSE
@@ -2783,7 +2791,9 @@ private:
         }
 
 
-
+        if (currentWave == 3 && currentStage == 1) {
+            SDL_RenderTexture(renderer, textureTerre, nullptr, &planetSize);
+        }
 
         //Optimisation seulement appel a RenderEtities pour Render les cerfs , fraises ...
         //Juste a appeler la fonction pour deathscreen, winscreen, Game
@@ -2855,7 +2865,6 @@ private:
             SDL_RenderFillRect(renderer, &screenGotHit);
 
         }
-
 
 // Tout ce qui est en HAUT aura l'opaciter
         if (isTransitioning) {
