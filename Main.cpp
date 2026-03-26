@@ -466,7 +466,7 @@ private:
 
 
 
-        ScoreUI = IMG_LoadTexture(renderer, "assets/ScoreUI.png");
+        ScoreUI = IMG_LoadTexture(renderer, "assets/ScoreUICompress.png");
         if (ScoreUI == nullptr) {
             SDL_LogWarn(0, "SDL_IMAGE FAILED TO LOAD TEXTURE ", "assets/spritesheet.png", SDL_GetError());
         }
@@ -662,30 +662,30 @@ private:
             SDL_LogWarn(0, "failed to set the color of dynamicShieldHPText");
         }
         //Pour faire spawn la fraise
-        textureStrawberry = IMG_LoadTexture(renderer, "assets/Strawb.png");
+        textureStrawberry = IMG_LoadTexture(renderer, "assets/StrawbCompress.png");
         if (textureStrawberry == nullptr) {
             SDL_LogWarn(0, "Erreur chargement Strawb.png: %s", SDL_GetError());
         }
         //Pour faire spawn la texture du Cerf
-        textureCerf = IMG_LoadTexture(renderer, "assets/DeerEnnemie.png");
+        textureCerf = IMG_LoadTexture(renderer, "assets/DeerEnnemieCompress.png");
         if (textureCerf == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureCerf", SDL_GetError());
         }
         //Pour les textures des differents bullets
-        textureBulletNormal = IMG_LoadTexture(renderer, "assets/BulletNormal.png");
+        textureBulletNormal = IMG_LoadTexture(renderer, "assets/BulletNormalCompress.png");
         if (textureBulletNormal == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureBulletNormal", SDL_GetError());
         }
-        textureBulletFire = IMG_LoadTexture(renderer, "assets/BulletFire.png");
+        textureBulletFire = IMG_LoadTexture(renderer, "assets/BulletFireCompress.png");
         if (textureBulletFire == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureBulletFire", SDL_GetError());
         }
-        textureBulletIce = IMG_LoadTexture(renderer, "assets/BulletIce.png");
+        textureBulletIce = IMG_LoadTexture(renderer, "assets/BulletIceCompress.png");
         if (textureBulletIce == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureBulletIce", SDL_GetError());
         }
         //MEAT TEXTURE
-        textureMeat = IMG_LoadTexture(renderer, "assets/Meatv3.png");
+        textureMeat = IMG_LoadTexture(renderer, "assets/Meatv3Compress.png");
         if (textureMeat == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureMeat", SDL_GetError());
         }
@@ -695,27 +695,27 @@ private:
             SDL_LogWarn(0, "failed to set the texture of textureBackground", SDL_GetError());
         }
         //BOSS STAGE 1 AND 2
-        textureBossStage_1_2 = IMG_LoadTexture(renderer, "assets/BossFinalDeerInvaders.png");
+        textureBossStage_1_2 = IMG_LoadTexture(renderer, "assets/BossFinalDeerInvadersCompress.png");
         if (textureBossStage_1_2 == nullptr) {
             SDL_LogWarn(0,"failed to load textureBossStage_1_2.png", SDL_GetError());
         }
         //METEOR TEXTURE
-        textureMeteor = IMG_LoadTexture(renderer, "assets/Meteor.png");
+        textureMeteor = IMG_LoadTexture(renderer, "assets/MeteorCompress.png");
         if (textureMeteor == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureMeteor", SDL_GetError());
         }
         //TEXTURE CERF HEALER
-        textureCerfHealer = IMG_LoadTexture(renderer, "assets/DeerEnnemie Healer.png");
+        textureCerfHealer = IMG_LoadTexture(renderer, "assets/DeerEnnemieHealerCompress.png");
         if (textureCerfHealer == nullptr) {
             SDL_LogWarn (0, "failed to load textureCerfHealer", SDL_GetError());
         }
         //TEXTURE CERF MAGE
-        textureCerfMage = IMG_LoadTexture(renderer, "assets/DeerEnnemiePurple.png");
+        textureCerfMage = IMG_LoadTexture(renderer, "assets/DeerEnnemiePurpleCompress.png");
         if (textureCerfMage == nullptr) {
             SDL_LogWarn (0,"failed to load textureCerfMage");
         }
         //TEXTURE PLAYER SHIP
-        texturePlayerShip = IMG_LoadTexture(renderer, "assets/PlayerShip.png");
+        texturePlayerShip = IMG_LoadTexture(renderer, "assets/PlayerShipCompress.png");
         if (texturePlayerShip == nullptr) {
             SDL_LogWarn(0,"failed to load texturePlayerShip", SDL_GetError());
         }
