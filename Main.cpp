@@ -411,7 +411,14 @@ public:
     //pour atteindre le dernier seuil attein (Pour les weapons upgrade fix du bug)
     int lastPopupMeatThreshold = -1;
 
+    //pour un fondu lorsque le UpgradePopup apparait
+    float popupFadeAlpha = 0.0f;
+    bool bPopupFadeIn = true;
 
+    //pour faire un fondu out
+    bool bPopupFadeOut = false;
+
+    State nextStateAfterFadeOut = State::Game; //retour au game apres Le fade
 
 private:
     //Score Lorsque Cerf Mort
@@ -421,6 +428,7 @@ private:
 
     //SCORE DU RENDER JEU
     int lastScore = -1;
+
 
 
 
@@ -2155,32 +2163,52 @@ private:
             TTF_GetTextSize(dynamicShieldHPText, &longeurW, &largeurH);
             TTF_DrawRendererText(dynamicShieldHPText, 75, 990);
         }
-
         TTF_DrawRendererText(fpsText, 1800, 10);
+        //modifie l'opacité
+        if (bPopupFadeIn) {
+            popupFadeAlpha += 100.0f * deltaTime; // vitesse du fondu
+            if (popupFadeAlpha >= 120.0f) {
+                popupFadeAlpha = 120.0f;
+                bPopupFadeIn = false; // fondu terminé
+            }
+        }
+        //opaciter a la sortie
+        if (bPopupFadeOut) {
+            popupFadeAlpha -= 100.0f * deltaTime;
+            if (popupFadeAlpha <= 0.0f) {
+                popupFadeAlpha = 0.0f;
+                bPopupFadeOut = false;
+                StateActuel = nextStateAfterFadeOut; //changement de state
+            }
+        }
+
     // Rectangle de teinture sombre (TOUT CE QUI EST EN HAUT AURA LA TEINTE ->)
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_FRect screenRect = {0, 0, 1920, 1080};
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 120);
-    SDL_RenderFillRect(renderer, &screenRect);
+        SDL_FRect screenRect = {0,0,1920,1080};
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, (Uint8)popupFadeAlpha);
+        SDL_RenderFillRect(renderer, &screenRect);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
         //boutons ->
-        RenderGlobalWeaponProgresBar(805, 750);// Pour render les cubes pour les armes.
-        RenderGlobalShieldProgresBar(1005, 750);// Pour render les cubes pour les shields
-        //Bouton Upgrade Weapon
-        if (selectedButtonPopUp == 0) {
-            RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
-        }else {
-            RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 80, 80, 80);
-        }//Bouton HP
-        if (selectedButtonPopUp == 1) {
-            RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, r, g, b);
-        }else {
-            RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, 80, 80, 80);
-        }//Bouton Wait
-        if (selectedButtonPopUp == 2) {
-            RenderBoutons(BoutonWaitPopUp, textWaitPopUp, r, g, b);
-        }else {
-            RenderBoutons(BoutonWaitPopUp, textWaitPopUp, 80,80,80);
+        if (!bPopupFadeIn) {
+            RenderGlobalWeaponProgresBar(805, 750);// Pour render les cubes pour les armes.
+            RenderGlobalShieldProgresBar(1005, 750);// Pour render les cubes pour les shields
+            //Bouton Upgrade Weapon
+            if (selectedButtonPopUp == 0) {
+                RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
+            }else {
+                RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 80, 80, 80);
+            }//Bouton HP
+            if (selectedButtonPopUp == 1) {
+                RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, r, g, b);
+            }else {
+                RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, 80, 80, 80);
+            }//Bouton Wait
+            if (selectedButtonPopUp == 2) {
+                RenderBoutons(BoutonWaitPopUp, textWaitPopUp, r, g, b);
+            }else {
+                RenderBoutons(BoutonWaitPopUp, textWaitPopUp, 80,80,80);
+            }
         }
 
     SDL_RenderPresent(renderer);
@@ -2376,6 +2404,8 @@ private:
                             if (threshold != -1) {
                                 lastPopupMeatThreshold = threshold;
                                 ResetPlayerInputs();//pour reset les touches
+                                popupFadeAlpha = 0.0f;
+                                bPopupFadeIn = true;
                                 StateActuel = State::UpgradePopup;
                             }
                         }
@@ -3968,7 +3998,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                              ? app.player->previousWeapon
                              : app.player->currentWeapon;
                                 target->texture = app.textureBulletFire;
-                                app.StateActuel = State::Game;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
                             }
                         }
                         else if (app.currentWeaponLevel == 1){
@@ -3980,7 +4011,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                  ? app.player->previousWeapon
                                  : app.player->currentWeapon;
                                 target->texture = app.textureBulletIce;
-                                app.StateActuel = State::Game;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
                             }
                         }
                         else if (app.currentWeaponLevel == 2) {
@@ -3988,7 +4020,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                 app.currentWeaponLevel = 3;
                                 app.globalWeaponLevel = 3;
                                 app.lastPopupMeatThreshold = -1;
-                                app.StateActuel = State::Game;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
                             }
                         }
                         break;
@@ -4001,7 +4034,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                 app.currentShieldLevel = 1; // On achete le prochain shield
                                 app.globalShieldLevel = 1;
                                 app.lastPopupMeatThreshold = -1;
-                                app.StateActuel = State::Game;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
                             }
                         }
                         else if (app.currentShieldLevel == 1) {
@@ -4009,7 +4043,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                 app.currentShieldLevel = 2;
                                 app.globalShieldLevel = 2;
                                 app.lastPopupMeatThreshold = -1;
-                                app.StateActuel = State::Game;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
                             }
                         }
                         else if (app.currentShieldLevel == 2) {
@@ -4017,13 +4052,15 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                 app.currentShieldLevel = 3;
                                 app.globalShieldLevel = 3;
                                 app.lastPopupMeatThreshold = -1;
-                                app.StateActuel = State::Game;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
                             }
                         }
                         break;
                     case 2:
                         //Retour dans Game
-                        app.StateActuel = State::Game;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
                         app.selectedButtonPopUp = 0;
                         break;
                 }
@@ -4391,7 +4428,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //Dans le UpgradePopUp
         else if (app.StateActuel == State::UpgradePopup) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonWaitPopUp)) {
-                app.StateActuel = State::Game;
+                app.nextStateAfterFadeOut = State::Game;
+                app.bPopupFadeOut = true;
             }
             // Bouton Upgrade Arme
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonUpgrade)) {
@@ -4407,7 +4445,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             ? app.player->previousWeapon
                             : app.player->currentWeapon;
                         target->texture = app.textureBulletFire;
-                        app.StateActuel = State::Game;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
                     }
                 }
                 else if (app.currentWeaponLevel == 1){
@@ -4419,7 +4458,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                          ? app.player->previousWeapon
                          : app.player->currentWeapon;
                         target->texture = app.textureBulletIce;
-                        app.StateActuel = State::Game;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
                     }
                 }
                 else if (app.currentWeaponLevel == 2) {
@@ -4428,7 +4468,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.globalWeaponLevel = 3;
                         app.lastPopupMeatThreshold = -1;
                         app.player->currentWeapon->texture = app.textureBulletNormal;//Normal pour l'instant
-                        app.StateActuel = State::Game;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
                         //TBD
                     }
                 }
@@ -4443,7 +4484,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.currentShieldLevel = 1; // On achete le prochain shield
                         app.globalShieldLevel = 1;
                         app.lastPopupMeatThreshold = -1;
-                        app.StateActuel = State::Game;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
                     }
                 }
                 else if (app.currentShieldLevel == 1) {
@@ -4451,7 +4493,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.currentShieldLevel = 2;
                         app.globalShieldLevel = 2;
                         app.lastPopupMeatThreshold = -1;
-                        app.StateActuel = State::Game;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
                     }
                 }
                 else if (app.currentShieldLevel == 2) {
@@ -4459,7 +4502,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.currentShieldLevel = 3;
                         app.globalShieldLevel = 3;
                         app.lastPopupMeatThreshold = -1;
-                        app.StateActuel = State::Game;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;  
                     }
                 }
             }
