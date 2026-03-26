@@ -280,8 +280,8 @@ public:
     SDL_FRect MeatInventoryShop ={180.0f, 80.0f, 100.0f,100.0f};
     SDL_FRect BoutonResumeGameShop = {1350.0f, 900.0f, 200.0f,100.0f};
     //Boutons
-    SDL_FRect BoutonUpgrade = {800, 800, 125, 100};
-    SDL_FRect BoutonShieldUpgrade = {1000, 800, 125, 100};
+    SDL_FRect BoutonUpgrade = {835, 800, 125, 100};
+    SDL_FRect BoutonShieldUpgrade = {1035, 800, 125, 100};
 
     TTF_Text *ShopMenuText = nullptr;
 
@@ -2166,15 +2166,15 @@ private:
         TTF_DrawRendererText(fpsText, 1800, 10);
         //modifie l'opacité
         if (bPopupFadeIn) {
-            popupFadeAlpha += 100.0f * deltaTime; // vitesse du fondu
-            if (popupFadeAlpha >= 120.0f) {
-                popupFadeAlpha = 120.0f;
+            popupFadeAlpha += 150.0f * deltaTime; // vitesse du fondu
+            if (popupFadeAlpha >= 160.0f) {
+                popupFadeAlpha = 160.0f;
                 bPopupFadeIn = false; // fondu terminé
             }
         }
         //opaciter a la sortie
         if (bPopupFadeOut) {
-            popupFadeAlpha -= 100.0f * deltaTime;
+            popupFadeAlpha -= 150.0f * deltaTime;
             if (popupFadeAlpha <= 0.0f) {
                 popupFadeAlpha = 0.0f;
                 bPopupFadeOut = false;
@@ -2187,12 +2187,16 @@ private:
         SDL_FRect screenRect = {0,0,1920,1080};
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, (Uint8)popupFadeAlpha);
         SDL_RenderFillRect(renderer, &screenRect);
+
+        SDL_FRect screenRect2 = {750,0,500,1080};
+        SDL_SetRenderDrawColor(renderer, 40, 160, 200, (Uint8)popupFadeAlpha);
+        SDL_RenderFillRect(renderer, &screenRect2);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
         //boutons ->
         if (!bPopupFadeIn) {
-            RenderGlobalWeaponProgresBar(805, 750);// Pour render les cubes pour les armes.
-            RenderGlobalShieldProgresBar(1005, 750);// Pour render les cubes pour les shields
+            RenderGlobalWeaponProgresBar(840, 750);// Pour render les cubes pour les armes.
+            RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
             //Bouton Upgrade Weapon
             if (selectedButtonPopUp == 0) {
                 RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
@@ -3104,8 +3108,8 @@ GameApp &app = GameApp::GetInstance();
         //Render
         RenderShopTitle();
         UpdateBackgroundTint(deltaTime);//Le rgb
-        RenderGlobalWeaponProgresBar(805, 750);// Pour render les cubes pour les armes.
-        RenderGlobalShieldProgresBar(1005, 750);// Pour render les cubes pour les shields
+        RenderGlobalWeaponProgresBar(840, 750);// Pour render les cubes pour les armes.
+        RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
         //Bouton Upgrade Weapon
         if (selectedButtonShop == 0) {
             RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
@@ -4503,7 +4507,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.globalShieldLevel = 3;
                         app.lastPopupMeatThreshold = -1;
                         app.nextStateAfterFadeOut = State::Game;
-                        app.bPopupFadeOut = true;  
+                        app.bPopupFadeOut = true;
                     }
                 }
             }
