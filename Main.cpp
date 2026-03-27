@@ -557,13 +557,13 @@ private:
             SDL_LogWarn(0, "Le text du bouton Shop n'a pas fonctionner", SDL_GetError());
         }
 
-        BoutonUpgradeFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 25);
-        BoutonUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, " Weapon \nUpgrade", 25);
-        if (TTF_SetTextColor(BoutonUpgradeText, 0, 0, 0, 255) == false) {
+        BoutonUpgradeFont = TTF_OpenFont("assets/ARCADE.ttf", 23);
+        BoutonUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, "Weapon \nUpgrade", 25);
+        if (TTF_SetTextColor(BoutonUpgradeText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0, "Couleur du bouton amelioration n'a pas fonctionné", SDL_GetError());
         }
-        BoutonHPUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, "   Shield  \nUpgrade", 25);
-        if (TTF_SetTextColor(BoutonHPUpgradeText, 0, 0, 0, 255) == false) {
+        BoutonHPUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, "Shield \nUpgrade", 25);
+        if (TTF_SetTextColor(BoutonHPUpgradeText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0, "Couleur de Bouton HP Upgrade", SDL_GetError());
         }
         BoutonCreditsText = TTF_CreateText(textEngine, CreditsFont, "Credits", 25);
@@ -879,7 +879,7 @@ private:
         if (TTF_SetTextColor(ShopMenuText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(2,"Erreur de couleur pour le titre de Shop -> Shop", SDL_GetError());
         }
-        Arme_Shield_DescriptionFont = TTF_OpenFont("assets/font.ttf", 40);
+        Arme_Shield_DescriptionFont = TTF_OpenFont("assets/ARCADE.ttf", 30);
         if (Arme_Shield_DescriptionFont == nullptr) {
             SDL_LogWarn(0,"failed to implement the font Arme_Shield_DescriptionFont", SDL_GetError());
         }
@@ -2207,30 +2207,33 @@ private:
             RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
             //Bouton Upgrade Weapon
             if (selectedButtonPopUp == 0) {
-                RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
+                RenderBoutons(BoutonUpgrade, nullptr, r, g, b);
+                SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
+
             }else {
-                RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 80, 80, 80);
+                RenderBoutons(BoutonUpgrade, nullptr, 80, 80, 80);
+                SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
+
             }//Bouton HP
             if (selectedButtonPopUp == 1) {
-                RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, r, g, b);
+                RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
             }else {
-                RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, 80, 80, 80);
+                RenderBoutons(BoutonShieldUpgrade, nullptr, 80, 80, 80);
             }//Bouton Wait
             if (selectedButtonPopUp == 2) {
                 RenderBoutons(BoutonWaitPopUp, textWaitPopUp, r, g, b);
             }else {
                 RenderBoutons(BoutonWaitPopUp, textWaitPopUp, 80,80,80);
             }
-        }
+            //rajouter text en dessous des boutons
+            TTF_DrawRendererText(BoutonUpgradeText,850 , 925);
+            TTF_DrawRendererText(BoutonHPUpgradeText,1050 , 925);
 
+        }
     SDL_RenderPresent(renderer);
 
 
     }
-
-
-
-
 
     // La fonction Game ne boucle
     void Game(float deltaTime) {
@@ -3121,25 +3124,32 @@ GameApp &app = GameApp::GetInstance();
         RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
         //Bouton Upgrade Weapon
         if (selectedButtonShop == 0) {
-            RenderBoutons(BoutonUpgrade, BoutonUpgradeText, r, g, b);
+            RenderBoutons(BoutonUpgrade, nullptr, r, g, b);
         }else {
-            RenderBoutons(BoutonUpgrade, BoutonUpgradeText, 255, 255, 255);
+            RenderBoutons(BoutonUpgrade, nullptr, 40, 40, 40);
         }//Bouton HP
         if (selectedButtonShop == 1) {
-            RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, r, g, b);
+            RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
         }else {
-            RenderBoutons(BoutonShieldUpgrade, BoutonHPUpgradeText, 255, 255, 255);
+            RenderBoutons(BoutonShieldUpgrade, nullptr, 40, 40, 40);
         }//Bouton Return GAme
         if (selectedButtonShop == 2) {
             RenderBoutons(BoutonResumeGameShop, resumeGameShopText, r, g, b);
         }else {
-            RenderBoutons(BoutonResumeGameShop, resumeGameShopText, 255,255,255);
+            RenderBoutons(BoutonResumeGameShop, resumeGameShopText, 40,40,40);
         }//Bouton Quit Menu
         if (selectedButtonShop == 3) {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
         }else {
-            RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 255, 255, 255);
+            RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 40, 40, 40);
         }
+        //rajouter text en dessous des boutons
+        TTF_DrawRendererText(BoutonUpgradeText,850 , 925);
+        TTF_DrawRendererText(BoutonHPUpgradeText,1050 , 925);
+        //MEAT SUR BOUTON
+        SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
+
+
 
         //RENDER Fonts
         //pour actualiser le current meat
