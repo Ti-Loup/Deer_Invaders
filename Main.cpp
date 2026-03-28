@@ -2201,6 +2201,9 @@ private:
         SDL_RenderFillRect(renderer, &screenRect2);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
+        //reset la texture bullet en blanc
+        SDL_SetTextureColorMod(textureBulletNormal, 255, 255, 255);
+
         //boutons ->
         if (!bPopupFadeIn) {
             RenderGlobalWeaponProgresBar(840, 750);// Pour render les cubes pour les armes.
@@ -2213,7 +2216,6 @@ private:
             }else {
                 RenderBoutons(BoutonUpgrade, nullptr, 80, 80, 80);
                 SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
-
             }//Bouton HP
             if (selectedButtonPopUp == 1) {
                 RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
@@ -2421,6 +2423,8 @@ private:
                                 ResetPlayerInputs();//pour reset les touches
                                 popupFadeAlpha = 0.0f;
                                 bPopupFadeIn = true;
+                                bPopupFadeOut = false;
+                                selectedButtonPopUp = 0;
                                 StateActuel = State::UpgradePopup;
                             }
                         }
@@ -3122,11 +3126,18 @@ GameApp &app = GameApp::GetInstance();
         UpdateBackgroundTint(deltaTime);//Le rgb
         RenderGlobalWeaponProgresBar(840, 750);// Pour render les cubes pour les armes.
         RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
+
+        SDL_SetTextureColorMod(textureBulletNormal, 255, 255, 255);
+
         //Bouton Upgrade Weapon
         if (selectedButtonShop == 0) {
             RenderBoutons(BoutonUpgrade, nullptr, r, g, b);
+            SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
+
         }else {
             RenderBoutons(BoutonUpgrade, nullptr, 40, 40, 40);
+            SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
+
         }//Bouton HP
         if (selectedButtonShop == 1) {
             RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
@@ -3146,8 +3157,7 @@ GameApp &app = GameApp::GetInstance();
         //rajouter text en dessous des boutons
         TTF_DrawRendererText(BoutonUpgradeText,850 , 925);
         TTF_DrawRendererText(BoutonHPUpgradeText,1050 , 925);
-        //MEAT SUR BOUTON
-        SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
+
 
 
 
