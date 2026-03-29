@@ -229,6 +229,23 @@ void Enemy_Meteor::Update(float deltaTime) {
     }
 }
 
+Enemy_Barricade::Enemy_Barricade(float startX, float startY, SDL_Texture *texture) {
+    AddComponent (HEALTH);
+    health.max_health = 1000;
+    health.current_health = 1000;
+    AddComponent (MOVEMENT);
+    movement.velocity = { 0.0f,0.0f };
+    AddComponent (RENDER);
+    render.color = { 237, 232, 208, 255 };//couleur Barricade (baige)
+    AddComponent (TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size = { 10.f, 200.f };
+
+    //texture barricade
+    textureBarricade = texture;
+}
+
+
 //  BOSS
 
 /**

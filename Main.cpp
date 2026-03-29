@@ -305,6 +305,7 @@ public:
     SDL_FRect BoutonWaitPopUp = {1600.0f, 900.0f, 200.0f,100.0f};
     TTF_Text *textWaitPopUp = nullptr;
 
+
 // -> TOUCHE CLAVIER PATTERN COMMAND<-
     Player* player = nullptr;
     std::map<SDL_Scancode, Command*> keyBindings;
@@ -1026,6 +1027,10 @@ private:
         if (TTF_SetTextColor(CreditsRoleText3, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
+        // -> POPUP <-
+        fontWaitPopUp = TTF_OpenFont("assets/ARCADE.ttf", 50);
+        textWaitPopUp = TTF_CreateText(textEngine, fontWaitPopUp, "Wait",25);
+
 
 
         // -> Dans Game <-

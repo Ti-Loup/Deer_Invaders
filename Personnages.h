@@ -99,6 +99,19 @@ public:
     bool bIsFlashing = false;
 };
 
+//Barricade
+class Enemy_Barricade : public Entity {
+public:
+    Enemy_Barricade(float startX, float startY, SDL_Texture *texture = nullptr);
+    void Update(float deltaTime) override;
+
+    //texture des barricades
+    SDL_Texture *textureBarricade = nullptr;
+
+};
+
+
+
 
 //Bosses
 class Enemy_FraiseBoss : public Entity {
