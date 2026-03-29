@@ -308,7 +308,9 @@ public:
     TTF_Text *textPrix1 = nullptr;//10
     TTF_Text *textPrix2 = nullptr;//50
     TTF_Text *textPrix3 = nullptr;//250
-    SDL_FRect PopUpMeat = {800,300,150,150};
+    SDL_FRect PopUpMeat = {810,370,140,140};
+    TTF_Font *currentMeatPopUPFont = nullptr;
+    TTF_Text *currentMeatPopUp = nullptr;
 
 // -> TOUCHE CLAVIER PATTERN COMMAND<-
     Player* player = nullptr;
@@ -1034,6 +1036,7 @@ private:
         // -> POPUP <-
         fontWaitPopUp = TTF_OpenFont("assets/ARCADE.ttf", 50);
         fontPricePopUp = TTF_OpenFont("assets/ARCADE.ttf", 30);
+        currentMeatPopUPFont = TTF_OpenFont("assets/ARCADE.ttf", 75);
         textWaitPopUp = TTF_CreateText(textEngine, fontWaitPopUp, "Wait",25);
         textPrix1 = TTF_CreateText(textEngine, fontPricePopUp, "10",20);
         if (textPrix1 == nullptr) {
@@ -1056,7 +1059,10 @@ private:
         if (TTF_SetTextColor(textPrix3, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur de textPrix3", SDL_GetError());
         }
-
+        currentMeatPopUp = TTF_CreateText (textEngine, currentMeatPopUPFont, "",20);
+        if (currentMeatPopUp == nullptr) {
+            SDL_LogWarn(0, "Impossible de changer le currentMeatPopUp", SDL_GetError());
+        }
         // -> Dans Game <-
 
         //Joueur
@@ -2314,10 +2320,11 @@ private:
             TTF_DrawRendererText(textPrix1, 1075, 750);
             TTF_DrawRendererText(textPrix2, 1075, 710);
             TTF_DrawRendererText(textPrix3, 1060, 670);
-//Texture Meat
+            //Texture Meat
             SDL_RenderTexture(renderer, textureMeat, nullptr, &PopUpMeat);
-
-
+            std::string meatStr = " " + std::to_string(currentMeat);
+            TTF_SetTextString(currentMeatPopUp, meatStr.c_str(), 0);
+            TTF_DrawRendererText(currentMeatPopUp, 980, 400);
             //Bouton Upgrade Weapon
             if (selectedButtonPopUp == 0) {
                 RenderBoutons(BoutonUpgrade, nullptr, r, g, b);
