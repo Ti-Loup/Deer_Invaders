@@ -1728,7 +1728,7 @@ private:
         GameApp &app = GameApp::GetInstance();
         waveInProgress = true;
         //delimitation des differentes stage et wave
-        if (currentStage == 2){
+        if (currentStage == 1){
             if (wave == 1) {
                 //Les cerfs normaux
                 currentWaveType = WaveType::Elimination;
@@ -1763,7 +1763,7 @@ private:
         }
         //Le stage 2 du jeu
 
-        else if (currentStage == 1) {
+        else if (currentStage == 2) {
 
             if (wave == 1) {
             currentWaveType = WaveType::Elimination;
@@ -2358,6 +2358,11 @@ private:
                 bool anyEnemyAlive = false;
                 for (auto& enemy : entities) {
                     if (enemy->entityType == EntityType::Enemy && !enemy->bIsDestroyed) {
+
+                        //les barricades sont pas necessaires a detruire donc ici
+                        if (dynamic_cast<Enemy_Barricade*>(enemy) != nullptr)
+                            continue;
+
                         anyEnemyAlive = true;
                         break;
                     }
@@ -3822,7 +3827,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         }
         //GERER LES BOUTONS CHOIXNIVEAU
         else if (app.StateActuel == State::ChoixNiveau) {
-            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT) {
                 //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
                 app.selectedButtonChoixNiveau++;
                 //Dessend 0 vers 2~ 3 choix
@@ -3831,7 +3836,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
             //Monte ~
-            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
                 //Monte
                 app.selectedButtonChoixNiveau--;
                 if (app.selectedButtonChoixNiveau < 0) {
