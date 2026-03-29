@@ -239,12 +239,27 @@ Enemy_Barricade::Enemy_Barricade(float startX, float startY, SDL_Texture *textur
     render.color = { 237, 232, 208, 255 };//couleur Barricade (baige)
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
-    transform.size = { 10.f, 200.f };
+    transform.size = { 300.f, 10.f };
 
     //texture barricade
     textureBarricade = texture;
+
+    //Le type d'entity
+    entityType = EntityType::Enemy;
+
 }
 
+void Enemy_Barricade::Update(float deltaTime) {
+    //Le flash jaune
+    if (bIsFlashing) {
+        //timer diminue
+        hitFlashTimer -= deltaTime;
+        if (hitFlashTimer <= 0.0f) {
+            hitFlashTimer = 0.0f;
+            bIsFlashing = false;
+        }
+    }
+}
 
 //  BOSS
 

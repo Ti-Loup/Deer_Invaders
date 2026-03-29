@@ -108,6 +108,12 @@ public:
     //texture des barricades
     SDL_Texture *textureBarricade = nullptr;
 
+    //Pour un indicateur si bullet touche au meteor
+        //Un flash quand le cerf est toucher par bullet
+        float hitFlashTimer = 0.0f; //le timer
+        const float hitFlashDuration = 0.4f;//duree
+        bool bIsFlashing = false;
+
 };
 
 

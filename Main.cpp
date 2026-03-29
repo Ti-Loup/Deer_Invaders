@@ -1711,6 +1711,12 @@ private:
         entities.push_back(new Enemy_HealerDeer(1550, 160, textureCerfHealer));
         entities.push_back(new Enemy_MageDeer(1450, 240, textureCerfMage));
         entities.push_back(new Enemy_MageDeer(1650, 240, textureCerfMage));
+
+        //Barricade
+        entities.push_back(new Enemy_Barricade(1150.0f, 580.0f, nullptr));
+        entities.push_back(new Enemy_Barricade(300.0f, 580.0f, nullptr));
+
+
     }
 
 
@@ -1722,7 +1728,7 @@ private:
         GameApp &app = GameApp::GetInstance();
         waveInProgress = true;
         //delimitation des differentes stage et wave
-        if (currentStage == 1){
+        if (currentStage == 2){
             if (wave == 1) {
                 //Les cerfs normaux
                 currentWaveType = WaveType::Elimination;
@@ -1757,7 +1763,7 @@ private:
         }
         //Le stage 2 du jeu
 
-        else if (currentStage == 2) {
+        else if (currentStage == 1) {
 
             if (wave == 1) {
             currentWaveType = WaveType::Elimination;
@@ -1976,6 +1982,36 @@ private:
                     continue;
                 }
             }
+            //Rendu pour la texture barriere
+            if (Enemy_Barricade *enemy_barricade = dynamic_cast<Enemy_Barricade *>(ent)) {
+                if (enemy_barricade->textureBarricade != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_barricade->transform.position.x,
+                        enemy_barricade->transform.position.y,
+                        enemy_barricade->transform.size.x,
+                        enemy_barricade->transform.size.y
+                    };
+
+                    if (enemy_barricade->bIsFlashing) {
+                        // Calcule l'intensité du rouge selon le temps restant
+                        float ratio = enemy_barricade->hitFlashTimer / enemy_barricade->hitFlashDuration;
+                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
+                        SDL_SetTextureColorMod(enemy_barricade->textureBarricade, 255, 255 - flashIntensity, 0);
+                    } else {
+                        // Remet la couleur normale
+                        SDL_SetTextureColorMod(enemy_barricade->textureBarricade ,255, 255, 255);
+                    }
+
+                    SDL_RenderTexture(renderer, enemy_barricade->textureBarricade, nullptr, &dest);
+
+                    //cube en attendant les textures. couleur jaune palle
+                    SDL_SetRenderDrawColor(renderer, 237, 232, 208, 255);
+                    SDL_RenderFillRect(renderer, &dest);
+                    continue;
+                }
+            }
+
+
             //RENDU DES 4 TEXTURES / PART
             if (EnemyPart *partTexture = dynamic_cast<EnemyPart *>(ent)) {
                 if (partTexture->texturePart != nullptr) {
@@ -2504,6 +2540,8 @@ private:
                         if (meteor != nullptr) continue;
                         Enemy_FraiseBoss* bossMove = dynamic_cast<Enemy_FraiseBoss*>(ent);
                         if (bossMove != nullptr) continue;
+                        Enemy_Barricade *barricade = dynamic_cast<Enemy_Barricade*>(ent);
+                        if (barricade != nullptr) continue;
                         // Verifie Gauche
                         if (ent->transform.position.x <= 0.0f) {
                             ToucheMurGauche = true;
