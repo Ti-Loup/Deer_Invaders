@@ -1728,7 +1728,7 @@ private:
         GameApp &app = GameApp::GetInstance();
         waveInProgress = true;
         //delimitation des differentes stage et wave
-        if (currentStage == 2){
+        if (currentStage == 1){
             if (wave == 1) {
                 //Les cerfs normaux
                 currentWaveType = WaveType::Elimination;
@@ -1763,7 +1763,7 @@ private:
         }
         //Le stage 2 du jeu
 
-        else if (currentStage == 1) {
+        else if (currentStage == 2) {
 
             if (wave == 1) {
             currentWaveType = WaveType::Elimination;
