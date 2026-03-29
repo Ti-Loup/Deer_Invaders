@@ -302,9 +302,13 @@ public:
 
     // -> UpgradePopUp <- Text et Fonts
     TTF_Font *fontWaitPopUp = nullptr;
+    TTF_Font *fontPricePopUp = nullptr;
     SDL_FRect BoutonWaitPopUp = {1600.0f, 900.0f, 200.0f,100.0f};
     TTF_Text *textWaitPopUp = nullptr;
-
+    TTF_Text *textPrix1 = nullptr;//10
+    TTF_Text *textPrix2 = nullptr;//50
+    TTF_Text *textPrix3 = nullptr;//250
+    SDL_FRect PopUpMeat = {800,300,150,150};
 
 // -> TOUCHE CLAVIER PATTERN COMMAND<-
     Player* player = nullptr;
@@ -1029,9 +1033,29 @@ private:
         }
         // -> POPUP <-
         fontWaitPopUp = TTF_OpenFont("assets/ARCADE.ttf", 50);
+        fontPricePopUp = TTF_OpenFont("assets/ARCADE.ttf", 30);
         textWaitPopUp = TTF_CreateText(textEngine, fontWaitPopUp, "Wait",25);
-
-
+        textPrix1 = TTF_CreateText(textEngine, fontPricePopUp, "10",20);
+        if (textPrix1 == nullptr) {
+            SDL_LogWarn(0, "failed to load textPrix1", SDL_GetError());
+        }
+        if (TTF_SetTextColor(textPrix1, 255,255,255,255) == false) {
+            SDL_LogWarn(0,"Erreur couleur de textPrix1", SDL_GetError());
+        }
+        textPrix2 = TTF_CreateText(textEngine, fontPricePopUp, "50",20);
+        if (textPrix2 == nullptr) {
+            SDL_LogWarn(0, "failed to load textPrix2", SDL_GetError());
+        }
+        if (TTF_SetTextColor(textPrix2, 255,255,255,255) == false) {
+            SDL_LogWarn(0,"Erreur couleur de textPrix2", SDL_GetError());
+        }
+        textPrix3 = TTF_CreateText(textEngine, fontPricePopUp, "250",20);
+        if (textPrix3 == nullptr) {
+            SDL_LogWarn(0, "failed to load textPrix3", SDL_GetError());
+        }
+        if (TTF_SetTextColor(textPrix3, 255,255,255,255) == false) {
+            SDL_LogWarn(0,"Erreur couleur de textPrix3", SDL_GetError());
+        }
 
         // -> Dans Game <-
 
@@ -1093,7 +1117,13 @@ private:
         TTF_DestroyText(waveDynamicNumberText);
         TTF_DestroyText(TextResume);
         TTF_DestroyText(TextReturnMenuPause);
+        TTF_DestroyText(textPrix1);
+        TTF_DestroyText(textPrix2);
+        TTF_DestroyText(textPrix3);
         TTF_CloseFont(MenuSpecialFont);
+        TTF_CloseFont(fontPricePopUp);
+
+        //textures
         SDL_DestroyTexture(spritesheet);
         SDL_DestroyTexture(DeerLogo);
         SDL_DestroyTexture(textureStrawberry);
@@ -2276,6 +2306,18 @@ private:
         if (!bPopupFadeIn) {
             RenderGlobalWeaponProgresBar(840, 750);// Pour render les cubes pour les armes.
             RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
+            //les Prixs + meat
+            TTF_DrawRendererText(textPrix1, 875, 750);
+            TTF_DrawRendererText(textPrix2, 875, 710);
+            TTF_DrawRendererText(textPrix3, 860, 670);
+
+            TTF_DrawRendererText(textPrix1, 1075, 750);
+            TTF_DrawRendererText(textPrix2, 1075, 710);
+            TTF_DrawRendererText(textPrix3, 1060, 670);
+//Texture Meat
+            SDL_RenderTexture(renderer, textureMeat, nullptr, &PopUpMeat);
+
+
             //Bouton Upgrade Weapon
             if (selectedButtonPopUp == 0) {
                 RenderBoutons(BoutonUpgrade, nullptr, r, g, b);
