@@ -1728,7 +1728,7 @@ private:
         GameApp &app = GameApp::GetInstance();
         waveInProgress = true;
         //delimitation des differentes stage et wave
-        if (currentStage == 1){
+        if (currentStage == 2){
             if (wave == 1) {
                 //Les cerfs normaux
                 currentWaveType = WaveType::Elimination;
@@ -1763,7 +1763,7 @@ private:
         }
         //Le stage 2 du jeu
 
-        else if (currentStage == 2) {
+        else if (currentStage == 1) {
 
             if (wave == 1) {
             currentWaveType = WaveType::Elimination;
@@ -2119,7 +2119,34 @@ private:
                         continue; // ← skip le RenderUpdate coloré
                     }
                 }
-
+            //La boule que les mages lancent
+            if (MagicBottle* ball = dynamic_cast<MagicBottle *>(ent)) {
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_FRect dest = {
+                    ball->transform.position.x,
+                    ball->transform.position.y,
+                    ball->transform.size.x,
+                    ball->transform.size.y
+                };
+                SDL_SetRenderDrawColor(renderer, 180, 0, 255, 255);
+                SDL_RenderFillRect(renderer, &dest);
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                continue;
+            }
+            //La flaque de magie par terre
+            if (MagicPuddle* puddle = dynamic_cast<MagicPuddle*>(ent)) {
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_FRect dest = {
+                    puddle->transform.position.x,
+                    puddle->transform.position.y,
+                    puddle->transform.size.x,
+                    puddle->transform.size.y
+                };
+                SDL_SetRenderDrawColor(renderer, 150, 0, 255, (Uint8)puddle->alpha);
+                SDL_RenderFillRect(renderer, &dest);
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                continue;
+            }
                 ent->RenderUpdate(renderer);
             }
     }
@@ -2406,8 +2433,13 @@ private:
                 if (entity->bIsDestroyed) continue; // ignore ce qui est mort
                 if (entity->entityType == EntityType::Player) continue;
                 Enemy_FraiseBoss* bossCheck = dynamic_cast<Enemy_FraiseBoss*>(entity);
-                if (bossCheck == nullptr) {
-                    entity->Update(deltaTime); //update tout sauf le boss
+                Enemy_MageDeer* mageCheck = dynamic_cast<Enemy_MageDeer*>(entity);
+                if (MagicBottle* bottle = dynamic_cast<MagicBottle*>(entity)) {
+                    bottle->Update(deltaTime, entities);
+                    continue;
+                }
+                if (bossCheck == nullptr && mageCheck == nullptr) {
+                    entity->Update(deltaTime); //update tout sauf le boss et Mage et Bottle Mage(ont leur propre update)
                 }
                 // Si c'est un ennemi
                 if (entity->entityType == EntityType::Enemy) {
@@ -2420,7 +2452,10 @@ private:
                             deerBoss->Update(deltaTime, entities, player->transform.position.x, app.textureStrawberry, app.textureMissile);//appel de la fonction de mouvement du cerf boss + les tires + savoir position du joueur
                         }
                     }
-
+                    Enemy_MageDeer* mage = dynamic_cast<Enemy_MageDeer*>(entity);
+                    if (mage != nullptr) {
+                        mage->Update(deltaTime, entities);
+                    }
 
                 }
 
@@ -2435,6 +2470,19 @@ private:
                     Laser* laserCheck = dynamic_cast<Laser*>(entity);
                     if (laserCheck != nullptr && laserCheck->bWarning) continue;
 
+                    if (MagicPuddle* puddle = dynamic_cast<MagicPuddle*>(entity)) {
+                        if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectEnt)) {
+                            if (puddle->damageTimer >= puddle->damageTick) {
+                                puddle->damageTimer = 0.0f;
+                                player->health.current_health -= puddle->damagePerTick;
+                                bIsDamageUI = true;
+                                damageFlashTimer = damageFlashDuration;
+                                if (player->health.current_health <= 0) PlayerDeath();
+                            }
+                        }
+                        puddle->Update(deltaTime);
+                        continue;
+                    }
 
                     //si collision
                     if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectEnt)) {

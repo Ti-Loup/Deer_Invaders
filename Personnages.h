@@ -69,7 +69,7 @@ public:
 class Enemy_MageDeer : public Entity {
     public:
     Enemy_MageDeer(float startX, float startY, SDL_Texture *texture = nullptr);
-    void Update(float deltaTime);
+    void Update(float deltaTime, std::vector<Entity*> &entities);
 
     //texture du cerf Mage
    SDL_Texture  *textureDeerMage = nullptr;
@@ -78,6 +78,11 @@ class Enemy_MageDeer : public Entity {
    float hitFlashTimer = 0.0f; //le timer
    const float hitFlashDuration = 0.4f;//duree
    bool bIsFlashing = false;
+
+   //pour la classe MagicBottle
+   float magicShootTimer = 0.0f;
+   const float magicShootCooldown = 3.0f;
+
 };
 
 
@@ -185,8 +190,6 @@ float laserDuration = 0.5f; // duree du laser actif
 
 };
 
-
-
 //Bullets
 class BulletStrawberry : public Entity {
      public:
@@ -200,8 +203,30 @@ class BulletStrawberry : public Entity {
     bool bHasGravity = false;
         SDL_Texture *textureStrawb = nullptr; //creation texture
 
-
 };
+//La boule lancer d'un mage
+class MagicBottle : public Entity {
+public:
+    MagicBottle(float startX, float startY);
+    void Update(float deltaTime, std::vector<Entity*>& entities);
+
+    //rotation de la bouteille
+    float rotationAngle = 0.0f;
+};
+//La flaque de poison mauve sur le sol
+class MagicPuddle : public Entity {
+public:
+    MagicPuddle(float startX, float startY);
+    void Update(float deltaTime) override;
+
+    float damageTimer = 0.0f;
+    const float damageTick = 0.5f;//damage au sol
+    const int damagePerTick = 15;
+    float lifeTimer = 0.0f;
+    const float lifeDuration = 5.0f;
+    float alpha = 180.0f;
+};
+
 
 //COLLECTIBLES
 class Collectible_Meat : public Entity {

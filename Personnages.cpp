@@ -162,8 +162,16 @@ Enemy_MageDeer::Enemy_MageDeer(float startX, float startY, SDL_Texture *texture)
     //texture Mage Cerf
     textureDeerMage = texture;
 }
-void Enemy_MageDeer::Update(float deltaTime) {
+void Enemy_MageDeer::Update(float deltaTime, std::vector<Entity*> &entities) {
+    //Rajoue de la mechanique de tire
 
+    magicShootTimer += deltaTime;
+    if (magicShootTimer >= magicShootCooldown) {
+        magicShootTimer = 0.0f;
+        float spawnX = transform.position.x + transform.size.x / 2.0f - 12.5f;
+        float spawnY = transform.position.y + transform.size.y;
+        entities.push_back(new MagicBottle(spawnX, spawnY));
+    }
 
     //Le flash Rouge
     if (bIsFlashing) {
@@ -559,7 +567,7 @@ void Laser::Update(float deltaTime) {
 
 
 
-//Bullets
+//Bullets & Enemy Attacks
 BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture *texture) {
     AddComponent (MOVEMENT);
     movement.velocity = { 0.0f * dir.x,- 200.0f * dir.y };// les fraises vont vers le bas
@@ -571,9 +579,7 @@ BulletStrawberry::BulletStrawberry(SDL_FPoint spawn, SDL_Point dir, SDL_Texture 
     entityType = EntityType::EnemyBullet;
     textureStrawb = texture;//assigne la texture au BulletStrawb -> deja assigner dans le constructeur main
 }
-
 //BulletStrawberry Update
-
 void BulletStrawberry::Update(float deltaTime) {
     rotationAngle += rotationSpeed * rotationDirection * deltaTime;
 
@@ -589,6 +595,63 @@ void BulletStrawberry::Update(float deltaTime) {
         bIsDestroyed = true;
     }
 }
+
+//Bouteille magie
+
+MagicBottle::MagicBottle(float startX, float startY) {
+    AddComponent(TRANSFORM);
+    transform.position = {startX, startY};
+    transform.size = {25.0f, 25.0f};
+
+    AddComponent(MOVEMENT);
+    movement.velocity = {0.0f, 200.0f};
+
+    AddComponent(RENDER);
+    render.color = {180, 0, 255, 255};
+
+    entityType = EntityType::EnemyBullet;
+}
+
+void MagicBottle::Update(float deltaTime, std::vector<Entity*> &entities) {
+    rotationAngle += 180.0f * deltaTime;
+    MovementUpdate(deltaTime);
+
+    if (transform.position.y + transform.size.y >= 900.0f) {
+        entities.push_back(new MagicPuddle(transform.position.x - 50.0f,880.0f));
+        bIsDestroyed = true;
+    }
+    if (transform.position.y > 1100.0f) {
+        bIsDestroyed = true;
+    }
+}
+
+//la flaque de magie
+MagicPuddle::MagicPuddle(float startX, float startY) {
+    AddComponent(TRANSFORM);
+    transform.position = {startX, startY};
+    transform.size = {100.0f, 30.0f};
+
+    AddComponent(RENDER);
+    render.color = {150, 0, 255, 180};
+
+    entityType = EntityType::EnemyBullet;
+}
+
+void MagicPuddle::Update(float deltaTime) {
+    lifeTimer += deltaTime;
+    damageTimer += deltaTime;
+
+    if (lifeTimer > lifeDuration - 1.5f) {
+        alpha = 180.0f * ((lifeDuration - lifeTimer) / 1.5f);
+        render.color.a = (Uint8)alpha;
+    }
+    if (lifeTimer >= lifeDuration) {
+        bIsDestroyed = true;
+    }
+}
+
+
+
 //  COLLECTIBLES
 
 Collectible_Meat::Collectible_Meat(float startX, float startY, SDL_Texture *texture) {
