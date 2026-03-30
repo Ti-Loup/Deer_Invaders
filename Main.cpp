@@ -77,7 +77,10 @@ public:
 
 
     //GENERAL
+    //backgrounds
+    SDL_Texture *textureBackgroundMenu = nullptr;
     SDL_Texture *textureBackground = nullptr;
+    SDL_Texture *textureBackground2 = nullptr;
 
 
     //-> MENU <- Font et Texts
@@ -92,6 +95,10 @@ public:
     TTF_Text *MenuTitle = nullptr; //Pour rajouter un Titre
     TTF_Text *BoutonCreditsText = nullptr;
     SDL_Texture *DeerLogo = nullptr;
+
+    SDL_Texture *textureCerfCarrot = nullptr;
+    SDL_FRect MenuCerfCarrotPosition={50,75,300,325};
+    SDL_FRect MenuCerfFraisePosition={1600,75,300,325};
 
     //Texte special
     TTF_Font *MenuSpecialFont = nullptr;
@@ -127,6 +134,10 @@ public:
     TTF_Text *ChoixNiveau1Text = nullptr;
     TTF_Text *ChoixNiveau2Text = nullptr;
     TTF_Text *ChoixNiveau3Text = nullptr;
+    //Texture qui montre un preview des niveaux
+    SDL_Texture *textureStage1Preview = nullptr;
+    SDL_Texture *textureStage2Preview = nullptr;
+    //SDL_Texture *textureStage3Preview = nullptr;
 
     //text pour dire si accecible ou non
     TTF_Text *StageLocked = nullptr;
@@ -205,6 +216,8 @@ public:
     SDL_Texture *textureMeteor = nullptr;
     //Texture Cerf Mage
     SDL_Texture *textureCerfMage = nullptr;
+    //Texture Cerf MageIce
+    SDL_Texture *textureCerfMageIce = nullptr;
     //Texture Cerf Healer
     SDL_Texture *textureCerfHealer = nullptr;
     //Texture Player Ship
@@ -629,8 +642,15 @@ private:
         ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "TBD", 25);
         StageAvailable = TTF_CreateText(textEngine, ChoixNiveauFont, "Available", 25);
         StageLocked = TTF_CreateText(textEngine, ChoixNiveauFont, "Locked", 25);
-
-
+        //Texture des previews dans ChoixNiveau
+        textureStage1Preview = IMG_LoadTexture(renderer,"assets/Stage1Preview.png");
+        if (textureStage1Preview == nullptr) {
+            SDL_LogWarn(0, "IMG_LoadTexture failed to load textureStage1Preview", SDL_GetError());
+        }
+        textureStage2Preview = IMG_LoadTexture(renderer,"assets/Stage2Preview.png");
+        if (textureStage2Preview == nullptr) {
+            SDL_LogWarn(0, "IMG_LoadTexture failed to load textureStage2Preview", SDL_GetError());
+        }
 
         //DANS INTROGAME
 
@@ -689,6 +709,11 @@ private:
         if (textureCerf == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureCerf", SDL_GetError());
         }
+        //texture Cerf Carrot
+        textureCerfCarrot = IMG_LoadTexture(renderer, "assets/DeerEnnemieCarrot.png");
+        if (textureCerfCarrot == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureCerfCarrot", SDL_GetError());
+        }
         //Pour les textures des differents bullets
         textureBulletNormal = IMG_LoadTexture(renderer, "assets/BulletNormalCompress.png");
         if (textureBulletNormal == nullptr) {
@@ -707,11 +732,20 @@ private:
         if (textureMeat == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureMeat", SDL_GetError());
         }
-        //BACKGROUND TEXTURE
+        //BACKGROUNDS TEXTURE
         textureBackground = IMG_LoadTexture(renderer, "assets/Background.png");
         if (textureBackground == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureBackground", SDL_GetError());
         }
+        textureBackground2 = IMG_LoadTexture(renderer, "assets/Background2.png");
+        if (textureBackground2 == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureBackground2", SDL_GetError());
+        }
+        textureBackgroundMenu = IMG_LoadTexture(renderer, "assets/BackgroundMenu.png");
+        if (textureBackgroundMenu == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureBackgroundMenu", SDL_GetError());
+        }
+
         //BOSS STAGE 1 AND 2
         textureBossStage_1_2 = IMG_LoadTexture(renderer, "assets/BossFinalDeerInvadersCompress.png");
         if (textureBossStage_1_2 == nullptr) {
@@ -731,6 +765,11 @@ private:
         textureCerfMage = IMG_LoadTexture(renderer, "assets/DeerEnnemiePurpleCompress.png");
         if (textureCerfMage == nullptr) {
             SDL_LogWarn (0,"failed to load textureCerfMage");
+        }
+        //TEXTURE CERF
+        textureCerfMageIce = IMG_LoadTexture(renderer, "assets/DeerEnnemieIce.png");
+        if (textureCerfMageIce == nullptr) {
+            SDL_LogWarn(0, "failed to load textureCerfMageIce", SDL_GetError());
         }
         //TEXTURE PLAYER SHIP
         texturePlayerShip = IMG_LoadTexture(renderer, "assets/PlayerShipCompress.png");
@@ -1134,8 +1173,12 @@ private:
         SDL_DestroyTexture(DeerLogo);
         SDL_DestroyTexture(textureStrawberry);
         SDL_DestroyTexture(textureCerf);
+        SDL_DestroyTexture(textureCerfHealer);
         SDL_DestroyTexture(ScoreUI);
         SDL_DestroyTexture(HealUI);
+        SDL_DestroyTexture(textureStage1Preview);
+        SDL_DestroyTexture(textureStage2Preview);
+        //SDL_DestroyTexture(textureStage3Preview);
         SDL_DestroyTexture(textureBulletNormal);
         SDL_DestroyTexture(textureBulletFire);
         SDL_DestroyTexture(textureBulletIce);
@@ -1144,12 +1187,17 @@ private:
         SDL_DestroyTexture(textureCerfHealer);
         SDL_DestroyTexture(texturePlayerShip);
         SDL_DestroyTexture(textureCerfMage);
+        SDL_DestroyTexture(textureCerfMageIce);
         SDL_DestroyTexture(textureBossStage_1_2);
         SDL_DestroyTexture(textureMissile);
         SDL_DestroyTexture(textureLaser);
         SDL_DestroyTexture(textureSmallShield);
         SDL_DestroyTexture(textureMediumShield);
         SDL_DestroyTexture(textureLargeShield);
+        //backgrounds
+        SDL_DestroyTexture(textureBackground);
+        SDL_DestroyTexture(textureBackground2);
+        SDL_DestroyTexture(textureBackgroundMenu);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         TTF_Quit();
@@ -1387,7 +1435,12 @@ private:
         // Rendu du menu
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-
+        //Background menu
+        SDL_RenderTexture(renderer, textureBackgroundMenu, nullptr, nullptr);
+        //photo cerf
+        //dessin cerf + fraise menu
+        SDL_RenderTextureRotated(renderer, textureCerfCarrot,nullptr, &MenuCerfCarrotPosition, 25.0, nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(renderer, textureStrawberry,nullptr, &MenuCerfFraisePosition, -25.0, nullptr, SDL_FLIP_NONE);
 
         RenderTitle();
         RenderAnimation();
@@ -1443,31 +1496,56 @@ private:
         // Rendu du menu
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+        //Background menu
+        SDL_RenderTexture(renderer, textureBackgroundMenu, nullptr, nullptr);
+
+        //marge 20 pc
+        float offset = 20.0f;
+
+        //regtangle reduit des boutons
+        SDL_FRect Stage1Rect = {
+            BoutonChoixNiveau1.x + offset,
+            BoutonChoixNiveau1.y + offset,
+            BoutonChoixNiveau1.w - (offset * 2.0f),
+            BoutonChoixNiveau1.h - (offset * 2.0f)
+        };
+        SDL_FRect Stage2Rect = {
+            BoutonChoixNiveau2.x + offset,
+            BoutonChoixNiveau2.y + offset,
+            BoutonChoixNiveau2.w - (offset * 2.0f),
+            BoutonChoixNiveau2.h - (offset * 2.0f)
+        };
 
         //boutons et text
         //Bouton Niveau 1
         if (selectedButtonChoixNiveau== 0) {
             RenderBoutons(BoutonChoixNiveau1, nullptr, r, g, b);//Couleur si selectionner
+            SDL_RenderTexture(renderer, textureStage1Preview, nullptr, &Stage1Rect);
             TTF_DrawRendererText(StageAvailable, 270, 810);
         }else {
             RenderBoutons(BoutonChoixNiveau1, nullptr, 100, 100, 100);//gris foncer de base
+            SDL_RenderTexture(renderer, textureStage1Preview, nullptr, &Stage1Rect);
             TTF_DrawRendererText(StageAvailable, 270, 810);
         }
         //BOUTON Niveau 2
         if (selectedButtonChoixNiveau == 1) {
             if (bStage1Completed) {
                 RenderBoutons(BoutonChoixNiveau2, nullptr, r, g, b);
+                SDL_RenderTexture(renderer, textureStage2Preview, nullptr, &Stage2Rect);
                 TTF_DrawRendererText(StageAvailable, 890, 810);
             } else {
                 RenderBoutons(BoutonChoixNiveau2, nullptr, 100, 100, 100);
+                SDL_RenderTexture(renderer, textureStage2Preview, nullptr, &Stage2Rect);
                 TTF_DrawRendererText(StageLocked, 890, 810);
             }
         } else {
             if (bStage1Completed) {
                 RenderBoutons(BoutonChoixNiveau2, nullptr, 40, 40, 40);
+                SDL_RenderTexture(renderer, textureStage2Preview, nullptr, &Stage2Rect);
                 TTF_DrawRendererText(StageAvailable, 890, 810); // ← Available même non sélectionné
             } else {
                 RenderBoutons(BoutonChoixNiveau2, nullptr, 40, 40, 40);
+                SDL_RenderTexture(renderer, textureStage2Preview, nullptr, &Stage2Rect);
                 TTF_DrawRendererText(StageLocked, 890, 810);
             }
         }
@@ -2255,9 +2333,13 @@ private:
     void UpgradePopUp(float deltaTime) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
-        //BACKGROUND
-        SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
-
+        //DIFFERENT BACKGROUND
+        if (currentStage == 1) {
+            SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
+        }
+        else if (currentStage = 2) {
+            SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
+        }
         // On dessine les entities et UI sans les faire bouger
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
 
@@ -2489,8 +2571,12 @@ private:
 
                     }
                     else if (currentWave == 4) {
-                        SpawnWave4Stage1(deltaTime);
-                        SpawnWave4Stage2(deltaTime);
+                        if (currentStage == 1) {
+                            SpawnWave4Stage1(deltaTime);
+                        }
+                        else if (currentStage = 2) {
+                            SpawnWave4Stage2(deltaTime);
+                        }
                     }
 
             }
@@ -2974,7 +3060,12 @@ private:
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir pour le jeu
         SDL_RenderClear(renderer);
-        SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
+        if (currentStage == 1) {
+            SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
+        }
+        else if (currentStage == 2) {
+            SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
+        }
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
         SDL_RenderTexture(renderer,HealUI,nullptr, &healSize);
 
