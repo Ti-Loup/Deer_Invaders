@@ -81,7 +81,7 @@ class Enemy_MageDeer : public Entity {
 
    //pour la classe MagicBottle
    float magicShootTimer = 0.0f;
-   const float magicShootCooldown = 3.0f;
+   float magicShootCooldown = 6.0f;
 
 };
 

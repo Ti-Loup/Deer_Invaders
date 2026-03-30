@@ -156,6 +156,11 @@ Enemy_MageDeer::Enemy_MageDeer(float startX, float startY, SDL_Texture *texture)
     transform.position = { startX, startY };
     transform.size = { 100.f, 140.f };
 
+    //La frequence de lancer des potions random
+    static std::mt19937 randomThrow(std::random_device{}());
+    std::uniform_real_distribution<float> dis(0.0f, magicShootCooldown);
+    magicShootTimer = dis(randomThrow);
+
     //Le type d'entity
     entityType = EntityType::Enemy;
 
@@ -164,13 +169,27 @@ Enemy_MageDeer::Enemy_MageDeer(float startX, float startY, SDL_Texture *texture)
 }
 void Enemy_MageDeer::Update(float deltaTime, std::vector<Entity*> &entities) {
     //Rajoue de la mechanique de tire
-
     magicShootTimer += deltaTime;
+
     if (magicShootTimer >= magicShootCooldown) {
         magicShootTimer = 0.0f;
+
+        // Nouveau cooldown random entre chaque tire
+        static std::mt19937 gen(std::random_device{}());
+        std::uniform_real_distribution<float> disCooldown(8.0f, 14.0f);
+        magicShootCooldown = disCooldown(gen);
+
         float spawnX = transform.position.x + transform.size.x / 2.0f - 12.5f;
         float spawnY = transform.position.y + transform.size.y;
-        entities.push_back(new MagicBottle(spawnX, spawnY));
+
+        //ramdom du mouvement de bottle
+        std::uniform_real_distribution<float> distanceX(-50.0f, 50.0f);
+        std::uniform_real_distribution<float> distanceY(-150.0f, -80.0f);
+
+        MagicBottle* bottle = new MagicBottle(spawnX, spawnY);
+        bottle->movement.velocity.x = distanceX(gen);
+        bottle->movement.velocity.y = distanceY(gen);
+        entities.push_back(bottle);
     }
 
     //Le flash Rouge
@@ -614,10 +633,12 @@ MagicBottle::MagicBottle(float startX, float startY) {
 
 void MagicBottle::Update(float deltaTime, std::vector<Entity*> &entities) {
     rotationAngle += 180.0f * deltaTime;
+    //graviter
+    movement.velocity.y += 200.0f * deltaTime;
     MovementUpdate(deltaTime);
 
-    if (transform.position.y + transform.size.y >= 900.0f) {
-        entities.push_back(new MagicPuddle(transform.position.x - 50.0f,880.0f));
+    if (transform.position.y + transform.size.y >= 1000.0f) {
+        entities.push_back(new MagicPuddle(transform.position.x - 50.0f,1000.0f));
         bIsDestroyed = true;
     }
     if (transform.position.y > 1100.0f) {
@@ -629,7 +650,7 @@ void MagicBottle::Update(float deltaTime, std::vector<Entity*> &entities) {
 MagicPuddle::MagicPuddle(float startX, float startY) {
     AddComponent(TRANSFORM);
     transform.position = {startX, startY};
-    transform.size = {100.0f, 30.0f};
+    transform.size = {125.0f, 25.0f};
 
     AddComponent(RENDER);
     render.color = {150, 0, 255, 180};

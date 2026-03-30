@@ -1751,11 +1751,71 @@ private:
         //Barricade
         entities.push_back(new Enemy_Barricade(1150.0f, 580.0f, nullptr));
         entities.push_back(new Enemy_Barricade(300.0f, 580.0f, nullptr));
+    }
 
+    void SpawnWave3Stage2() {
+        entities.push_back(new Enemy_MageDeer(1450, 240, textureCerfMage));
+    }
+
+    //Vague meteorite
+    void SpawnWave4Stage2(float deltaTime) {
+    survivalTimer += deltaTime;
+
+        if (survivalTimer < survivalDuration) {
+            meteorSpawnTimer += deltaTime;
+
+            // Spawn plus rapide qu'en wave 2
+            float spawnRate = 0.4f;
+
+            if (meteorSpawnTimer >= spawnRate) {
+                meteorSpawnTimer = 0.0f;
+
+                // Pattern aléatoire parmi 3 types
+                int pattern = rand() % 3;
+
+                if (pattern == 0) {
+                    // Rafale de 3 météorites en ligne
+                    float baseX = static_cast<float>(rand() % 1600);
+                    for (int i = 0; i < 2; i++) {
+                        Enemy_Meteor* m = new Enemy_Meteor(baseX + i * 100.0f, -80.0f, textureMeteor);
+                        entities.push_back(m);
+                    }
+                }
+                else if (pattern == 1) {
+                    // Météorite diagonale (vitesse X ajoutée)
+                    float spawnX = static_cast<float>(rand() % 1800);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f, textureMeteor);
+                    float direction = (rand() % 2 == 0) ? 1.0f : -1.0f;
+                    m->movement.velocity.x = direction * 150.0f; // Dérive latérale
+                    entities.push_back(m);
+                }
+                else {
+                    // Météorite rapide simple
+                    float spawnX = static_cast<float>(rand() % 1800);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f, textureMeteor);
+                    float direction = (rand()%2 == 0) ? 1.0f : -1.0f;//gauche ou droite
+                    m->movement.velocity.y *= 1.8f; // Plus rapide vers le bas
+                    entities.push_back(m);
+                }
+            }
+        } else {
+            bool anyMeteorLeft = false;
+            for (auto& ent : entities) {
+                if (ent->entityType == EntityType::Enemy && !ent->bIsDestroyed) {
+                    anyMeteorLeft = true;
+                    break;
+                }
+            }
+            if (!anyMeteorLeft) {
+                PreparationNextWave();
+            }
+        }
 
     }
 
-
+    void SpawnWave5State2() {
+        entities.push_back(new Enemy_FraiseBoss(800.0f, 200.0f , textureBossStage_1_2));
+    }
 
 
 //Fonction pour commencer une wave
@@ -1811,12 +1871,16 @@ private:
             }
             else if (wave == 3) {
                 currentWaveType = WaveType::Elimination;
+                SpawnWave3Stage2();
             }
             else if (wave == 4) {
-
+                currentWaveType = WaveType::Survival;
+                survivalTimer = 0.0f;
+                meteorSpawnTimer = 0.0f;
             }
             else if (wave == 5) {
-
+            currentWaveType = WaveType::Elimination;
+                SpawnWave5State2();
             }
             else {
                 waveInProgress = false;
@@ -2426,6 +2490,7 @@ private:
                     }
                     else if (currentWave == 4) {
                         SpawnWave4Stage1(deltaTime);
+                        SpawnWave4Stage2(deltaTime);
                     }
 
             }
