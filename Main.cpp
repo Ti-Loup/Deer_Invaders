@@ -929,7 +929,7 @@ private:
         if (Arme_Shield_DescriptionFont == nullptr) {
             SDL_LogWarn(0,"failed to implement the font Arme_Shield_DescriptionFont", SDL_GetError());
         }
-        ArmeFireText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Weapon Fire - 10 Meats -", 25);
+        ArmeFireText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Weapon Fire - 25 Meats -", 25);
         if (ArmeFireText == nullptr) {
             SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
         }
@@ -943,7 +943,7 @@ private:
         if (TTF_SetTextColor(ArmeIceText, 173, 216, 216, 230) == false) {
             SDL_LogWarn(2,"failed to put the color of ArmeIceText",SDL_GetError());
         }
-        ArmeTBDText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Arme TBD - 100 Meats -", 25);
+        ArmeTBDText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Arme TBD - 250 Meats -", 25);
         if (ArmeTBDText == nullptr) {
             SDL_LogWarn(1, "failed to set the ArmeFireText ", SDL_GetError());
         }
@@ -964,7 +964,7 @@ private:
         }
 
         //SHIELD TTF
-        ShieldSmallText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Small Shield - 10 Meats -", 25);
+        ShieldSmallText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Small Shield - 25 Meats -", 25);
         if (ShieldSmallText == nullptr) {
             SDL_LogWarn(1, "failed to set the ShieldSmallText ", SDL_GetError());
         }
@@ -978,7 +978,7 @@ private:
         if (TTF_SetTextColor(ShieldMediumText, 186, 23, 255, 255) == false) {
             SDL_LogWarn(2,"failed to put the color of ShieldMediumText",SDL_GetError());
         }
-        ShieldLargeText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Large Shield - 100 Meats -", 25);
+        ShieldLargeText = TTF_CreateText(textEngine, Arme_Shield_DescriptionFont, "Large Shield - 250 Meats -", 25);
         if (ShieldLargeText == nullptr) {
             SDL_LogWarn(1, "failed to set the ShieldLargeText ", SDL_GetError());
         }
@@ -1077,7 +1077,7 @@ private:
         fontPricePopUp = TTF_OpenFont("assets/ARCADE.ttf", 30);
         currentMeatPopUPFont = TTF_OpenFont("assets/ARCADE.ttf", 75);
         textWaitPopUp = TTF_CreateText(textEngine, fontWaitPopUp, "Wait",25);
-        textPrix1 = TTF_CreateText(textEngine, fontPricePopUp, "10",20);
+        textPrix1 = TTF_CreateText(textEngine, fontPricePopUp, "25",20);
         if (textPrix1 == nullptr) {
             SDL_LogWarn(0, "failed to load textPrix1", SDL_GetError());
         }
@@ -2696,20 +2696,20 @@ private:
                             // Calcule le seuil actuel applicable
                             int threshold = -1;
 
-                            if (currentMeat >= 10 &&
+                            if (currentMeat >= 25 &&
                                 (currentWeaponLevel == 0 || currentShieldLevel == 0) &&
-                                lastPopupMeatThreshold < 10) {
-                                threshold = 10;
+                                lastPopupMeatThreshold < 25) {
+                                threshold = 25;
                                 }
                             else if (currentMeat >= 50 &&
                                 (currentWeaponLevel <= 1 || currentShieldLevel <= 1) &&
                                 lastPopupMeatThreshold < 50) {
                                 threshold = 50;
                                 }
-                            else if (currentMeat >= 100 &&
+                            else if (currentMeat >= 250 &&
                                 (currentWeaponLevel <= 2 || currentShieldLevel <= 2) &&
-                                lastPopupMeatThreshold < 100) {
-                                threshold = 100;
+                                lastPopupMeatThreshold < 250) {
+                                threshold = 250;
                                 }
 
                             if (threshold != -1) {

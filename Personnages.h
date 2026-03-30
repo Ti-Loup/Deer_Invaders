@@ -85,6 +85,23 @@ class Enemy_MageDeer : public Entity {
 
 };
 
+class Enemy_MageIceDeer : public Entity {
+public:
+    Enemy_MageIceDeer(float startX, float startY, SDL_Texture *texture = nullptr);
+    void Update(float deltaTime, std::vector<Entity*> &entities);
+    //texture du Mage Ice
+    SDL_Texture *textureDeerMageIce = nullptr;
+
+    //Un flash quand le mage est toucher par bullet
+       float hitFlashTimer = 0.0f; //le timer
+       const float hitFlashDuration = 0.4f;//duree
+       bool bIsFlashing = false;
+
+       //pour la classe MagicBottle
+       float magicShootTimer = 0.0f;
+       float magicShootCooldown = 6.0f;
+
+};
 
 
 
@@ -226,6 +243,13 @@ public:
     const float lifeDuration = 5.0f;
     float alpha = 180.0f;
 };
+
+//La bouge de glace
+
+//La boule de glace qui ce transforme en eclats
+
+//Les eclats qui deviennent Puddle qui rallentissent le joueur sans faire de degats
+
 
 
 //COLLECTIBLES

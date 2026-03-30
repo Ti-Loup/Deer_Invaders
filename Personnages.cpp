@@ -151,7 +151,7 @@ Enemy_MageDeer::Enemy_MageDeer(float startX, float startY, SDL_Texture *texture)
     AddComponent (MOVEMENT);
     movement.velocity = { 40.0f,0.0f };
     AddComponent (RENDER);
-    render.color = { 139, 69, 19, 255 };//couleur brun
+    render.color = { 139, 69, 19, 255 };
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
     transform.size = { 100.f, 140.f };
@@ -203,9 +203,66 @@ void Enemy_MageDeer::Update(float deltaTime, std::vector<Entity*> &entities) {
     }
 }
 
+Enemy_MageIceDeer::Enemy_MageIceDeer(float startX, float startY, SDL_Texture *texture) {
+    AddComponent (HEALTH);
+    health.max_health = 100;
+    health.current_health = 100;
+    AddComponent (MOVEMENT);
+    movement.velocity = { 40.0f,0.0f };
+    AddComponent (RENDER);
+    render.color = { 255, 255, 255, 255 };
+    AddComponent (TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size = { 100.f, 140.f };
+
+    //La frequence de lancer des morceaux de glace random
+    static std::mt19937 randomThrow(std::random_device{}());
+    std::uniform_real_distribution<float> dis(0.0f, magicShootCooldown);
+    magicShootTimer = dis(randomThrow);
+
+    //Le type d'entity
+    entityType = EntityType::Enemy;
+
+    //texture Mage Cerf
+    textureDeerMageIce = texture;
+}
 
 
+void Enemy_MageIceDeer::Update(float deltaTime, std::vector<Entity *> &entities) {
+    //Rajoue de la mechanique de tire
+    magicShootTimer += deltaTime;
 
+    if (magicShootTimer >= magicShootCooldown) {
+        magicShootTimer = 0.0f;
+
+        // Nouveau cooldown random entre chaque tire
+        static std::mt19937 gen(std::random_device{}());
+        std::uniform_real_distribution<float> disCooldown(8.0f, 14.0f);
+        magicShootCooldown = disCooldown(gen);
+
+        float spawnX = transform.position.x + transform.size.x / 2.0f - 12.5f;
+        float spawnY = transform.position.y + transform.size.y;
+
+        //ramdom du mouvement des morceaux de glaces
+        std::uniform_real_distribution<float> distanceX(-50.0f, 50.0f);
+        std::uniform_real_distribution<float> distanceY(-150.0f, -80.0f);
+
+        MagicBottle* bottle = new MagicBottle(spawnX, spawnY);
+        bottle->movement.velocity.x = distanceX(gen);
+        bottle->movement.velocity.y = distanceY(gen);
+        entities.push_back(bottle);
+    }
+
+    //Le flash Rouge
+    if (bIsFlashing) {
+        //timer diminue
+        hitFlashTimer -= deltaTime;
+        if (hitFlashTimer <= 0.0f) {
+            hitFlashTimer = 0.0f;
+            bIsFlashing = false;
+        }
+    }
+}
 
 
 Enemy_Meteor::Enemy_Meteor(float startX, float  startY, SDL_Texture *texture) {

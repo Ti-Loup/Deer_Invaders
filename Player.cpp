@@ -238,11 +238,11 @@ bool Player::ArmeUpgrade(ArmeNiveau type, int &meatCount){
 int weaponPrice = 0;
 
     switch (type) {
-        case ArmeNiveau::Fire: weaponPrice = 10;
+        case ArmeNiveau::Fire: weaponPrice = 25;
         break;
         case ArmeNiveau::Ice: weaponPrice = 50;
             break;
-        case ArmeNiveau::Tbd: weaponPrice = 100;
+        case ArmeNiveau::Tbd: weaponPrice = 250;
             break;
         case ArmeNiveau::Classic: weaponPrice = 0;
             break;
@@ -296,11 +296,11 @@ int weaponPrice = 0;
 bool Player::ShieldUpgrade(ShieldAmount typeShield, int &meatCount) {
 int shieldPrice = 0;
     switch (typeShield) {
-        case ShieldAmount::SmallShield: shieldPrice = 10;
+        case ShieldAmount::SmallShield: shieldPrice = 25;
             break;
         case ShieldAmount::MediumShield: shieldPrice = 50;
             break;
-        case ShieldAmount::LargeShield: shieldPrice = 100;
+        case ShieldAmount::LargeShield: shieldPrice = 250;
             break;
         case ShieldAmount::NoShield :shieldPrice = 0;
             break;
