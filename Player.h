@@ -15,6 +15,9 @@ public:
 
      bool bIsMovingRight = false;
      bool bIsMovingLeft = false;
+//l'effet du snow
+    float slowTimer  = 0.0f;
+    float slowFactor = 1.0f;
 
 
     bool isCurrentlyShooting = false;

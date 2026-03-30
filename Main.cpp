@@ -1662,6 +1662,9 @@ private:
         //test
       //  entities.push_back(new Enemy_HealerDeer(500.f,400.f,textureCerfHealer));
      //   entities.push_back(new Enemy_MageDeer(500.0f,500.f, textureCerfMage ));
+
+        entities.push_back(new Enemy_MageIceDeer(1450, 240, textureCerfMageIce));
+
     }
 
     //WAVE 2
@@ -2108,6 +2111,30 @@ private:
                     continue;
                 }
             }
+            //RENDU TEXTURE CERF MAGE ICE
+            if (Enemy_MageIceDeer *enemy_deerIceMage = dynamic_cast<Enemy_MageIceDeer *>(ent)) {
+                if (enemy_deerIceMage->textureDeerMageIce != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_deerIceMage->transform.position.x,
+                        enemy_deerIceMage->transform.position.y,
+                        enemy_deerIceMage->transform.size.x,
+                        enemy_deerIceMage->transform.size.y
+                    };
+
+                    if (enemy_deerIceMage->bIsFlashing) {
+                        // Calcule l'intensité du rouge selon le temps restant
+                        float ratio = enemy_deerIceMage->hitFlashTimer / enemy_deerIceMage->hitFlashDuration;
+                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
+                        SDL_SetTextureColorMod(enemy_deerIceMage->textureDeerMageIce, 255, 255 - flashIntensity, 255 - flashIntensity);
+                    } else {
+                        // Remet la couleur normale
+                        SDL_SetTextureColorMod(enemy_deerIceMage->textureDeerMageIce, 255, 255, 255);
+                    }
+
+                    SDL_RenderTexture(renderer, enemy_deerIceMage->textureDeerMageIce, nullptr, &dest);
+                    continue;
+                }
+            }
 
             //Rendu texture Cerf BOSS
             if (Enemy_FraiseBoss *enemy_deerBoss = dynamic_cast<Enemy_FraiseBoss *>(ent)) {
@@ -2325,6 +2352,39 @@ private:
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
                 continue;
             }
+            // ICE MAGIC RENDER
+            if (MagicIceCube* cube = dynamic_cast<MagicIceCube*>(ent)) {
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_FRect dest = { cube->transform.position.x, cube->transform.position.y,
+                                   cube->transform.size.x, cube->transform.size.y };
+                SDL_SetRenderDrawColor(renderer, 180, 230, 255, 220);
+                SDL_RenderFillRect(renderer, &dest);
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                continue;
+            }
+            if (MagicIceSnowflake* flake = dynamic_cast<MagicIceSnowflake*>(ent)) {
+                SDL_FRect dest = { flake->transform.position.x, flake->transform.position.y,
+                                   flake->transform.size.x, flake->transform.size.y };
+                if (flake->textureIceSnowflake != nullptr) {
+                    SDL_RenderTextureRotated(renderer, flake->textureIceSnowflake,
+                        nullptr, &dest, flake->rotationAngle, nullptr, SDL_FLIP_NONE);
+                } else {
+                    SDL_SetRenderDrawColor(renderer, 210, 240, 255, 200);
+                    SDL_RenderFillRect(renderer, &dest);
+                }
+                continue;
+            }
+            if (MagicIcePuddle* icePuddle = dynamic_cast<MagicIcePuddle*>(ent)) {
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                SDL_FRect dest = { icePuddle->transform.position.x, icePuddle->transform.position.y,
+                                   icePuddle->transform.size.x, icePuddle->transform.size.y };
+                SDL_SetRenderDrawColor(renderer, 220, 243, 255, (Uint8)icePuddle->alpha);
+                SDL_RenderFillRect(renderer, &dest);
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                continue;
+            }
+
+
                 ent->RenderUpdate(renderer);
             }
     }
@@ -2634,6 +2694,14 @@ private:
                 if (entity->entityType == EntityType::Player) continue;
                 Enemy_FraiseBoss* bossCheck = dynamic_cast<Enemy_FraiseBoss*>(entity);
                 Enemy_MageDeer* mageCheck = dynamic_cast<Enemy_MageDeer*>(entity);
+                if (MagicIceCube* cube = dynamic_cast<MagicIceCube*>(entity)) {
+                    cube->Update(deltaTime, entities);
+                    continue;
+                }
+                if (MagicIceSnowflake* flake = dynamic_cast<MagicIceSnowflake*>(entity)) {
+                    flake->Update(deltaTime, entities);
+                    continue;
+                }
                 if (MagicBottle* bottle = dynamic_cast<MagicBottle*>(entity)) {
                     bottle->Update(deltaTime, entities);
                     continue;
@@ -2656,7 +2724,10 @@ private:
                     if (mage != nullptr) {
                         mage->Update(deltaTime, entities);
                     }
-
+                    Enemy_MageIceDeer* mageIce = dynamic_cast<Enemy_MageIceDeer*>(entity);
+                    if (mageIce != nullptr) {
+                        mageIce->Update(deltaTime, entities);
+                    }
                 }
 
                 // Si fraise (EnemyBullet) ou Viande (Collectable) ou meteorite cerf (Enemy) + missile + laser
@@ -2670,6 +2741,7 @@ private:
                     Laser* laserCheck = dynamic_cast<Laser*>(entity);
                     if (laserCheck != nullptr && laserCheck->bWarning) continue;
 
+                    //Magic (mauve) Puddle
                     if (MagicPuddle* puddle = dynamic_cast<MagicPuddle*>(entity)) {
                         if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectEnt)) {
                             if (puddle->damageTimer >= puddle->damageTick) {
@@ -2683,7 +2755,15 @@ private:
                         puddle->Update(deltaTime);
                         continue;
                     }
-
+                    //Ice Puddle
+                    if (MagicIcePuddle* icePuddle = dynamic_cast<MagicIcePuddle*>(entity)) {
+                        if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectEnt)) {
+                            player->slowTimer  = icePuddle->slowDuration;
+                            player->slowFactor = icePuddle->slowFactor;
+                        }
+                        icePuddle->Update(deltaTime);
+                        continue;
+                    }
                     //si collision
                     if (SDL_HasRectIntersectionFloat(&rectPlayer, &rectEnt)) {
 

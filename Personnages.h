@@ -245,11 +245,41 @@ public:
 };
 
 //La bouge de glace
+class MagicIceCube : public Entity {
+public:
+    MagicIceCube(float startX, float startY, SDL_Texture *texture = nullptr);
+    void Update(float deltaTime,  std::vector<Entity*>& entities);
 
+    //Cube texture
+    SDL_Texture *textureIceCube = nullptr;
+    float splitY = 0.0f;        // Y aléatoire où le cube se divise
+    bool bHasSplit = false;
+};
 //La boule de glace qui ce transforme en eclats
+class MagicIceSnowflake : public Entity{
+public:
+    MagicIceSnowflake(float startX, float startY, SDL_Texture *texture = nullptr);
+    void Update(float deltaTime,  std::vector<Entity*>& entities);
 
+    //snowflake texture
+    SDL_Texture *textureIceSnowflake = nullptr;
+
+    float rotationAngle = 0.0f;
+};
 //Les eclats qui deviennent Puddle qui rallentissent le joueur sans faire de degats
+class MagicIcePuddle : public Entity {
+public:
+    MagicIcePuddle(float startX, float startY);
+    void Update(float deltaTime)override;
 
+
+    float lifeTimer   = 0.0f;
+    const float lifeDuration = 6.0f;
+    float alpha = 180.0f;
+    // pour que le joueur rallentissent
+    const float slowFactor = 0.35f;
+    const float slowDuration = 2.0f;
+};
 
 
 //COLLECTIBLES

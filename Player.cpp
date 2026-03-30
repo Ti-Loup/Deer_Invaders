@@ -72,8 +72,18 @@ void Player::UpdatePhysics(float deltaTime) {
     }
 
     //Pour pas depacer la vitesse maximal
-    if (movement.velocity.x > maxSpeed) movement.velocity.x = maxSpeed;
-    if (movement.velocity.x < -maxSpeed) movement.velocity.x = -maxSpeed;
+    // APRÈS
+    float effectiveMaxSpeed = maxSpeed;
+    if (slowTimer > 0.0f) {
+        effectiveMaxSpeed *= slowFactor;
+        slowTimer -= deltaTime;
+        if (slowTimer < 0.0f) {
+            slowTimer  = 0.0f;
+            slowFactor = 1.0f;
+        }
+    }
+    if (movement.velocity.x >  effectiveMaxSpeed) movement.velocity.x =  effectiveMaxSpeed;
+    if (movement.velocity.x < -effectiveMaxSpeed) movement.velocity.x = -effectiveMaxSpeed;
 
     if (recoilVelocity > 0.0f) {
         // pousse vers le bas

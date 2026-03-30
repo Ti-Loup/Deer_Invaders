@@ -247,10 +247,10 @@ void Enemy_MageIceDeer::Update(float deltaTime, std::vector<Entity *> &entities)
         std::uniform_real_distribution<float> distanceX(-50.0f, 50.0f);
         std::uniform_real_distribution<float> distanceY(-150.0f, -80.0f);
 
-        MagicBottle* bottle = new MagicBottle(spawnX, spawnY);
-        bottle->movement.velocity.x = distanceX(gen);
-        bottle->movement.velocity.y = distanceY(gen);
-        entities.push_back(bottle);
+        MagicIceCube* IceCube = new MagicIceCube(spawnX, spawnY);
+        IceCube->movement.velocity.x = distanceX(gen);
+        IceCube->movement.velocity.y = distanceY(gen);
+        entities.push_back(IceCube);
     }
 
     //Le flash Rouge
@@ -728,7 +728,109 @@ void MagicPuddle::Update(float deltaTime) {
     }
 }
 
+// ICE MAGIC
 
+//Ice Cube
+MagicIceCube::MagicIceCube(float startX, float startY, SDL_Texture *texture) {
+    AddComponent(TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size     = { 30.0f, 30.0f };
+    AddComponent(MOVEMENT);
+    // movement aleatoire de depart
+    static std::mt19937 gen(std::random_device{}());
+    std::uniform_real_distribution<float> disX(-60.0f, 60.0f);
+    std::uniform_real_distribution<float> disY(-180.0f, -80.0f);
+    movement.velocity.x = disX(gen);
+    movement.velocity.y = disY(gen);
+    AddComponent(RENDER);
+    render.color = { 180, 230, 255, 220 }; // couleur Ice
+
+    entityType = EntityType::EnemyBullet;
+    textureIceCube = texture;
+
+    //descente vers le sol
+    std::uniform_real_distribution<float> disSplit(500.0f, 650.0f);
+    splitY = disSplit(gen);
+}
+void MagicIceCube::Update(float deltaTime,  std::vector<Entity*>& entities) {
+    //graviter
+    movement.velocity.y += 220.0f * deltaTime;
+    MovementUpdate(deltaTime);
+    //si on a pas encore split et que on est dans la zone pour split
+    if (!bHasSplit && transform.position.y >= splitY) {
+        bHasSplit = true;
+
+        //random mouvement des
+        static std::mt19937 gen(std::random_device{}());
+        std::uniform_real_distribution<float> disX(-120.0f, 120.0f);
+        std::uniform_real_distribution<float> disY(-80.0f,  -20.0f);
+
+        float positionX = transform.position.x + transform.size.x / 2.0f;
+        float positionY = transform.position.y + transform.size.y / 2.0f;
+
+        //3 snow flakes avec chaqun leur propre mouvement
+        for (int i = 0; i < 3; i++) {
+            auto* Snowflake = new MagicIceSnowflake(positionX - 8.0f, positionY - 8.0f);
+            Snowflake->movement.velocity.x = disX(gen);
+            Snowflake->movement.velocity.y = disY(gen);
+            entities.push_back(Snowflake);
+        }
+        bIsDestroyed = true; // le cube disparait
+    }
+
+    if (transform.position.y > 1100.0f)
+        bIsDestroyed = true;
+}
+//Snowflake (le cube mi chemain random Y ce brise en petit morceau en snowflake)
+MagicIceSnowflake::MagicIceSnowflake(float startX, float startY, SDL_Texture *texture) {
+    AddComponent(TRANSFORM);
+    transform.position = { startX, startY };
+    transform.size     = { 16.0f, 16.0f };
+    AddComponent(MOVEMENT);
+    AddComponent(RENDER);
+    render.color = { 210, 240, 255, 200 };
+
+    entityType = EntityType::EnemyBullet;
+    //texture du Snowflake
+    textureIceSnowflake = texture;
+}
+void MagicIceSnowflake::Update(float deltaTime, std::vector<Entity*>& entities) {
+    //la texture qui rotate pour realisme
+    rotationAngle += 120.0f * deltaTime;
+    // Snowflake graviter < IceCube
+    movement.velocity.y += 120.0f * deltaTime;
+    MovementUpdate(deltaTime);
+
+    // Spawn puddle au sol
+    if (transform.position.y + transform.size.y >= 1000.0f) {
+        float puddleX = transform.position.x + transform.size.x / 2.0f - 62.5f;
+        entities.push_back(new MagicIcePuddle(puddleX, 1000.0f));
+        bIsDestroyed = true;
+    }
+    if (transform.position.y > 1100.0f)
+        bIsDestroyed = true;
+}
+//Ice Puddle
+MagicIcePuddle::MagicIcePuddle(float startX, float startY) {
+    AddComponent(TRANSFORM);
+    transform.position = {startX, startY};
+    transform.size = {125.0f, 25.0f};
+
+    AddComponent(RENDER);
+    render.color = {220,243,255, 180}; // couleur bleu clair
+
+    entityType = EntityType::EnemyBullet;
+}
+void MagicIcePuddle::Update(float deltaTime) {
+    lifeTimer += deltaTime;
+
+    if (lifeTimer > lifeDuration - 1.5f) {
+        alpha = 180.0f * ((lifeDuration - lifeTimer) / 1.5f);
+        render.color.a = (Uint8)std::max(alpha, 0.0f);
+    }
+    if (lifeTimer >= lifeDuration)
+        bIsDestroyed = true;
+}
 
 //  COLLECTIBLES
 
