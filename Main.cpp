@@ -132,6 +132,7 @@ public:
     // -> ChoixNiveau <-
     //Font titre meme que les autres
     TTF_Font *ChoixNiveauFont = nullptr;
+    TTF_Font *DialogueFont = nullptr;
     TTF_Text *ChoixNiveauTitre = nullptr;
     TTF_Text *ChoixNiveau1Text = nullptr;
     TTF_Text *ChoixNiveau2Text = nullptr;
@@ -159,16 +160,16 @@ public:
 
     static const int NB_MESSAGES_IntroNiveau1 = 3;
     const char *phrasesIntroNiveau1[NB_MESSAGES_IntroNiveau1] = {
-        "Humain : We must defend againts this invasion !",
-        "Deer : You will soon be under our control ",
-        "Humain : Free our World ! For our freedom !"
+        "Human: We must defend against this invasion!",
+        "Deer: Your small planet will make a fine addition to our empire.",
+        "Human: We will free our world!"
     };
     static const int NB_MESSAGES_IntroNiveau2 = 4;
     const char *phrasesIntroNiveau2[NB_MESSAGES_IntroNiveau2] = {
-        "Humain : Our defence has not been breached ",
-        "Humain : We must attack them at their own territories",
-        "Deer : Come!~ We are waiting for you",
-        "Humain : Prepare yourself ! Humainkind is at risk"
+        "Human: Our defenses are holding... for now.",
+        "Human: We must strike where they least expect it.",
+        "Human: Their mages hide in towers... an easy target.",
+        "Deer: Come... we are waiting for you."
     };
     static const int NB_MESSAGES_IntroNiveau3 = 3;
     const char *phrasesIntroNiveau3[NB_MESSAGES_IntroNiveau3] = {
@@ -563,6 +564,7 @@ private:
         ScoreFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 60);
         QuitFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
         CreditsFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 30);
+        DialogueFont = TTF_OpenFont ("assets/ARCADE.ttf",40);
 
         if (ReturnBoutonFont == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
@@ -643,9 +645,9 @@ private:
         if (ChoixNiveauFont == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set the font", SDL_GetError());
         }
-        ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Chose Your Stage", 25);
-        ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend Earth", 25);
-        ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Invasion Of DeeroLand", 25);
+        ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Choose Your Stage", 25);
+        ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend Home", 25);
+        ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Invasion Deer Mages", 25);
         ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "TBD", 25);
         StageAvailable = TTF_CreateText(textEngine, ChoixNiveauFont, "Available", 25);
         StageLocked = TTF_CreateText(textEngine, ChoixNiveauFont, "Locked", 25);
@@ -661,7 +663,7 @@ private:
 
         //DANS INTROGAME
 
-        texteIntroCerfEtHUmain = TTF_CreateText(textEngine, ShopFont, phrasesIntroNiveau1[0], 0);
+        texteIntroCerfEtHUmain = TTF_CreateText(textEngine, DialogueFont, phrasesIntroNiveau1[0], 0);
         TTF_SetTextColor(texteIntroCerfEtHUmain, 255, 255, 255, 255);
 
 
@@ -2582,7 +2584,7 @@ private:
                 }
                 else if (currentWeaponLevel == 1) {
                     SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
-                }
+                }//tbd
                 else if (currentWeaponLevel == 2) {
                     SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
                 }
