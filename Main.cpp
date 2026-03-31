@@ -1600,60 +1600,64 @@ private:
 
     //fonction Intro pour la narration de debut
 
-    void IntroGame (float deltaTime) {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
+    void IntroGame(float deltaTime) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
 
-        // Détecter qui parle selon le message actuel
-        const char* currentPhrase = "";
-        if (StateActuel == State::IntroNiveau1)
-            currentPhrase = phrasesIntroNiveau1[indexMessageIntroNiveau1];
-        else if (StateActuel == State::IntroNiveau2)
-            currentPhrase = phrasesIntroNiveau2[indexMessageIntroNiveau2];
+    const char* currentPhrase = "";
+    if (StateActuel == State::IntroNiveau1)
+        currentPhrase = phrasesIntroNiveau1[indexMessageIntroNiveau1];
+    else if (StateActuel == State::IntroNiveau2)
+        currentPhrase = phrasesIntroNiveau2[indexMessageIntroNiveau2];
 
-        bool humanSpeaks = (strncmp(currentPhrase, "Human", 5) == 0);
-        bool deerSpeaks  = (strncmp(currentPhrase, "Deer",  4) == 0);
+        //strncmp est une fonction du C qui compare deux chaines de caractères sur un nombre limite de caracteres (Humain / Cerf)
+    bool humanSpeaks = (strncmp(currentPhrase, "Human", 5) == 0);
+    bool deerSpeaks  = (strncmp(currentPhrase, "Deer",  4) == 0);
 
-        // plus grand quand il parle sinon plus petit
-        SDL_FRect HumainRect = {
-            100,
-            humanSpeaks ? 300.f : 380.f,
-            400,
-            humanSpeaks ? 800.f : 720.f
-        };
-        SDL_SetRenderDrawColor(renderer, humanSpeaks ? 0 : 30,humanSpeaks ? 0 : 30,humanSpeaks ? 255 : 80, 255);
-        SDL_RenderFillRect(renderer, &HumainRect);
-        // Cerf parole
-        SDL_FRect DeerRect = {
-            1400,deerSpeaks ? 300.f : 380.f,400,deerSpeaks ? 800.f : 720.f
-        };
-        SDL_SetRenderDrawColor(renderer, deerSpeaks ? 255 : 80,deerSpeaks ? 0 : 30,deerSpeaks ? 0 : 30, 255);
-        SDL_RenderFillRect(renderer, &DeerRect);
+    // Si quelquun parle -> opaciter 255 sinon 100
+    Uint8 alphaHumain = humanSpeaks ? 255 : 100;
+    Uint8 alphaDeer   = deerSpeaks  ? 255 : 100;
+        // Taille de base selon si parle ou non
+        float deerW = deerSpeaks ? 500.f : 450.f;
+        float texW, texH;
+        SDL_GetTextureSize(textureBossStage_1_2, &texW, &texH);
+        float ratio = texW / texH;
+        float deerH = deerW / ratio;
 
-        // Dessiner la bande gris foncé en bas
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
-        //la partie basse dessiner
-        SDL_FRect bottomBand = {0, 880, 1920, 200};
-        SDL_RenderFillRect(renderer, &bottomBand);
+        // grandit vers la gauche pour le cerf
+        float deerX = 1920.f - deerW - 50.f;
+        float deerY = 980.f - deerH;
+    // Taille: plus grand si parle
+    SDL_FRect HumainRect = { 100, humanSpeaks ? 400.f : 450.f, 400, humanSpeaks ? 880.f : 780.f };
+        SDL_FRect DeerRect = { deerX, deerY, deerW, deerH };
+    // Humain (rectangle bleu pour l'instant)
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, alphaHumain);
+    SDL_RenderFillRect(renderer, &HumainRect);
 
-        //Text dessus la bande
-        TTF_DrawRendererText(fpsText, 1800, 10);
-        if (texteIntroCerfEtHUmain != nullptr) {
-            int weight, height;
-            TTF_GetTextSize(texteIntroCerfEtHUmain, &weight, &height);
+    // Cerf avec texture + opacité
+    SDL_SetTextureBlendMode(textureBossStage_1_2, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureAlphaMod(textureBossStage_1_2, alphaDeer);
+    SDL_RenderTexture(renderer, textureBossStage_1_2, nullptr, &DeerRect);
+    SDL_SetTextureAlphaMod(textureBossStage_1_2, 255); // reset après
 
-            // Centrage du texte par rapport au
-            float textX = (1920 - weight) / 2.0f;
-            float textY = 840 + (280 - height) / 2.0f;
+    // Bande du bas
+    SDL_SetRenderDrawColor(renderer, 40, 40, 40, 200);
+    SDL_FRect bottomBand = {0, 880, 1920, 200};
+    SDL_RenderFillRect(renderer, &bottomBand);
 
-            TTF_DrawRendererText(texteIntroCerfEtHUmain, textX, textY);
-        }
-        TTF_DrawRendererText(fpsText, 1800, 10);
-        //Tout afficher
-
-        SDL_RenderPresent(renderer);
+    // Texte centré
+    if (texteIntroCerfEtHUmain != nullptr) {
+        int weight, height;
+        TTF_GetTextSize(texteIntroCerfEtHUmain, &weight, &height);
+        float textX = (1920 - weight) / 2.0f;
+        float textY = 840 + (280 - height) / 2.0f;
+        TTF_DrawRendererText(texteIntroCerfEtHUmain, textX, textY);
     }
+
+    TTF_DrawRendererText(fpsText, 1800, 10);
+    SDL_RenderPresent(renderer);
+}
     //Pour la premiere vague d'ennemies STAGE 1
     void SpawnWave1Stage1() {
         entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
