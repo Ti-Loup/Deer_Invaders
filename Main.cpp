@@ -95,6 +95,7 @@ public:
     TTF_TextEngine *textEngine = nullptr;
     TTF_Text *fpsText = nullptr;
     TTF_Text *MenuTitle = nullptr; //Pour rajouter un Titre
+    TTF_Text *MenuTitle2 = nullptr;
     TTF_Text *BoutonCreditsText = nullptr;
     SDL_Texture *DeerLogo = nullptr;
 
@@ -537,17 +538,23 @@ private:
             SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
         }
         //Le font du Titre
-        MenuFont = TTF_OpenFont("assets/New Space.ttf", 72);
+        MenuFont = TTF_OpenFont("assets/SnowDeer.ttf", 120);
         if (MenuFont == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to load font '%s'! %s", "assets/New Space.ttf", SDL_GetError());
         }
         //Rajoue du menu
-        MenuTitle = TTF_CreateText(textEngine, MenuFont, "         Deer \nInvaders", 25);
-
+        MenuTitle = TTF_CreateText(textEngine, MenuFont, "Deer", 25);
         if (MenuTitle == nullptr) {
             SDL_LogWarn(0, "Le menu n'a pas chargé : TTF", SDL_GetError());
         }
-        if (TTF_SetTextColor(MenuTitle, 255, 255, 255, 255) == false) {
+        if (TTF_SetTextColor(MenuTitle, 186, 135, 89, 255) == false) {
+            SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
+        }
+        MenuTitle2 = TTF_CreateText(textEngine, MenuFont, "invadeRs", 25);
+        if (MenuTitle2 == nullptr) {
+            SDL_LogWarn(0, "Le menu2 n'a pas chargé : TTF", SDL_GetError());
+        }
+        if (TTF_SetTextColor(MenuTitle2, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0, "SDL_ttf failed to set text color to (255, 255, 255, 255)! %s", SDL_GetError());
         }
 
@@ -1163,6 +1170,7 @@ private:
 
         //Game
         TTF_DestroyText(MenuTitle);
+        TTF_DestroyText(MenuTitle2);
         TTF_DestroyRendererTextEngine(textEngine);
         TTF_CloseFont(font);
         TTF_CloseFont(ShopFont);
@@ -1315,7 +1323,8 @@ private:
 
     //Petite fonction pour mettre un titre MENU
     void RenderTitle() {
-       // TTF_DrawRendererText(MenuTitle, 0, 200);
+        TTF_DrawRendererText(MenuTitle, 775, 225);
+        TTF_DrawRendererText(MenuTitle2,775,350);
         TTF_DrawRendererText(MenuSpecialDraw, 000, 980);
     }
 
@@ -1472,7 +1481,7 @@ private:
         SDL_RenderTextureRotated(renderer, textureStrawberry,nullptr, &MenuCerfFraisePosition, -25.0, nullptr, SDL_FLIP_NONE);
 
         RenderTitle();
-        RenderAnimation();
+        //RenderAnimation();
 
         // Mise à jour animation
         AdvanceAnimation(deltaTime);
@@ -1488,13 +1497,13 @@ private:
         if (selectedButtonMenu == 1) {
             RenderBoutons(BoutonScore, TextScore, r, g, b);
         }else {
-            RenderBoutons(BoutonScore, TextScore, 20, 20, 20);//blanc de base
+            RenderBoutons(BoutonScore, TextScore, 0, 0, 0);//blanc de base
         }
         //BOUTON QUIT
         if (selectedButtonMenu == 2) {
             RenderBoutons(BoutonShop, TextShop, r, g, b);
         }else {
-            RenderBoutons(BoutonShop, TextShop, 20, 20, 20);
+            RenderBoutons(BoutonShop, TextShop, 0, 0, 0);
         }
         //BOUTON SHOP
         if (selectedButtonMenu == 3) {
