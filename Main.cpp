@@ -1212,6 +1212,8 @@ private:
         SDL_DestroyTexture(textureSmallShield);
         SDL_DestroyTexture(textureMediumShield);
         SDL_DestroyTexture(textureLargeShield);
+        SDL_DestroyTexture(textureIceCube);
+        SDL_DestroyTexture(textureSnowflake);
         //backgrounds
         SDL_DestroyTexture(textureBackground);
         SDL_DestroyTexture(textureBackground2);
@@ -1913,6 +1915,14 @@ private:
     }
 
     void SpawnWave5State2() {
+        entities.push_back(new Enemy_MageIceDeer(350, 160, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(900, 160, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(1650, 160, textureCerfMageIce));
+
+        entities.push_back(new Enemy_MageDeer(450, 260, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(900, 260, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1550, 260, textureCerfMage));
+
         entities.push_back(new Enemy_FraiseBoss(800.0f, 200.0f , textureBossStage_1_2));
     }
 
@@ -2564,18 +2574,49 @@ private:
             TTF_SetTextString(currentMeatPopUp, meatStr.c_str(), 0);
             TTF_DrawRendererText(currentMeatPopUp, 980, 400);
             //Bouton Upgrade Weapon
+            //Bouton Upgrade Weapon
             if (selectedButtonPopUp == 0) {
                 RenderBoutons(BoutonUpgrade, nullptr, r, g, b);
-                SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
-
+                if (currentWeaponLevel == 0) {
+                    SDL_RenderTexture(renderer, textureBulletFire, nullptr, &BoutonUpgrade);
+                }
+                else if (currentWeaponLevel == 1) {
+                    SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+                }
+                else if (currentWeaponLevel == 2) {
+                    SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+                }
             }else {
-                RenderBoutons(BoutonUpgrade, nullptr, 80, 80, 80);
-                SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
+                RenderBoutons(BoutonUpgrade, nullptr, 40, 40, 40);
+                if (currentWeaponLevel == 0) {
+                    SDL_RenderTexture(renderer, textureBulletFire, nullptr, &BoutonUpgrade);
+                }
+                else if (currentWeaponLevel == 1) {
+                    SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+                }//tbd
+                else if (currentWeaponLevel == 2) {
+                    SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+                }
             }//Bouton HP
             if (selectedButtonPopUp == 1) {
                 RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
+                SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
+                if (currentShieldLevel == 1) {
+                    SDL_RenderTexture(renderer,textureMediumShield, nullptr, &BoutonShieldUpgrade);
+                }
+                else if (currentShieldLevel == 2) {
+                    SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgrade);
+                }
             }else {
                 RenderBoutons(BoutonShieldUpgrade, nullptr, 80, 80, 80);
+                SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
+                if (currentShieldLevel == 1) {
+                    SDL_RenderTexture(renderer,textureMediumShield, nullptr, &BoutonShieldUpgrade);
+                }
+                else if (currentShieldLevel == 2) {
+                    SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgrade);
+                }
+
             }//Bouton Wait
             if (selectedButtonPopUp == 2) {
                 RenderBoutons(BoutonWaitPopUp, textWaitPopUp, r, g, b);
@@ -2678,7 +2719,7 @@ private:
                 for (auto& enemy : entities) {
                     if (enemy->entityType == EntityType::Enemy && !enemy->bIsDestroyed) {
 
-                        //les barricades sont pas necessaires a detruire donc ici
+
                         if (dynamic_cast<Enemy_Barricade*>(enemy) != nullptr)
                             continue;
 
@@ -2687,7 +2728,12 @@ private:
                     }
                 }
 
-                if (!anyEnemyAlive) {
+                if (!anyEnemyAlive) {//detruits les barricades restantes
+                    for (auto& entity : entities) {
+                        if (dynamic_cast<Enemy_Barricade*>(entity) != nullptr && !entity->bIsDestroyed) {
+                            entity->bIsDestroyed = true;
+                        }
+                    }
                     PreparationNextWave(); // On déclenche la transition
                 }
             }
@@ -3563,17 +3609,46 @@ GameApp &app = GameApp::GetInstance();
         //Bouton Upgrade Weapon
         if (selectedButtonShop == 0) {
             RenderBoutons(BoutonUpgrade, nullptr, r, g, b);
-            SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
-
+            if (currentWeaponLevel == 0) {
+                SDL_RenderTexture(renderer, textureBulletFire, nullptr, &BoutonUpgrade);
+            }
+            else if (currentWeaponLevel == 1) {
+                SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+            }
+            else if (currentWeaponLevel == 2) {
+                SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+            }
         }else {
             RenderBoutons(BoutonUpgrade, nullptr, 40, 40, 40);
-            SDL_RenderTexture(renderer,textureBulletNormal, nullptr, &BoutonUpgrade);
-
+            if (currentWeaponLevel == 0) {
+                SDL_RenderTexture(renderer, textureBulletFire, nullptr, &BoutonUpgrade);
+            }
+            else if (currentWeaponLevel == 1) {
+                SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+            }//tbd
+            else if (currentWeaponLevel == 2) {
+                SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+            }
         }//Bouton HP
         if (selectedButtonShop == 1) {
             RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
+            SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
+            if (currentShieldLevel == 1) {
+                SDL_RenderTexture(renderer, textureMediumShield, nullptr, &BoutonShieldUpgrade);
+            }
+            else if (currentShieldLevel == 2) {
+                SDL_RenderTexture(renderer, textureLargeShield, nullptr, &BoutonShieldUpgrade);
+            }
+
         }else {
             RenderBoutons(BoutonShieldUpgrade, nullptr, 40, 40, 40);
+            SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
+            if (currentShieldLevel == 1) {
+                SDL_RenderTexture(renderer, textureMediumShield, nullptr, &BoutonShieldUpgrade);
+            }
+            else if (currentShieldLevel == 2) {
+                SDL_RenderTexture(renderer, textureLargeShield, nullptr, &BoutonShieldUpgrade);
+            }
         }//Bouton Return GAme
         if (selectedButtonShop == 2) {
             RenderBoutons(BoutonResumeGameShop, resumeGameShopText, r, g, b);
