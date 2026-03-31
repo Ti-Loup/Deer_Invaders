@@ -190,7 +190,7 @@ public:
     SDL_Texture *MeatInventoryTexture = nullptr;
     SDL_Texture *ScoreUI = nullptr;
     SDL_Texture *HealUI = nullptr;
-    SDL_FRect scoreSize = { 1570.0f, 925.0f, 350.0f, 140.0f };
+    SDL_FRect scoreSize = { 1570.0f, 975.0f, 300.0f, 60.0f };
     SDL_FRect healSize = {50.0f,1000.0f,250.0f,100.0f};
     SDL_FRect shieldSize = {150.0f, 1000, 250, 100 };
     TTF_Text *dynamicscoreText = nullptr;
@@ -1497,13 +1497,13 @@ private:
         if (selectedButtonMenu == 1) {
             RenderBoutons(BoutonScore, TextScore, r, g, b);
         }else {
-            RenderBoutons(BoutonScore, TextScore, 0, 0, 0);//blanc de base
+            RenderBoutons(BoutonScore, TextScore, 20, 20, 20);//blanc de base
         }
         //BOUTON QUIT
         if (selectedButtonMenu == 2) {
             RenderBoutons(BoutonShop, TextShop, r, g, b);
         }else {
-            RenderBoutons(BoutonShop, TextShop, 0, 0, 0);
+            RenderBoutons(BoutonShop, TextShop, 20, 20, 20);
         }
         //BOUTON SHOP
         if (selectedButtonMenu == 3) {
@@ -2505,7 +2505,7 @@ private:
         if (dynamicscoreText) {
             int longeurW, largeurH;
             TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
-            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
+            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)/2);
         }
 
         //Texture viande
@@ -3296,7 +3296,7 @@ private:
         if (dynamicscoreText) {
             int longeurW, largeurH;
             TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
-            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
+            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)/2);
         }
         //Mise a jour du Meat rendu
         if (InventoryText) {
@@ -3472,7 +3472,7 @@ private:
         if (dynamicscoreText) {
             int longeurW, largeurH;
             TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
-            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
+            TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)/2);
         }
 
 
@@ -3899,7 +3899,7 @@ GameApp &app = GameApp::GetInstance();
     if (dynamicscoreText) {
         int longeurW, largeurH;
         TTF_GetTextSize(dynamicscoreText, &longeurW, &largeurH);
-        TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)- 20);
+        TTF_DrawRendererText(dynamicscoreText, scoreSize.x + (scoreSize.w - longeurW)/2, scoreSize.y + (scoreSize.h - largeurH)/2);
     }
 
     //Texture viande
