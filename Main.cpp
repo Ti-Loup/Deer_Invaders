@@ -1603,7 +1603,14 @@ private:
     void IntroGame(float deltaTime) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-
+        //BACKGROUND
+        //DIFFERENT BACKGROUND
+        if (currentStage == 1) {
+            SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
+        }
+        else if (currentStage = 2) {
+            SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
+        }
     const char* currentPhrase = "";
     if (StateActuel == State::IntroNiveau1)
         currentPhrase = phrasesIntroNiveau1[indexMessageIntroNiveau1];
@@ -3939,7 +3946,22 @@ GameApp &app = GameApp::GetInstance();
             TTF_GetTextSize(dynamicShieldHPText, &longeurW, &largeurH);
             TTF_DrawRendererText(dynamicShieldHPText, 75, 990);
         }
+        //Barre de vie du boss
+        for (auto& ent : entities) {
+            Enemy_FraiseBoss* boss = dynamic_cast<Enemy_FraiseBoss*>(ent);
+            if (boss != nullptr && !boss->bIsDestroyed) {
+                SDL_FRect bossBarBg = { 460.0f, 30.0f, 1000.0f, 20.0f };
+                SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+                SDL_RenderFillRect(renderer, &bossBarBg);
 
+                //On met la reponse du in (hp) en float
+                float healthRatio = (float)boss->health.current_health / (float)boss->health.max_health;
+                SDL_FRect bossBarFill = { 460.0f, 30.0f, 1000.0f * healthRatio, 20.0f };
+                SDL_SetRenderDrawColor(renderer, 200, 30, 30, 255);
+                SDL_RenderFillRect(renderer, &bossBarFill);
+                break;
+            }
+        }
         TTF_DrawRendererText(fpsText, 1800, 10);
     // Rectangle de teinture sombre (TOUT CE QUI EST EN HAUT AURA LA TEINTE ->)
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
