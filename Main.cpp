@@ -24,13 +24,15 @@
  *FINISHED:
  *      IF I UPGRADE A WEAPON DURING THE SPECIAL ABILITY IT WILL GO BACK TO THE OLD ONE AFTER THE END OF THE CAPACITY INSTEAD OF KEEPING THE ONE BOUGHT
  *      Posibilité. comme Vampire survivor upgrade pop pup en jeu si on veut upgrade ou attendre
- *
+ *      debut Stage 2
+ *      LES FONTS
+ *      LE UI DU SHOP A REFAIRE.
  *TO DO :
- *LES FONTS
- *LE UI DU SHOP A REFAIRE.
+ *
+ *
  *
  *La database
- *debut Stage 2
+ *
  */
 
 
@@ -233,6 +235,11 @@ public:
     //texture terre
     SDL_Texture *textureTerre = nullptr;
     SDL_FRect planetSize{825,300,275,275};
+    //Texture IceCube
+    SDL_Texture *textureIceCube = nullptr;
+    //Texture Snowflake
+    SDL_Texture *textureSnowflake = nullptr;
+
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
     TTF_Font *WinScreenSousFont = nullptr;
@@ -804,6 +811,17 @@ private:
         if (textureTerre == nullptr) {
             SDL_LogWarn(0, "failed to load textureTerre", SDL_GetError());
         }
+        //TEXTURE ICECUBE
+        textureIceCube = IMG_LoadTexture(renderer, "assets/IceCube.png");
+        if (textureIceCube == nullptr) {
+            SDL_LogWarn(0, "failed to load textureIceCube", SDL_GetError());
+        }
+        //TEXTURE SNOWFLAKE
+        textureSnowflake = IMG_LoadTexture(renderer, "assets/Snowflake.png");
+        if (textureSnowflake == nullptr) {
+            SDL_LogWarn(0, "failed to load textureSnowflake", SDL_GetError());
+        }
+
 
         //POUR PAUSE
         FontPause = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
@@ -1663,7 +1681,7 @@ private:
       //  entities.push_back(new Enemy_HealerDeer(500.f,400.f,textureCerfHealer));
      //   entities.push_back(new Enemy_MageDeer(500.0f,500.f, textureCerfMage ));
 
-        entities.push_back(new Enemy_MageIceDeer(1450, 240, textureCerfMageIce));
+        //entities.push_back(new Enemy_MageIceDeer(1450, 240, textureCerfMageIce));
 
     }
 
@@ -1809,23 +1827,23 @@ private:
         entities.push_back(new Enemy_HealerDeer(960, 320, textureCerfHealer));
     }
     void SpawnWave2Stage2() {
-        //carre 1
+        //carre gauche
         entities.push_back(new Enemy_MageDeer(250, 80, textureCerfMage));
         entities.push_back(new Enemy_MageDeer(450, 80, textureCerfMage));
-        entities.push_back(new Enemy_HealerDeer(350, 160, textureCerfHealer));
+        entities.push_back(new Enemy_MageIceDeer(350, 160, textureCerfMageIce));
         entities.push_back(new Enemy_MageDeer(250, 240, textureCerfMage));
         entities.push_back(new Enemy_MageDeer(450, 240, textureCerfMage));
-        // Carre2
+        // Carre milieu
         entities.push_back(new Enemy_MageDeer(850, 220, textureCerfMage));
         entities.push_back(new Enemy_MageDeer(1050, 220, textureCerfMage));
         entities.push_back(new Enemy_HealerDeer(950, 300, textureCerfHealer));
         entities.push_back(new Enemy_MageDeer(850, 380, textureCerfMage));
         entities.push_back(new Enemy_MageDeer(1050, 380, textureCerfMage));
 
-        //carre 5
+        //carre droite
         entities.push_back(new Enemy_MageDeer(1450, 80, textureCerfMage));
         entities.push_back(new Enemy_MageDeer(1650, 80, textureCerfMage));
-        entities.push_back(new Enemy_HealerDeer(1550, 160, textureCerfHealer));
+        entities.push_back(new Enemy_MageIceDeer(1550, 160, textureCerfMageIce));
         entities.push_back(new Enemy_MageDeer(1450, 240, textureCerfMage));
         entities.push_back(new Enemy_MageDeer(1650, 240, textureCerfMage));
 
@@ -2251,25 +2269,36 @@ private:
                     };
                     SDL_RenderTexture(renderer, playerShip->texturePlayerShip, nullptr, &dest);
                 }
-                // Shield visuel devant le joueurw
+                // Shield visuel avec texture
                 if (playerShip->currentShieldHP > 0) {
-                    SDL_Color shieldColor = playerShip->currentShield->GetColor();
+                    // Choisir la bonne texture selon le niveau de shield
+                    SDL_Texture* shieldTexture = nullptr;
+                    if (globalShieldLevel == 1) {
+                        shieldTexture = textureSmallShield;
+                    } else if (globalShieldLevel == 2) {
+                        shieldTexture = textureMediumShield;
+                    } else if (globalShieldLevel == 3) {
+                        shieldTexture = textureLargeShield;
+                    }
 
-                    // Opacite proportionnelle aux HP restants
-                    float ratio = (float)playerShip->currentShieldHP / (float)playerShip->maxShieldHP;
-                    Uint8 alpha = (Uint8)(150.0f * ratio); // pour voir le joueur en dessous
+                    if (shieldTexture != nullptr) {
+                        // Opacite proportionnelle aux HP restants
+                        float ratio = (float)playerShip->currentShieldHP / (float)playerShip->maxShieldHP;
+                        Uint8 alpha = (Uint8)(200.0f * ratio); // 200 max pour garder un peu de transparence
 
-                    SDL_FRect shieldRect = {
-                        playerShip->transform.position.x - 10.0f, // un peu plus large que le joueur
-                        playerShip->transform.position.y - 10.0f,
-                        playerShip->transform.size.x + 20.0f,
-                        playerShip->transform.size.y + 20.0f
-                    };
+                        SDL_FRect shieldRect = {
+                            playerShip->transform.position.x - 20.0f,
+                            playerShip->transform.position.y - 65.0f,
+                            playerShip->transform.size.x + 40.0f,
+                            playerShip->transform.size.y + 40.0f
+                        };
 
-                    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-                    SDL_SetRenderDrawColor(renderer, shieldColor.r, shieldColor.g, shieldColor.b, alpha);
-                    SDL_RenderFillRect(renderer, &shieldRect);
-                    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                        SDL_SetTextureBlendMode(shieldTexture, SDL_BLENDMODE_BLEND);
+                        SDL_SetTextureAlphaMod(shieldTexture, alpha);
+                        SDL_RenderTexture(renderer, shieldTexture, nullptr, &shieldRect);
+                        // Reset alpha pour pas affecter les autres renders
+                        SDL_SetTextureAlphaMod(shieldTexture, 255);
+                    }
                 }
                 continue;
             }
@@ -2354,23 +2383,26 @@ private:
             }
             // ICE MAGIC RENDER
             if (MagicIceCube* cube = dynamic_cast<MagicIceCube*>(ent)) {
+                if (cube->textureIceCube == nullptr) {
+                    cube->textureIceCube = textureIceCube;
+                }
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
                 SDL_FRect dest = { cube->transform.position.x, cube->transform.position.y,
                                    cube->transform.size.x, cube->transform.size.y };
-                SDL_SetRenderDrawColor(renderer, 180, 230, 255, 220);
-                SDL_RenderFillRect(renderer, &dest);
-                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                SDL_RenderTexture(renderer, cube->textureIceCube, nullptr, &dest);
                 continue;
             }
             if (MagicIceSnowflake* flake = dynamic_cast<MagicIceSnowflake*>(ent)) {
+                if (flake->textureIceSnowflake == nullptr) {
+                    flake->textureIceSnowflake = textureSnowflake;
+                }
                 SDL_FRect dest = { flake->transform.position.x, flake->transform.position.y,
                                    flake->transform.size.x, flake->transform.size.y };
                 if (flake->textureIceSnowflake != nullptr) {
                     SDL_RenderTextureRotated(renderer, flake->textureIceSnowflake,
                         nullptr, &dest, flake->rotationAngle, nullptr, SDL_FLIP_NONE);
                 } else {
-                    SDL_SetRenderDrawColor(renderer, 210, 240, 255, 200);
-                    SDL_RenderFillRect(renderer, &dest);
+                    SDL_RenderTexture(renderer, flake->textureIceSnowflake, nullptr, &dest);
                 }
                 continue;
             }
@@ -2378,7 +2410,7 @@ private:
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
                 SDL_FRect dest = { icePuddle->transform.position.x, icePuddle->transform.position.y,
                                    icePuddle->transform.size.x, icePuddle->transform.size.y };
-                SDL_SetRenderDrawColor(renderer, 220, 243, 255, (Uint8)icePuddle->alpha);
+                SDL_SetRenderDrawColor(renderer, 12,183,233, (Uint8)icePuddle->alpha);
                 SDL_RenderFillRect(renderer, &dest);
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
                 continue;
@@ -3011,6 +3043,18 @@ private:
                                 meteorHit->bIsFlashing = true;
                                 meteorHit->hitFlashTimer = meteorHit->hitFlashDuration;
                             }
+                            //declenche flash rouge pour Cerf Mage Ice
+                            Enemy_MageIceDeer* mageIceHit = dynamic_cast<Enemy_MageIceDeer *>(ennemi);
+                            if (mageIceHit != nullptr ) {
+                                mageIceHit->bIsFlashing = true;
+                                mageIceHit->hitFlashTimer = mageIceHit->hitFlashDuration;
+                            }
+                            //declenche flash rouge barricade
+                            Enemy_Barricade* barricadeHit = dynamic_cast<Enemy_Barricade *>(ennemi);
+                            if (barricadeHit != nullptr ) {
+                                barricadeHit->bIsFlashing = true;
+                                barricadeHit->hitFlashTimer = barricadeHit->hitFlashDuration;
+                            }
 
 
 
@@ -3312,8 +3356,14 @@ private:
         // On remet le fond noir et on clear
         SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
         SDL_RenderClear(app.renderer);
-    //  BACKGROUND TEXTURE
-        SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
+        //BACKGROUND
+        //DIFFERENT BACKGROUND
+        if (currentStage == 1) {
+            SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
+        }
+        else if (currentStage = 2) {
+            SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
+        }
         //On dessine les entities et UI sans les faire bouger
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
         //Rajouter le score dynamique lors du Pause
@@ -3704,8 +3754,13 @@ GameApp &app = GameApp::GetInstance();
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
         //BACKGROUND
-    SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
-
+        //DIFFERENT BACKGROUND
+        if (currentStage == 1) {
+            SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
+        }
+        else if (currentStage = 2) {
+            SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
+        }
     // On dessine les entities et UI sans les faire bouger
     SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
 

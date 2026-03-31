@@ -469,7 +469,7 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
         entities.push_back(fraise);
 
     }
-    else if (currentPhase == 2 && shootTimer >= 1.5f) {
+    else if (currentPhase == 2 && shootTimer >= 3.0f) {
         shootTimer = 0.0f;
         float centreX = transform.position.x + transform.size.x / 2.0f;
         float centreY = transform.position.y + transform.size.y;
@@ -509,7 +509,7 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
     }
     else if (currentPhase == 4) {
         // fraises
-        if (shootTimer >= 1.0f) {
+        if (shootTimer >= 2.0f) {
             shootTimer = 0.0f;
             float centreX = transform.position.x + transform.size.x / 2.0f;
             float centreY = transform.position.y + transform.size.y;
@@ -734,7 +734,7 @@ void MagicPuddle::Update(float deltaTime) {
 MagicIceCube::MagicIceCube(float startX, float startY, SDL_Texture *texture) {
     AddComponent(TRANSFORM);
     transform.position = { startX, startY };
-    transform.size     = { 30.0f, 30.0f };
+    transform.size     = { 45.0f, 45.0f };
     AddComponent(MOVEMENT);
     // movement aleatoire de depart
     static std::mt19937 gen(std::random_device{}());
@@ -785,7 +785,7 @@ void MagicIceCube::Update(float deltaTime,  std::vector<Entity*>& entities) {
 MagicIceSnowflake::MagicIceSnowflake(float startX, float startY, SDL_Texture *texture) {
     AddComponent(TRANSFORM);
     transform.position = { startX, startY };
-    transform.size     = { 16.0f, 16.0f };
+    transform.size     = { 40.0f, 40.0f };
     AddComponent(MOVEMENT);
     AddComponent(RENDER);
     render.color = { 210, 240, 255, 200 };
@@ -817,7 +817,7 @@ MagicIcePuddle::MagicIcePuddle(float startX, float startY) {
     transform.size = {125.0f, 25.0f};
 
     AddComponent(RENDER);
-    render.color = {220,243,255, 180}; // couleur bleu clair
+    render.color = {12,183,233, 180}; // couleur bleu clair
 
     entityType = EntityType::EnemyBullet;
 }
