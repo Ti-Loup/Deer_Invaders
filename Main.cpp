@@ -1144,7 +1144,7 @@ private:
         TTF_DestroyText(ChoixNiveau2Text);
         TTF_DestroyText(ChoixNiveau3Text);
         TTF_CloseFont(ChoixNiveauFont);
-
+        TTF_CloseFont(DialogueFont);
         //Shop
         TTF_CloseFont (Arme_Shield_DescriptionFont);
         TTF_DestroyText(ShieldSmallText);
@@ -1601,18 +1601,33 @@ private:
     //fonction Intro pour la narration de debut
 
     void IntroGame (float deltaTime) {
-        // Effacer l'écran (Fond noir par défaut)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        // Personnage Humain
-        SDL_FRect HumainRect = {100, 300, 400, 800}; // Ajusté X pour pas qu'ils se collent
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-        SDL_RenderFillRect(renderer, &HumainRect);
+        // Détecter qui parle selon le message actuel
+        const char* currentPhrase = "";
+        if (StateActuel == State::IntroNiveau1)
+            currentPhrase = phrasesIntroNiveau1[indexMessageIntroNiveau1];
+        else if (StateActuel == State::IntroNiveau2)
+            currentPhrase = phrasesIntroNiveau2[indexMessageIntroNiveau2];
 
-        // Personnage Deer
-        SDL_FRect DeerRect = {1400, 300, 400, 800}; // Ajusté X à droite
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Rouge pour le cerf
+        bool humanSpeaks = (strncmp(currentPhrase, "Human", 5) == 0);
+        bool deerSpeaks  = (strncmp(currentPhrase, "Deer",  4) == 0);
+
+        // plus grand quand il parle sinon plus petit
+        SDL_FRect HumainRect = {
+            100,
+            humanSpeaks ? 300.f : 380.f,
+            400,
+            humanSpeaks ? 800.f : 720.f
+        };
+        SDL_SetRenderDrawColor(renderer, humanSpeaks ? 0 : 30,humanSpeaks ? 0 : 30,humanSpeaks ? 255 : 80, 255);
+        SDL_RenderFillRect(renderer, &HumainRect);
+        // Cerf parole
+        SDL_FRect DeerRect = {
+            1400,deerSpeaks ? 300.f : 380.f,400,deerSpeaks ? 800.f : 720.f
+        };
+        SDL_SetRenderDrawColor(renderer, deerSpeaks ? 255 : 80,deerSpeaks ? 0 : 30,deerSpeaks ? 0 : 30, 255);
         SDL_RenderFillRect(renderer, &DeerRect);
 
         // Dessiner la bande gris foncé en bas
@@ -1636,6 +1651,7 @@ private:
         }
         TTF_DrawRendererText(fpsText, 1800, 10);
         //Tout afficher
+
         SDL_RenderPresent(renderer);
     }
     //Pour la premiere vague d'ennemies STAGE 1

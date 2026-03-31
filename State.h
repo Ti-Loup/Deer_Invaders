@@ -8,7 +8,6 @@
 #include "Main.h"
 class Entity;
 
-
 //state machine
 enum class State {
 Menu,
