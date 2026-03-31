@@ -240,6 +240,8 @@ public:
     SDL_Texture *textureIceCube = nullptr;
     //Texture Snowflake
     SDL_Texture *textureSnowflake = nullptr;
+    //Texture Cerf Melee
+    SDL_Texture *textureCerfMelee = nullptr;
 
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
@@ -648,7 +650,7 @@ private:
         ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Choose Your Stage", 25);
         ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend Home", 25);
         ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Invasion Deer Mages", 25);
-        ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "TBD", 25);
+        ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Final Pasture", 25);
         StageAvailable = TTF_CreateText(textEngine, ChoixNiveauFont, "Available", 25);
         StageLocked = TTF_CreateText(textEngine, ChoixNiveauFont, "Locked", 25);
         //Texture des previews dans ChoixNiveau
@@ -822,6 +824,11 @@ private:
         textureSnowflake = IMG_LoadTexture(renderer, "assets/Snowflake.png");
         if (textureSnowflake == nullptr) {
             SDL_LogWarn(0, "failed to load textureSnowflake", SDL_GetError());
+        }
+        //TEXTURE CERF MELEE
+        textureCerfMelee = IMG_LoadTexture(renderer, "assets/CerfFire.png");
+        if (textureCerfMelee == nullptr) {
+            SDL_LogWarn(0, "failed to load textureCerfMelee");
         }
 
 
@@ -1884,7 +1891,13 @@ private:
     }
 
     void SpawnWave3Stage2() {
-        entities.push_back(new Enemy_MageDeer(1450, 240, textureCerfMage));
+        //
+        entities.push_back(new Enemy_MageDeer(1000, 50, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(100, 150, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1000, 700, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1800, 150, textureCerfMage));
+
+        entities.push_back(new Enemy_MageIceDeer(900, 200, textureCerfMageIce));
     }
 
     //Vague meteorite

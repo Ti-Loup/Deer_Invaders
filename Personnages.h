@@ -102,6 +102,21 @@ public:
        float magicShootCooldown = 6.0f;
 
 };
+//Rajout Cerf Melee
+class Enemy_DeerMelee : public Entity {
+public:
+    Enemy_DeerMelee(float startX, float startY, SDL_Texture *texture = nullptr);
+    void Update(float deltaTime);
+
+    //Pour la texture du cerf Melee
+    SDL_Texture *textureCerfMelee = nullptr;
+
+    //Un flash pour les collisions si toucher par bullet
+    float hitFlashTimer = 0.0f; //timer
+    const float hitFlashDuration = 0.4f;
+    bool bIsFlashing = false;
+
+};
 
 
 
