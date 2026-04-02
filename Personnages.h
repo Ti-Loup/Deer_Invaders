@@ -106,7 +106,7 @@ public:
 class Enemy_DeerMelee : public Entity {
 public:
     Enemy_DeerMelee(float startX, float startY, SDL_Texture *texture = nullptr);
-    void Update(float deltaTime);
+    void Update(float deltaTime, float playerX, float playerY);
 
     //Pour la texture du cerf Melee
     SDL_Texture *textureCerfMelee = nullptr;
@@ -116,6 +116,10 @@ public:
     const float hitFlashDuration = 0.4f;
     bool bIsFlashing = false;
 
+    float waitTimer = 0.0f;
+    const float waitDuration = 3.0f; // attente avant de charger
+    bool bIsCharging = false;
+    float chargeSpeed = 250.0f;
 };
 
 

@@ -1900,13 +1900,13 @@ private:
     }
 
     void SpawnWave3Stage2() {
-        //
+        //losange
         entities.push_back(new Enemy_MageDeer(1000, 50, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(100, 150, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(300, 150, textureCerfMage));
         entities.push_back(new Enemy_MageDeer(1000, 700, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1800, 150, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1600, 150, textureCerfMage));
 
-        entities.push_back(new Enemy_MageIceDeer(900, 200, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(1000, 300, textureCerfMageIce));
     }
 
     //Vague meteorite
@@ -1965,7 +1965,7 @@ private:
 
     }
 
-    void SpawnWave5State2() {
+    void SpawnWave5Stage2() {
         entities.push_back(new Enemy_MageIceDeer(350, 160, textureCerfMageIce));
         entities.push_back(new Enemy_MageIceDeer(900, 160, textureCerfMageIce));
         entities.push_back(new Enemy_MageIceDeer(1650, 160, textureCerfMageIce));
@@ -1976,7 +1976,27 @@ private:
 
         entities.push_back(new Enemy_FraiseBoss(800.0f, 200.0f , textureBossStage_1_2));
     }
+    //Stage 3
+    //wave 1
+    void SpawnWave1Stage3() {
 
+    }
+    //wave 2
+    void SpawnWave2Stage3(float deltaTime) {
+
+    }
+    //wave 3
+    void SpawnWave3Stage3() {
+
+    }
+    //wave 4
+    void SpawnWave4Stage3(float deltaTime) {
+
+    }
+    //wave 5
+    void SpawnWave5Stage3() {
+
+    }
 
 //Fonction pour commencer une wave
     // Le else represente lorsque tous les waves sont passer alors jouer gagner
@@ -2040,7 +2060,7 @@ private:
             }
             else if (wave == 5) {
             currentWaveType = WaveType::Elimination;
-                SpawnWave5State2();
+                SpawnWave5Stage2();
             }
             else {
                 waveInProgress = false;
@@ -2048,7 +2068,37 @@ private:
                 app.StateActuel = State::NiveauGagnerScreen;
             }
         }
+        //le stage 3 du jeu
+        else if (currentStage == 3) {
 
+            if (wave == 1) {
+                currentWaveType = WaveType::Elimination;
+                SpawnWave1Stage3();
+            }
+            else if (wave == 2) {
+                currentWaveType = WaveType::Survival;
+                survivalTimer = 0.0f;
+                meteorSpawnTimer = 0.0f;
+            }
+            else if (wave == 3) {
+                currentWaveType = WaveType::Elimination;
+                SpawnWave3Stage3();
+            }
+            else if (wave == 4) {
+                currentWaveType = WaveType::Survival;
+                survivalTimer = 0.0f;
+                meteorSpawnTimer = 0.0f;
+            }
+            else if (wave == 5) {
+                currentWaveType = WaveType::Elimination;
+                SpawnWave5Stage2();
+            }
+            else {
+                waveInProgress = false;
+                if (currentStage == 2) bStage2Completed = true;
+                app.StateActuel = State::NiveauGagnerScreen;
+            }
+        }
 
 
     }
@@ -2751,15 +2801,22 @@ private:
             {
                 // les waves survivals
                     if (currentWave == 2) {
-                        SpawnWave2Stage1(deltaTime);
-
+                        if (currentStage == 1) {
+                            SpawnWave2Stage1(deltaTime);
+                        }
+                        else if (currentStage == 3) {
+                            SpawnWave2Stage3(deltaTime);
+                        }
                     }
                     else if (currentWave == 4) {
                         if (currentStage == 1) {
                             SpawnWave4Stage1(deltaTime);
                         }
-                        else if (currentStage = 2) {
+                        else if (currentStage == 2) {
                             SpawnWave4Stage2(deltaTime);
+                        }
+                        else if (currentStage == 3) {
+                            SpawnWave4Stage3(deltaTime);
                         }
                     }
 
@@ -2856,6 +2913,10 @@ private:
                     Enemy_MageIceDeer* mageIce = dynamic_cast<Enemy_MageIceDeer*>(entity);
                     if (mageIce != nullptr) {
                         mageIce->Update(deltaTime, entities);
+                    }
+                    Enemy_DeerMelee* deerMelee = dynamic_cast<Enemy_DeerMelee*>(entity);
+                    if (deerMelee != nullptr) {
+                        deerMelee->Update(deltaTime, player->transform.position.x, player->transform.position.y);
                     }
                 }
 

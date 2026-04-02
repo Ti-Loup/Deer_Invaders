@@ -283,9 +283,36 @@ Enemy_DeerMelee::Enemy_DeerMelee(float startX, float startY, SDL_Texture *textur
     entityType = EntityType::Enemy;
 }
 
-void Enemy_DeerMelee::Update(float deltaTime) {
-    //ce dirige vers le joueur
+void Enemy_DeerMelee::Update(float deltaTime, float playerX, float playerY) {
+    //si charge
+    if (!bIsCharging) {
+        // le wait time
+        waitTimer += deltaTime;
+        if (waitTimer >= waitDuration) {
+            bIsCharging = true;
+        }
+    } else {
+        // direction vers joueur
+        float dirX = playerX - transform.position.x;
+        float dirY = playerY - transform.position.y;
+        float length = std::sqrt(dirX * dirX + dirY * dirY);
 
+        if (length > 0.0f) {
+            movement.velocity.x = (dirX / length) * chargeSpeed;
+            movement.velocity.y = (dirY / length) * chargeSpeed;
+        }
+
+        MovementUpdate(deltaTime);
+    }
+
+    // Flash rouge quand collision
+    if (bIsFlashing) {
+        hitFlashTimer -= deltaTime;
+        if (hitFlashTimer <= 0.0f) {
+            hitFlashTimer = 0.0f;
+            bIsFlashing = false;
+        }
+    }
 }
 
 
@@ -533,7 +560,7 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
     }
     else if (currentPhase == 4) {
         // fraises
-        if (shootTimer >= 2.0f) {
+        if (shootTimer >= 5.0f) {
             shootTimer = 0.0f;
             float centreX = transform.position.x + transform.size.x / 2.0f;
             float centreY = transform.position.y + transform.size.y;
@@ -557,7 +584,7 @@ void Enemy_FraiseBoss::Update(float deltaTime, std::vector<Entity*> &entities, f
         }
         // missiles
         missileTimer += deltaTime;
-        if (missileTimer >= 2.0f) {
+        if (missileTimer >= 3.0f) {
             missileTimer = 0.0f;
             entities.push_back(new Missile(centreX - 100.0f, transform.position.y, playerX, missileTexture));
             entities.push_back(new Missile(centreX,          transform.position.y, playerX, missileTexture));
