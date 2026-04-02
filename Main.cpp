@@ -175,9 +175,10 @@ public:
     };
     static const int NB_MESSAGES_IntroNiveau3 = 3;
     const char *phrasesIntroNiveau3[NB_MESSAGES_IntroNiveau3] = {
-        "TBD",
-        "TBD",
-        "TBD"
+        "Human: Those mages are no more!",
+        "Deer: When the flames rise, only the strong will survive.",
+        "Human: The fire of hate gives way to the ash of grief"
+        "Deer: I am the fire!"
     };
 
 
@@ -658,7 +659,7 @@ private:
         ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Choose Your Stage", 25);
         ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend Home", 25);
         ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Invasion Deer Mages", 25);
-        ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Final Pasture", 25);
+        ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Trial by fire", 25);
         StageAvailable = TTF_CreateText(textEngine, ChoixNiveauFont, "Available", 25);
         StageLocked = TTF_CreateText(textEngine, ChoixNiveauFont, "Locked", 25);
         //Texture des previews dans ChoixNiveau
@@ -1630,15 +1631,19 @@ private:
         if (currentStage == 1) {
             SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
         }
-        else if (currentStage = 2) {
+        else if (currentStage == 2) {
             SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
+        }
+        else if (currentStage == 3) {
+            SDL_RenderTexture(renderer, textureBackground3, nullptr, nullptr);
         }
     const char* currentPhrase = "";
     if (StateActuel == State::IntroNiveau1)
         currentPhrase = phrasesIntroNiveau1[indexMessageIntroNiveau1];
     else if (StateActuel == State::IntroNiveau2)
         currentPhrase = phrasesIntroNiveau2[indexMessageIntroNiveau2];
-
+    else if (StateActuel == State::IntroNiveau3)
+        currentPhrase = phrasesIntroNiveau3[indexMessageIntroNiveau3];
         //strncmp est une fonction du C qui compare deux chaines de caractères sur un nombre limite de caracteres (Humain / Cerf)
     bool humanSpeaks = (strncmp(currentPhrase, "Human", 5) == 0);
     bool deerSpeaks  = (strncmp(currentPhrase, "Deer",  4) == 0);
@@ -2106,11 +2111,11 @@ private:
             }
             else if (wave == 5) {
                 currentWaveType = WaveType::Elimination;
-                SpawnWave5Stage2();
+                SpawnWave5Stage3();
             }
             else {
                 waveInProgress = false;
-                if (currentStage == 2) bStage2Completed = true;
+                if (currentStage == 3) bStage3Completed = true;
                 app.StateActuel = State::NiveauGagnerScreen;
             }
         }
@@ -5092,6 +5097,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         app.indexMessageIntroNiveau3++;
             if (app.indexMessageIntroNiveau3 < app.NB_MESSAGES_IntroNiveau3) {
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[app.indexMessageIntroNiveau3], 0);
+            }
+            else {
+                app.StateActuel = State::Game;
             }
         }
         //Dans Le Pause
