@@ -83,6 +83,7 @@ public:
     SDL_Texture *textureBackgroundMenu = nullptr;
     SDL_Texture *textureBackground = nullptr;
     SDL_Texture *textureBackground2 = nullptr;
+    SDL_Texture *textureBackground3 = nullptr;
 
 
     //-> MENU <- Font et Texts
@@ -763,6 +764,10 @@ private:
         if (textureBackgroundMenu == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureBackgroundMenu", SDL_GetError());
         }
+        textureBackground3 = IMG_LoadTexture(renderer, "assets/Background3.png");
+        if (textureBackground3 == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureBackground3", SDL_GetError());
+        }
 
         //BOSS STAGE 1 AND 2
         textureBossStage_1_2 = IMG_LoadTexture(renderer, "assets/BossFinalDeerInvadersCompress.png");
@@ -833,7 +838,7 @@ private:
             SDL_LogWarn(0, "failed to load textureSnowflake", SDL_GetError());
         }
         //TEXTURE CERF MELEE
-        textureCerfMelee = IMG_LoadTexture(renderer, "assets/CerfFire.png");
+        textureCerfMelee = IMG_LoadTexture(renderer, "assets/DeerEnnemieFire.png");
         if (textureCerfMelee == nullptr) {
             SDL_LogWarn(0, "failed to load textureCerfMelee");
         }
@@ -1235,6 +1240,7 @@ private:
         SDL_DestroyTexture(textureBackground);
         SDL_DestroyTexture(textureBackground2);
         SDL_DestroyTexture(textureBackgroundMenu);
+        SDL_DestroyTexture(textureBackground3);
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         TTF_Quit();
@@ -1979,9 +1985,18 @@ private:
     //Stage 3
     //wave 1
     void SpawnWave1Stage3() {
+        entities.push_back(new Enemy_MageIceDeer(300, 100, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(1450, 100, textureCerfMageIce));
 
+        entities.push_back(new Enemy_DeerMelee(600,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(900,250,textureCerfMelee));
+
+        entities.push_back(new Enemy_MageIceDeer(500, 100, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(1650, 100, textureCerfMageIce));
+
+        entities.push_back(new Enemy_Barricade(800, 700, nullptr));
     }
-    //wave 2
+    //wave 2 (survival)
     void SpawnWave2Stage3(float deltaTime) {
 
     }
@@ -1989,7 +2004,7 @@ private:
     void SpawnWave3Stage3() {
 
     }
-    //wave 4
+    //wave 4 (survival)
     void SpawnWave4Stage3(float deltaTime) {
 
     }
@@ -2261,6 +2276,30 @@ private:
                     }
 
                     SDL_RenderTexture(renderer, enemy_deerIceMage->textureDeerMageIce, nullptr, &dest);
+                    continue;
+                }
+            }
+            //RENDU TEXTURE CERF MELEE
+            if (Enemy_DeerMelee *enemy_deerMelee = dynamic_cast<Enemy_DeerMelee *>(ent)) {
+                if (enemy_deerMelee->textureCerfMelee != nullptr) {
+                    SDL_FRect dest = {
+                        enemy_deerMelee->transform.position.x,
+                        enemy_deerMelee->transform.position.y,
+                        enemy_deerMelee->transform.size.x,
+                        enemy_deerMelee->transform.size.y
+                    };
+
+                    if (enemy_deerMelee->bIsFlashing) {
+                        // Calcule l'intensité du rouge selon le temps restant
+                        float ratio = enemy_deerMelee->hitFlashTimer / enemy_deerMelee->hitFlashDuration;
+                        Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
+                        SDL_SetTextureColorMod(enemy_deerMelee->textureCerfMelee, 255, 255 - flashIntensity, 255 - flashIntensity);
+                    } else {
+                        // Remet la couleur normale
+                        SDL_SetTextureColorMod(enemy_deerMelee->textureCerfMelee, 255, 255, 255);
+                    }
+
+                    SDL_RenderTexture(renderer, enemy_deerMelee->textureCerfMelee, nullptr, &dest);
                     continue;
                 }
             }
@@ -2540,8 +2579,11 @@ private:
         if (currentStage == 1) {
             SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
         }
-        else if (currentStage = 2) {
+        else if (currentStage == 2) {
             SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
+        }
+        else if (currentStage == 3) {
+            SDL_RenderTexture(renderer, textureBackground3, nullptr, nullptr);
         }
         // On dessine les entities et UI sans les faire bouger
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
@@ -3065,6 +3107,8 @@ private:
                         if (bossMove != nullptr) continue;
                         Enemy_Barricade *barricade = dynamic_cast<Enemy_Barricade*>(ent);
                         if (barricade != nullptr) continue;
+                        Enemy_DeerMelee* deerMelee = dynamic_cast<Enemy_DeerMelee *>(ent);//Pour pas que les cerfs ce bloquent dans le mur du bas
+                        if (deerMelee != nullptr) continue;
                         // Verifie Gauche
                         if (ent->transform.position.x <= 0.0f) {
                             ToucheMurGauche = true;
@@ -3348,6 +3392,9 @@ private:
         else if (currentStage == 2) {
             SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
         }
+        else if (currentStage == 3) {
+            SDL_RenderTexture(renderer, textureBackground3, nullptr, nullptr);
+        }
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
         SDL_RenderTexture(renderer,HealUI,nullptr, &healSize);
 
@@ -3519,8 +3566,11 @@ private:
         if (currentStage == 1) {
             SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
         }
-        else if (currentStage = 2) {
+        else if (currentStage == 2) {
             SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
+        }
+        else if (currentStage == 3) {
+            SDL_RenderTexture(renderer, textureBackground3, nullptr, nullptr);
         }
         //On dessine les entities et UI sans les faire bouger
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
@@ -3945,8 +3995,11 @@ GameApp &app = GameApp::GetInstance();
         if (currentStage == 1) {
             SDL_RenderTexture(renderer, textureBackground, nullptr, nullptr);
         }
-        else if (currentStage = 2) {
+        else if (currentStage == 2) {
             SDL_RenderTexture(renderer, textureBackground2, nullptr, nullptr);
+        }
+        else if (currentStage == 3) {
+            SDL_RenderTexture(renderer, textureBackground3, nullptr, nullptr);
         }
     // On dessine les entities et UI sans les faire bouger
     SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);

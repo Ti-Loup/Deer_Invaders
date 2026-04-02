@@ -119,7 +119,7 @@ public:
     float waitTimer = 0.0f;
     const float waitDuration = 3.0f; // attente avant de charger
     bool bIsCharging = false;
-    float chargeSpeed = 250.0f;
+    float chargeSpeed = 100.0f;
 };
 
 
