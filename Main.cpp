@@ -18,7 +18,7 @@
 #include "Entity.h"
 #include "Personnages.h"
 #include "Player.h"
-
+#include "Database.h"
 //CURRENT STUFF TO DO FOR TUESDAY PLAYTEST LISTS
 /*
  *FINISHED:
@@ -27,12 +27,19 @@
  *      debut Stage 2
  *      LES FONTS
  *      LE UI DU SHOP A REFAIRE.
+ *      La database
+ *
  *TO DO :
  *
+ *UPDATE LEVELS
+ *MOUVEMENT DIFFERENTS POUR LES CERFS DE CERTAIN NIVEAUX
+ *IMPLEMENTATION DATABASE DANS SCORE
+ *Steamwork API a faire
+ *Object pool
+ *Observer a finir
  *
- *
- *La database
- *
+ *Different ennemie que meteorite pour survival (si temps)
+ *Different ennemie boss pour stage 2 et 3 (si temps)
  */
 
 
@@ -456,6 +463,13 @@ public:
 
     State nextStateAfterFadeOut = State::Game; //retour au game apres Le fade
 
+
+    //LA DATA BASE
+    DataBaseStage database;
+    bool bDatabaseInitialized = false;
+    std::vector<ScoreRecord> highScores;
+
+
 private:
     //Score Lorsque Cerf Mort
     int currentScore = 0;
@@ -464,8 +478,6 @@ private:
 
     //SCORE DU RENDER JEU
     int lastScore = -1;
-
-
 
 
     GameApp() //Constructeur
@@ -1153,6 +1165,15 @@ private:
 
         //Timer FPS
         fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
+
+        //Constructeur de la database pour l'ouvrir
+        if (database.OpenDatabase() == SQLITE_OK) {
+            bDatabaseInitialized = true;
+            SDL_LogInfo(1, "Database ready");
+        }
+        else {
+            SDL_LogInfo(0,"Database failed to open");
+        }
     }
 
     //Libere memoire
@@ -2054,6 +2075,15 @@ private:
             else {
                 waveInProgress = false; // stop la logique de wave
                 if (currentStage == 1) bStage1Completed = true;
+
+                //implementation de la base de donnée quand le joueur meur ou gagne
+                if (bDatabaseInitialized) {
+                    ScoreRecord record;
+                    record.player_name = "Player";
+                    record.value = currentScore;
+                    database.InsertScore(record);
+                }
+
                 app.StateActuel = State::NiveauGagnerScreen;
             }
         }
@@ -2298,7 +2328,7 @@ private:
                         // Calcule l'intensité du rouge selon le temps restant
                         float ratio = enemy_deerMelee->hitFlashTimer / enemy_deerMelee->hitFlashDuration;
                         Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
-                        SDL_SetTextureColorMod(enemy_deerMelee->textureCerfMelee, 255, 255 - flashIntensity, 255 - flashIntensity);
+                        SDL_SetTextureColorMod(enemy_deerMelee->textureCerfMelee, 255 - flashIntensity, 255 - flashIntensity, 255);
                     } else {
                         // Remet la couleur normale
                         SDL_SetTextureColorMod(enemy_deerMelee->textureCerfMelee, 255, 255, 255);
@@ -3554,8 +3584,16 @@ private:
         app.player->health.current_health = 0;
         app.currentHP = 0;
         app.deathFadeAlpha = 0.0f; // La transparance commence a 0
-        app.StateActuel = State::DeathScreen; // On change d'état
+        //implementation de la base de donnée quand le joueur meur ou gagne
+        if (bDatabaseInitialized) {
+            ScoreRecord record;
+            record.player_name = "Player";
+            record.value = app.currentScore;
+            app.database.InsertScore(record);
+            SDL_LogInfo(1, "Score inserted: %d", app.currentScore);
+        }
 
+        app.StateActuel = State::DeathScreen; // On change d'état
         SDL_Log("Transition vers l'écran de mort");
     }
 
@@ -3747,6 +3785,26 @@ GameApp &app = GameApp::GetInstance();
         SDL_RenderClear(renderer);
         RenderScoreTitle();
         UpdateBackgroundTint(deltaTime);
+        // Affiche chaque score de la liste
+        if (highScores.empty()) {
+            // Aucun score encore
+            TTF_DrawRendererText(dynamicscoreText, 700, 400);
+        } else {
+            float startY = 280.0f;
+            for (int i = 0; i < (int)highScores.size(); i++) {
+                std::string line = std::to_string(i + 1) + ".  "
+                                 + highScores[i].player_name
+                                 + "  -  "
+                                 + std::to_string(highScores[i].value);
+
+                TTF_SetTextString(dynamicscoreText, line.c_str(), 0);
+                TTF_SetTextColor(dynamicscoreText, 255, 255, 255, 255);
+                TTF_DrawRendererText(dynamicscoreText, 600, startY + (i * 60.0f));
+            }
+        }
+
+
+
         if (selectedButtonScore == 0) {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
         }else {
@@ -4455,6 +4513,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     break;
                 case 1:
                     app.StateActuel = State::ScoreBoard;
+                    if (app.bDatabaseInitialized) {
+                        app.highScores.clear();
+                        app.database.GetHighScores(app.highScores, 5); // Top 5 des scores
+                    }
                     break;
                 case 2:
                     app.StateActuel = State::Shop;
@@ -5007,6 +5069,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonScore)) {
                 app.StateActuel = State::ScoreBoard;
+                if (app.bDatabaseInitialized) {
+                    app.highScores.clear();
+                    app.database.GetHighScores(app.highScores, 5); // Top 5 des scores
+                }
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonShop)) {
                 app.StateActuel = State::Shop;
