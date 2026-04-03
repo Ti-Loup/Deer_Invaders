@@ -173,11 +173,11 @@ public:
         "Human: Their mages hide in towers... an easy target.",
         "Deer: Come... we are waiting for you."
     };
-    static const int NB_MESSAGES_IntroNiveau3 = 3;
+    static const int NB_MESSAGES_IntroNiveau3 = 4;
     const char *phrasesIntroNiveau3[NB_MESSAGES_IntroNiveau3] = {
         "Human: Those mages are no more!",
         "Deer: When the flames rise, only the strong will survive.",
-        "Human: The fire of hate gives way to the ash of grief"
+        "Human: The fire of hate gives way to the ash of grief",
         "Deer: I am the fire!"
     };
 
