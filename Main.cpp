@@ -28,16 +28,17 @@
  *      LES FONTS
  *      LE UI DU SHOP A REFAIRE.
  *      La database
+ *IMPLEMENTATION DATABASE DANS SCORE
  *
  *TO DO :
  *
- *UPDATE LEVELS
- *MOUVEMENT DIFFERENTS POUR LES CERFS DE CERTAIN NIVEAUX
- *IMPLEMENTATION DATABASE DANS SCORE
+ *
  *Steamwork API a faire
  *Object pool
  *Observer a finir
  *
+ *UPDATE LEVELS
+ *MOUVEMENT DIFFERENTS POUR LES CERFS DE CERTAIN NIVEAUX
  *Different ennemie que meteorite pour survival (si temps)
  *Different ennemie boss pour stage 2 et 3 (si temps)
  */
@@ -3792,10 +3793,7 @@ GameApp &app = GameApp::GetInstance();
         } else {
             float startY = 280.0f;
             for (int i = 0; i < (int)highScores.size(); i++) {
-                std::string line = std::to_string(i + 1) + ".  "
-                                 + highScores[i].player_name
-                                 + "  -  "
-                                 + std::to_string(highScores[i].value);
+                std::string line = std::to_string(i + 1) + ".  " + highScores[i].player_name+ "  -  " + std::to_string(highScores[i].value);
 
                 TTF_SetTextString(dynamicscoreText, line.c_str(), 0);
                 TTF_SetTextColor(dynamicscoreText, 255, 255, 255, 255);
