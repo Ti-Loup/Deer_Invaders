@@ -498,6 +498,7 @@ private:
             SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
             abort();
         }
+
         window = SDL_CreateWindow("Deer Invaders", 1280, 720, 0);
         if (window == nullptr) {
             SDL_LogCritical(1, "SDL failed to create window! %s", SDL_GetError());
@@ -2116,8 +2117,9 @@ private:
                         SDL_LogWarn(0, "InsertScore crash inconnu");
                     }
                 }
-
-
+                //ACHIEVEMENT WIN ONE GAME (1 STAGE)
+                SteamUserStats()->SetAchievement("ACH_WIN_ONE_GAME");
+                SteamUserStats()->StoreStats();
                 app.StateActuel = State::NiveauGagnerScreen;
                 return;
             }
@@ -2240,6 +2242,7 @@ private:
                         SDL_LogWarn(0, "InsertScore crash inconnu");
                     }
                 }
+
                 app.StateActuel = State::NiveauGagnerScreen;
                 return;
 
