@@ -484,8 +484,17 @@ private:
 
     GameApp() //Constructeur
     {
-        //initionalisation du GAMEPAD
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) == false) {
+        SteamErrMsg errMsg;
+        if (SteamAPI_InitEx(&errMsg) != k_ESteamAPIInitResult_OK) {
+            SDL_Log("Steam API failed to initialize: %s", errMsg);
+        } else {
+            SDL_Log("Steam initialized! AppID: %u", SteamUtils()->GetAppID());
+        }
+        SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "0");
+        //SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "0");
+        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_JOYSTICK) == false) {
             SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
             abort();
         }
@@ -3603,7 +3612,7 @@ private:
 
         std::string playerName = "Player"; // Player Par default
 
-        if (SteamAPI_Init() || SteamUser() != nullptr) {
+        if (SteamUser() != nullptr) {
             if (SteamUser()->BLoggedOn()) {
                 ISteamFriends* friends = SteamFriends();
                 if (friends != nullptr) {
@@ -4318,17 +4327,38 @@ public:
         keyReleaseBindings.clear();
     }
 
-
-    //Void ne renvoie rien alors on utilise SDL_AppResult pour retourner SDL_APP_SUCCESS && SDL_APP_CONTINUE
     SDL_AppResult RunCallBacks() {
         static uint64_t lastTime = SDL_GetTicks();
-
-
         // Calcul du temps global
         const uint64_t currentTime = SDL_GetTicks();
         deltaTime = static_cast<float>(currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
+        if (gameController == nullptr) {
+            int padCount = 0;
+            SDL_JoystickID* pads = SDL_GetGamepads(&padCount);
 
+            int jsCount = 0;
+            SDL_JoystickID* joysticks = SDL_GetJoysticks(&jsCount);
+            if (jsCount > 0) {
+                SDL_Log("Joysticks visibles: %d, Gamepads: %d", jsCount, padCount);
+                for (int i = 0; i < jsCount; i++) {
+                    SDL_Log("  -> Joystick ID=%u, estGamepad=%s",
+                        joysticks[i],
+                        SDL_IsGamepad(joysticks[i]) ? "OUI" : "NON");
+                }
+                SDL_free(joysticks);
+            }
+
+            if (pads && padCount > 0) {
+                gameController = SDL_OpenGamepad(pads[0]);
+                if (gameController) {
+                    SDL_Log("Manette trouvee: %s", SDL_GetGamepadName(gameController));
+                }
+                SDL_free(pads);
+            } else if (pads) {
+                SDL_free(pads);
+            }
+        }
         CalculateFPS(deltaTime);
         //le runcallbacks du steam sdk
         SteamAPI_RunCallbacks();
@@ -4423,17 +4453,26 @@ public:
 SDL_AppResult
 //deux *pour modifier et ecrire dans le pointeur (post-it de l'objet qu;on peut mettre de l'information a l'interieur)				2 etoiles argv signifie avec un array
 SDL_AppInit(void **appstate, int argc, char *argv[]) {
-    //Initialization du steam SDK
-    if (!SteamAPI_Init()) {
-        SDL_Log("Steam API failed to initialize - Run with Steam");
-        //Steam optionnel
-    } else {
-        SDL_Log("Steam initialized! AppID: %u", SteamUtils()->GetAppID());
-    }
-
     //Avec le SINGLETON ->
     GameApp &app = GameApp::GetInstance();
 
+    // force detection manette
+    SDL_Delay(200); // Give Steam Input time to register its virtual gamepad (100ms is too short)
+    int numGamepads = 0;
+    SDL_JoystickID* gamepads = SDL_GetGamepads(&numGamepads); // SDL3 direct gamepad list
+    if (gamepads) {
+        for (int i = 0; i < numGamepads; i++) {
+            app.gameController = SDL_OpenGamepad(gamepads[i]);
+            if (app.gameController) {
+                SDL_Log("Gamepad found at startup: %s", SDL_GetGamepadName(app.gameController));
+                break;
+            }
+        }
+        SDL_free(gamepads);
+    }
+    if (app.gameController == nullptr) {
+        SDL_Log("No gamepad found at startup — waiting for hotplug event");
+    }
     //LIER LES TOUCHES AUX COMMANDES DANS APPINIT
     //KEY DOWN
     app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);//true moving + true moving right
@@ -4456,7 +4495,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     if (event->type == SDL_EVENT_GAMEPAD_ADDED) {
         if (app.gameController == nullptr) {
             app.gameController = SDL_OpenGamepad(event->gdevice.which);
-            SDL_Log("Controller Detected");
+            if (app.gameController) {
+                SDL_Log("Controller connected: %s", SDL_GetGamepadName(app.gameController));
+            } else {
+                SDL_Log("Controller found but failed to open: %s", SDL_GetError());
+            }
         }
     }
     //MANETTE DECONNECTER
@@ -4469,6 +4512,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
     }
     // BOUTON MANETTE DOWN
     if (event->type == SDL_EVENT_GAMEPAD_BUTTON_DOWN) {
+        SDL_Log("Button pressed: %d", event->gbutton.button);
         //POUR POWER UP
         if (app.StateActuel == State::Game) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_WEST) {
@@ -4483,7 +4527,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
         }
         //Dans Le IntroNIveau1
-        if (app.StateActuel == State::IntroNiveau1) {
+        else if (app.StateActuel == State::IntroNiveau1) {
             app.indexMessageIntroNiveau1++;
 
             if (app.indexMessageIntroNiveau1 < app.NB_MESSAGES_IntroNiveau1) {
@@ -4496,7 +4540,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
         }
         //Dans Le Introniveau2
-        if (app.StateActuel == State::IntroNiveau2) {
+        else if (app.StateActuel == State::IntroNiveau2) {
             app.indexMessageIntroNiveau2++;
 
             if (app.indexMessageIntroNiveau2 < app.NB_MESSAGES_IntroNiveau2) {
@@ -4509,7 +4553,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
         }
         //Dans Le Introniveau 3
-        if (app.StateActuel == State::IntroNiveau3) {
+        else if (app.StateActuel == State::IntroNiveau3) {
             app.indexMessageIntroNiveau3++;
 
             if (app.indexMessageIntroNiveau3 < app.NB_MESSAGES_IntroNiveau3) {
@@ -4522,10 +4566,8 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
         }
 
-
-
         //GERER SELECTION MENU AVEC GAMEPAD
-        if (app.StateActuel == State::Menu) {
+        else if (app.StateActuel == State::Menu) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
                 //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
                 app.selectedButtonMenu++;
@@ -4653,7 +4695,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         }
 
 
-        else if (app.StateActuel == State::Pause) {
+       else if (app.StateActuel == State::Pause) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
                 app.selectedButtonPause++;
                 if (app.selectedButtonPause > 2) {
