@@ -481,6 +481,8 @@ private:
     //SCORE DU RENDER JEU
     int lastScore = -1;
 
+    //SUCCESS STEAM
+    int totalEnemiesKilled = 0; // pour ACH_TRAVEL_FAR_ACCUM
 
     GameApp() //Constructeur
     {
@@ -1478,6 +1480,15 @@ private:
             SDL_RenderFillRect(renderer, &segment);
         }
     }
+    //Pour les success steam
+    void UnlockAchievement(const char* achievementID) {
+        if (SteamUser() && SteamUser()->BLoggedOn()) {
+            SteamUserStats()->SetAchievement(achievementID);
+            SteamUserStats()->StoreStats();
+            SDL_Log("Achievement débloqué: %s", achievementID);
+        }
+    }
+
     //Menu du jeu qui run
     void Menu(float deltaTime) {
         SDL_Event MenuEvents;
@@ -3398,7 +3409,10 @@ private:
                             //LES 4 BOUTS DE LA TEXTURE QUI EXPLOSE
                             if (ennemi->health.current_health <= 0) {
                                 ennemi->bIsDestroyed = true;
-
+                                totalEnemiesKilled++;
+                                if (totalEnemiesKilled >= 100) {
+                                    UnlockAchievement("ACH_TRAVEL_FAR_ACCUM");
+                                }
                             // Récupère texture selon le type d'ennemi
                             SDL_Texture* textureEnnemie = nullptr;
 
@@ -4060,6 +4074,7 @@ GameApp &app = GameApp::GetInstance();
         //WEAPON TBD
         if (globalWeaponLevel >= 3) {
             //Possede deja l'arme
+            UnlockAchievement("ACH_HEAVY_WEAPONS");
             TTF_SetTextString(statusTbd, "EQUIPEED", 0);
             TTF_SetTextColor(statusTbd, 0, 255, 0, 255); // Reste VERT car acquis
         }
