@@ -2081,7 +2081,19 @@ private:
                 //implementation de la base de donnée quand le joueur meur ou gagne
                 if (bDatabaseInitialized) {
                     ScoreRecord record;
-                    record.player_name = "Player";
+                    if (SteamUser() && SteamUser()->BLoggedOn()) {
+                        ISteamFriends* friends = SteamFriends();
+                        if (friends) {
+                            record.player_name = friends->GetPersonaName();
+                            CSteamID steamID = SteamUser()->GetSteamID();
+                            if (steamID.IsValid()) {
+                                SDL_Log("Steam ID: %llu", steamID.ConvertToUint64());
+                            }
+                        }
+                    } else {
+                        record.player_name = "Player";
+                    }
+
                     record.value = currentScore;
                     database.InsertScore(record);
                 }
@@ -3018,7 +3030,7 @@ private:
                                 player->health.current_health -= puddle->damagePerTick;
                                 bIsDamageUI = true;
                                 damageFlashTimer = damageFlashDuration;
-                                if (player->health.current_health <= 0) PlayerDeath();
+                                if (player->health.current_health <= 0 && StateActuel != State::DeathScreen) PlayerDeath();
                             }
                         }
                         puddle->Update(deltaTime);
@@ -3093,7 +3105,7 @@ private:
                                 player->health.current_health = 0;
                                 bIsDamageUI = true;
                                 damageFlashTimer = damageFlashDuration;
-                                PlayerDeath();
+                                if (StateActuel != State::DeathScreen) PlayerDeath();
                             }
                         }
                         //Si toucher avec Enemy (Cerf ou Meteorite)
@@ -3116,7 +3128,7 @@ private:
                                 player->health.current_health = 0;
                                 bIsDamageUI = true;
                                 damageFlashTimer = damageFlashDuration;
-                                PlayerDeath();
+                                if (StateActuel != State::DeathScreen) PlayerDeath();
                             }
                         }
 
@@ -3583,19 +3595,40 @@ private:
     void PlayerDeath() {
         GameApp &app = GameApp::GetInstance();
 
+        if (app.StateActuel == State::DeathScreen) return;
+
         app.player->health.current_health = 0;
         app.currentHP = 0;
-        app.deathFadeAlpha = 0.0f; // La transparance commence a 0
-        //implementation de la base de donnée quand le joueur meur ou gagne
-        if (bDatabaseInitialized) {
-            ScoreRecord record;
-            record.player_name = "Player";
-            record.value = app.currentScore;
-            app.database.InsertScore(record);
-            SDL_LogInfo(1, "Score inserted: %d", app.currentScore);
+        app.deathFadeAlpha = 0.0f;
+
+        std::string playerName = "Player"; // Player Par default
+
+        if (SteamAPI_Init() || SteamUser() != nullptr) {
+            if (SteamUser()->BLoggedOn()) {
+                ISteamFriends* friends = SteamFriends();
+                if (friends != nullptr) {
+                    const char* name = friends->GetPersonaName();
+                    if (name != nullptr && name[0] != '\0') {
+                        playerName = std::string(name);
+                    }
+                }
+            }
         }
 
-        app.StateActuel = State::DeathScreen; // On change d'état
+        // Insert le score si la database est ready
+        if (bDatabaseInitialized) {
+            try {
+                ScoreRecord record;
+                record.player_name = playerName;
+                record.value = app.currentScore;
+                app.database.InsertScore(record);
+                SDL_LogInfo(1, "Score inséré: %d pour %s", app.currentScore, playerName.c_str());
+            } catch (...) {
+                SDL_LogWarn(0, "Erreur lors de l'insertion du score");
+            }
+        }
+
+        app.StateActuel = State::DeathScreen;
         SDL_Log("Transition vers l'écran de mort");
     }
 
@@ -3739,7 +3772,6 @@ private:
         SDL_RenderPresent(app.renderer);
 
     }
-// VOID RESTART GAME A FAIRE POUR RECOMMENCER SI JOUEUR MORT ~~~~~
 
 //VOID FONCTION QUAND LE JOUEUR GAGNE LE NIVEAU ET SES WAVES
 void NiveauGagnerScreen(float deltaTime) {
