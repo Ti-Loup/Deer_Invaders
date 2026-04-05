@@ -19,6 +19,7 @@
 #include "Personnages.h"
 #include "Player.h"
 #include "Database.h"
+#include <steam/steam_api.h>
 //CURRENT STUFF TO DO FOR TUESDAY PLAYTEST LISTS
 /*
  *FINISHED:
@@ -4297,7 +4298,8 @@ public:
         lastTime = currentTime;
 
         CalculateFPS(deltaTime);
-
+        //le runcallbacks du steam sdk
+        SteamAPI_RunCallbacks();
         switch (StateActuel) {
             case State::Menu:
                 Menu(deltaTime);
@@ -4389,6 +4391,14 @@ public:
 SDL_AppResult
 //deux *pour modifier et ecrire dans le pointeur (post-it de l'objet qu;on peut mettre de l'information a l'interieur)				2 etoiles argv signifie avec un array
 SDL_AppInit(void **appstate, int argc, char *argv[]) {
+    //Initialization du steam SDK
+    if (!SteamAPI_Init()) {
+        SDL_Log("Steam API failed to initialize - Run with Steam");
+        //Steam optionnel
+    } else {
+        SDL_Log("Steam initialized! AppID: %u", SteamUtils()->GetAppID());
+    }
+
     //Avec le SINGLETON ->
     GameApp &app = GameApp::GetInstance();
 
@@ -5520,6 +5530,7 @@ SDL_AppIterate(void *appstate) {
 void
 SDL_AppQuit(void *appstate, SDL_AppResult result) {
     //Destructeur
+    SteamAPI_Shutdown();
 }
 //test
 
