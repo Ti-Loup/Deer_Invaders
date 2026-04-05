@@ -2086,28 +2086,40 @@ private:
             else {
                 waveInProgress = false; // stop la logique de wave
                 if (currentStage == 1) bStage1Completed = true;
-
-                //implementation de la base de donnée quand le joueur meur ou gagne
+                //met score dans database avec nom joueur
                 if (bDatabaseInitialized) {
+                    SDL_Log(" Début insert score ");
+
                     ScoreRecord record;
+                    record.player_name = "Player";
+                    record.value = currentScore;
+                    SDL_Log("Score à insérer: %d", currentScore);
+
                     if (SteamUser() && SteamUser()->BLoggedOn()) {
                         ISteamFriends* friends = SteamFriends();
                         if (friends) {
-                            record.player_name = friends->GetPersonaName();
-                            CSteamID steamID = SteamUser()->GetSteamID();
-                            if (steamID.IsValid()) {
-                                SDL_Log("Steam ID: %llu", steamID.ConvertToUint64());
+                            const char* name = friends->GetPersonaName();
+                            if (name && name[0] != '\0') {
+                                record.player_name = name;
                             }
                         }
-                    } else {
-                        record.player_name = "Player";
                     }
 
-                    record.value = currentScore;
-                    database.InsertScore(record);
+                    SDL_Log("Nom: %s", record.player_name.c_str());
+
+                    try {
+                        database.InsertScore(record);
+                        SDL_Log(" Insert score OK ");
+                    } catch (const std::exception& e) {
+                        SDL_LogWarn(0, "InsertScore crash: %s", e.what());
+                    } catch (...) {
+                        SDL_LogWarn(0, "InsertScore crash inconnu");
+                    }
                 }
 
+
                 app.StateActuel = State::NiveauGagnerScreen;
+                return;
             }
         }
         //Le stage 2 du jeu
@@ -2138,7 +2150,37 @@ private:
             else {
                 waveInProgress = false;
                 if (currentStage == 2) bStage2Completed = true;
+                if (bDatabaseInitialized) {
+                    SDL_Log(" Début insert score ");
+
+                    ScoreRecord record;
+                    record.player_name = "Player";
+                    record.value = currentScore;
+                    SDL_Log("Score à insérer: %d", currentScore);
+
+                    if (SteamUser() && SteamUser()->BLoggedOn()) {
+                        ISteamFriends* friends = SteamFriends();
+                        if (friends) {
+                            const char* name = friends->GetPersonaName();
+                            if (name && name[0] != '\0') {
+                                record.player_name = name;
+                            }
+                        }
+                    }
+
+                    SDL_Log("Nom: %s", record.player_name.c_str());
+
+                    try {
+                        database.InsertScore(record);
+                        SDL_Log(" Insert score OK ");
+                    } catch (const std::exception& e) {
+                        SDL_LogWarn(0, "InsertScore crash: %s", e.what());
+                    } catch (...) {
+                        SDL_LogWarn(0, "InsertScore crash inconnu");
+                    }
+                }
                 app.StateActuel = State::NiveauGagnerScreen;
+                return;
             }
         }
         //le stage 3 du jeu
@@ -2169,7 +2211,38 @@ private:
             else {
                 waveInProgress = false;
                 if (currentStage == 3) bStage3Completed = true;
+                if (bDatabaseInitialized) {
+                    SDL_Log(" Début insert score ");
+
+                    ScoreRecord record;
+                    record.player_name = "Player";
+                    record.value = currentScore;
+                    SDL_Log("Score à insérer: %d", currentScore);
+
+                    if (SteamUser() && SteamUser()->BLoggedOn()) {
+                        ISteamFriends* friends = SteamFriends();
+                        if (friends) {
+                            const char* name = friends->GetPersonaName();
+                            if (name && name[0] != '\0') {
+                                record.player_name = name;
+                            }
+                        }
+                    }
+
+                    SDL_Log("Nom: %s", record.player_name.c_str());
+
+                    try {
+                        database.InsertScore(record);
+                        SDL_Log(" Insert score OK ");
+                    } catch (const std::exception& e) {
+                        SDL_LogWarn(0, "InsertScore crash: %s", e.what());
+                    } catch (...) {
+                        SDL_LogWarn(0, "InsertScore crash inconnu");
+                    }
+                }
                 app.StateActuel = State::NiveauGagnerScreen;
+                return;
+
             }
         }
 
