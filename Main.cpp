@@ -223,6 +223,7 @@ public:
     SDL_Texture *textureBulletNormal = nullptr;
     SDL_Texture *textureBulletFire = nullptr;
     SDL_Texture *textureBulletIce = nullptr;
+    SDL_Texture *textureBulletGold = nullptr;
     //Texture du meat
     SDL_Texture *textureMeat = nullptr;
     //Texture boss
@@ -772,6 +773,10 @@ private:
         textureBulletIce = IMG_LoadTexture(renderer, "assets/BulletIceCompress.png");
         if (textureBulletIce == nullptr) {
             SDL_LogWarn(0, "failed to set the texture of textureBulletIce", SDL_GetError());
+        }
+        textureBulletGold = IMG_LoadTexture(renderer, "assets/BulletGold.png");
+        if (textureBulletGold == nullptr) {
+            SDL_LogWarn(0, "failed to set the texture of textureBulletGold", SDL_GetError());
         }
         //MEAT TEXTURE
         textureMeat = IMG_LoadTexture(renderer, "assets/Meatv3Compress.png");
@@ -4980,10 +4985,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             }
                         }
                         else if (app.currentWeaponLevel == 2) {
-                            if (app.player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                            if (app.player->ArmeUpgrade(ArmeNiveau::Gold, app.currentMeat)) {
                                 app.currentWeaponLevel = 3;
                                 app.globalWeaponLevel = 3;
                                 app.lastPopupMeatThreshold = -1;
+                                BulletType* target = app.player->bCompetenceActive
+                             ? app.player->previousWeapon
+                             : app.player->currentWeapon;
+                                target->texture = app.textureBulletGold;
                                 app.nextStateAfterFadeOut = State::Game;
                                 app.bPopupFadeOut = true;
                             }
@@ -5075,9 +5084,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             }
                         }
                         else if (app.currentWeaponLevel == 2) {
-                            if (app.player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                            if (app.player->ArmeUpgrade(ArmeNiveau::Gold, app.currentMeat)) {
                                 app.currentWeaponLevel = 3;
                                 app.globalWeaponLevel = 3;
+                                BulletType* target = app.player->bCompetenceActive
+                                 ? app.player->previousWeapon
+                                 : app.player->currentWeapon;
+                                target->texture = app.textureBulletIce;
                             }
                         }
                         break;
@@ -5434,11 +5447,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     }
                 }
                 else if (app.currentWeaponLevel == 2) {
-                    if (app.player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                    if (app.player->ArmeUpgrade(ArmeNiveau::Gold, app.currentMeat)) {
                         app.currentWeaponLevel = 3;
                         app.globalWeaponLevel = 3;
                         app.lastPopupMeatThreshold = -1;
-                        app.player->currentWeapon->texture = app.textureBulletNormal;//Normal pour l'instant
+                        BulletType* target = app.player->bCompetenceActive
+                         ? app.player->previousWeapon
+                         : app.player->currentWeapon;
+                        target->texture = app.textureBulletGold;
                         app.nextStateAfterFadeOut = State::Game;
                         app.bPopupFadeOut = true;
                         //TBD
@@ -5518,10 +5534,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     }
                 }
                 else if (app.currentWeaponLevel == 2) {
-                    if (app.player->ArmeUpgrade(ArmeNiveau::Tbd, app.currentMeat)) {
+                    if (app.player->ArmeUpgrade(ArmeNiveau::Gold, app.currentMeat)) {
                         app.currentWeaponLevel = 3;
                         app.globalWeaponLevel = 3;
-                        app.player->currentWeapon->texture = app.textureBulletNormal;//Normal pour l'instant
+                        BulletType* target = app.player->bCompetenceActive
+                         ? app.player->previousWeapon
+                         : app.player->currentWeapon;
+                        target->texture = app.textureBulletGold;
                         //TBD
                     }
                 }

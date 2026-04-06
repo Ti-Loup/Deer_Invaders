@@ -53,10 +53,10 @@ SDL_Color IceBulletType::GetColor () {
 }
 
 //Bullet Niveau 4(Amélioration -> Shop)
-void TBDBulletType::Affect(Entity *entity) {
+void GoldBulletType::Affect(Entity *entity) {
     BulletType::Affect(entity);
 }
-SDL_Color TBDBulletType::GetColor () {
+SDL_Color GoldBulletType::GetColor () {
     return (SDL_Color){1, 2, 2, 255};
 }
 

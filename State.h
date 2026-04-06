@@ -37,7 +37,7 @@ enum class ArmeNiveau {
     Classic,
     Fire,
     Ice,
-    Tbd,
+    Gold,
 };
 //Pour les differents types de shields
 
@@ -98,9 +98,9 @@ public:
 };
 
 //Bullet Niveau 4(Amélioration -> Shop)
-class TBDBulletType : public BulletType{
+class GoldBulletType : public BulletType{
 public:
-    TBDBulletType () = default;
+    GoldBulletType () = default;
     void Affect (Entity *entity) override;
 
     SDL_Color GetColor () override;

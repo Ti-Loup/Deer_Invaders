@@ -137,9 +137,17 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
         entity.push_back(new Bullet({ centerX, bulletY + hight},          { 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // centre
         entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // gauche droit
         entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // droite droit
-    }
-    else if (dynamic_cast<TBDBulletType*>(currentWeapon)) {
-        //code
+    }//Pour Gold Bullet
+    else if (dynamic_cast<GoldBulletType*>(currentWeapon)) {
+        float decalage = 50.0f;
+        float smallDecalage = 25.0f;
+        float hight = -10.0f;
+
+        entity.push_back(new Bullet({ centerX- smallDecalage, bulletY + hight},          { 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // centre
+        entity.push_back(new Bullet({ centerX+ smallDecalage, bulletY + hight},          { 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // centre
+        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // gauche droit
+        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // droite droit
+
     }//Pour la compétence special
     else if (dynamic_cast<CompetenceSpecialBulletType*>(currentWeapon)) {
         float decalage = 25.0f;
@@ -252,7 +260,7 @@ int weaponPrice = 0;
         break;
         case ArmeNiveau::Ice: weaponPrice = 50;
             break;
-        case ArmeNiveau::Tbd: weaponPrice = 250;
+        case ArmeNiveau::Gold: weaponPrice = 250;
             break;
         case ArmeNiveau::Classic: weaponPrice = 0;
             break;
@@ -279,8 +287,8 @@ int weaponPrice = 0;
         case ArmeNiveau::Ice:
             newWeapon = new IceBulletType();
             break;
-        case ArmeNiveau::Tbd:
-            newWeapon = new TBDBulletType();
+        case ArmeNiveau::Gold:
+            newWeapon = new GoldBulletType();
             break;
     }
 
