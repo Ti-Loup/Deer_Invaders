@@ -25,6 +25,8 @@ Player::Player(SDL_Texture *texture) {
     currentWeapon = new ClassicBulletType();
     //Aucun shield par default
     currentShield = new NoShieldType();
+    //aucun HP bonus oar default
+    currentHpBoost = new NoHpType();
 
     //Le Type d'entity
     entityType = EntityType::Player;
@@ -40,6 +42,10 @@ Player::~Player() {
     if (currentWeapon != nullptr) {
         delete currentWeapon;
         currentWeapon = nullptr;
+    }
+    if (currentHpBoost != nullptr) {
+        delete currentHpBoost;
+        currentHpBoost = nullptr;
     }
 }
 
@@ -348,11 +354,59 @@ int shieldPrice = 0;
             currentShield = new LargeShieldType();
             break;
     }
-
     //On fait la soustraction du nombre de viande Total - viande restante
     maxShieldHP = currentShield->GetMaxShieldHP();//on vient chercher le nombre de pv du shield maximum du shield actuel
     currentShieldHP = maxShieldHP;
     meatCount -= shieldPrice;
     SDL_Log("Nouvelle Arme debloquer");
     return true;//fin fonction bool
+}
+
+bool Player::HpUpgrade(HpAmount type, int &meatCount) {
+    int HpPrice = 0;
+
+    switch (type) {
+        case HpAmount::SmallHpBonus: HpPrice = 25;
+            break;
+        case HpAmount::MediumHpBonus: HpPrice = 50;
+            break;
+        case HpAmount::LargeShieldBonus: HpPrice = 250;
+            break;
+        case HpAmount::NoHpBonus: HpPrice = 0;
+            break;
+            default :HpPrice = 0;
+    }
+
+    //Si on a pas asser de viance pour acheter des HP -> On sort de la boucle
+    if (meatCount < HpPrice) {
+        SDL_Log("Pas asser de viande pour avoir davantage d'HP");
+        return false; // Fin de la fonction bool
+    }
+    // Creation du nouveau boost HP
+    HpType* newHpBoost = nullptr;
+    switch (type) {
+        case HpAmount::NoHpBonus:
+            newHpBoost = new NoHpType();
+            break;
+        case HpAmount::SmallHpBonus:
+            newHpBoost = new SmallHpType();
+            break;
+        case HpAmount::MediumHpBonus:
+            newHpBoost = new MediumHpType();
+            break;
+        case HpAmount::LargeShieldBonus:
+            newHpBoost = new LargeHpType();
+            break;
+    }
+
+    if (currentHpBoost != nullptr) delete currentHpBoost;
+    currentHpBoost = newHpBoost;
+    // Applique le bonus aux HP du joueur
+    int bonus = currentHpBoost->GetBonusHP();
+    health.max_health += bonus;
+    health.current_health = health.max_health;
+
+    meatCount -= HpPrice;
+    SDL_Log("Boost HP acheter");
+    return true;
 }

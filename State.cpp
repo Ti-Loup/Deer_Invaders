@@ -92,4 +92,39 @@ void LargeShieldType::Affect(Entity *entity) {
 }
 SDL_Color LargeShieldType::GetColor () {
     return (SDL_Color){233,255,23,255};
+}// HP Type (Base)
+void HpType::Affect(Entity *entity) {
+
+}
+
+// No HP
+void NoHpType::Affect(Entity *entity) {
+    HpType::Affect(entity);
+}
+SDL_Color NoHpType::GetColor() {
+    return (SDL_Color){255, 255, 255, 0};
+}
+
+// Small HP Boost (Vert pâle)
+void SmallHpType::Affect(Entity *entity) {
+    HpType::Affect(entity);
+}
+SDL_Color SmallHpType::GetColor() {
+    return (SDL_Color){255, 255, 255, 0};
+}
+
+// Medium HP Boost (Vert)
+void MediumHpType::Affect(Entity *entity) {
+    HpType::Affect(entity);
+}
+SDL_Color MediumHpType::GetColor() {
+    return (SDL_Color){255, 255, 255, 0};
+}
+
+// Large HP Boost (Vert vif)
+void LargeHpType::Affect(Entity *entity) {
+    HpType::Affect(entity);
+}
+SDL_Color LargeHpType::GetColor() {
+    return (SDL_Color){255, 255, 255, 0};
 }

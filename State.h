@@ -47,6 +47,13 @@ enum class ShieldAmount {
     MediumShield,
     LargeShield,
 };
+//Pour les differents ameliorations des GetMaxShieldHP
+enum class HpAmount{
+NoHpBonus,
+SmallHpBonus,
+MediumHpBonus,
+LargeShieldBonus,
+};
 
 //Le type de Bullet
 class BulletType{
@@ -159,5 +166,46 @@ public:
     SDL_Color GetColor () override;
     int GetMaxShieldHP() override { return 250; }
 };
+// Les différents types de boost HP
+class HpType {
+public:
+    HpType() = default;
+    virtual ~HpType() = default;
 
+    virtual void Affect(Entity* entity);
+    virtual SDL_Color GetColor() = 0;
+    virtual int GetBonusHP() = 0; // <- HP bonus accordé
+};
+
+class NoHpType : public HpType {
+public:
+    NoHpType() = default;
+    void Affect(Entity* entity) override;
+    SDL_Color GetColor() override;
+    int GetBonusHP() override { return 0; }
+};
+
+class SmallHpType : public HpType {
+public:
+    SmallHpType() = default;
+    void Affect(Entity* entity) override;
+    SDL_Color GetColor() override;
+    int GetBonusHP() override { return 50; }
+};
+
+class MediumHpType : public HpType {
+public:
+    MediumHpType() = default;
+    void Affect(Entity* entity) override;
+    SDL_Color GetColor() override;
+    int GetBonusHP() override { return 100; }
+};
+
+class LargeHpType : public HpType {
+public:
+    LargeHpType() = default;
+    void Affect(Entity* entity) override;
+    SDL_Color GetColor() override;
+    int GetBonusHP() override { return 250; }
+};
 #endif //DEER_INVADERS_STATE_H

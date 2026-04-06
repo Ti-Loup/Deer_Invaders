@@ -37,6 +37,10 @@ BulletType* previousWeapon = nullptr; // pour restaurer l'arme après
     ShieldType* currentShield;
     int currentShieldHP = 0; //HPSHIELd actuel
     int maxShieldHP = 0; // HP SHIELD MAX
+    //le type de HP
+    HpType* currentHpBoost;
+        int currentHP = 0; //HP actuel
+        int maxHP = 0; // HP MAX
 
 
 //Competence special
@@ -62,6 +66,7 @@ float competenceActiveTimer = 0.0f;
     //Pour les boutons du shop, pouvoir changer l'arme et le shield en fonction du nombre de meat
     bool ArmeUpgrade(ArmeNiveau type, int &meatCount);
     bool ShieldUpgrade(ShieldAmount typeShield, int &meatCount);
+    bool HpUpgrade(HpAmount type, int &meatCount);
     //Competence Special
     void UpdateCompetence(float deltaTime);
     void ActivateCompetence(SDL_Texture* texture = nullptr);
