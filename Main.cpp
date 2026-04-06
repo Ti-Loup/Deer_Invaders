@@ -2877,7 +2877,7 @@ private:
                     SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
                 }//tbd
                 else if (currentWeaponLevel == 2) {
-                    SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+                    SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
                 }
             }else {
                 RenderBoutons(BoutonUpgrade, nullptr, 40, 40, 40);
@@ -2888,9 +2888,9 @@ private:
                     SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
                 }//tbd
                 else if (currentWeaponLevel == 2) {
-                    SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+                    SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
                 }
-            }//Bouton HP
+            }//Bouton Shield
             if (selectedButtonPopUp == 1) {
                 RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
                 SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
@@ -3976,7 +3976,7 @@ GameApp &app = GameApp::GetInstance();
                 SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
             }
             else if (currentWeaponLevel == 2) {
-                SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+                SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
             }
         }else {
             RenderBoutons(BoutonUpgrade, nullptr, 40, 40, 40);
@@ -3987,7 +3987,7 @@ GameApp &app = GameApp::GetInstance();
                 SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
             }//tbd
             else if (currentWeaponLevel == 2) {
-                SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgrade);
+                SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
             }
         }//Bouton HP
         if (selectedButtonShop == 1) {
