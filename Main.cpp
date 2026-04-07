@@ -297,7 +297,8 @@ public:
     TTF_Font *currentMeatShopFont = nullptr;
     //Texts
     TTF_Text *BoutonUpgradeText = nullptr;
-    TTF_Text *BoutonHPUpgradeText = nullptr;
+    TTF_Text *BoutonShieldUpgradeText = nullptr;
+    TTF_Text *BoutonHpBoostText = nullptr;
     //Text armes
     TTF_Text *ArmeFireText = nullptr;
     TTF_Text *ArmeIceText = nullptr;
@@ -321,9 +322,9 @@ public:
     SDL_FRect MeatInventoryShop ={180.0f, 80.0f, 100.0f,100.0f};
     SDL_FRect BoutonResumeGameShop = {1350.0f, 900.0f, 200.0f,100.0f};
     //Boutons
-    SDL_FRect BoutonUpgrade = {835, 800, 125, 100};
-    SDL_FRect BoutonShieldUpgrade = {1035, 800, 125, 100};
-    SDL_FRect BoutonHpUpgrade = {1235, 800, 125, 100};
+    SDL_FRect BoutonUpgrade = {735, 800, 125, 100};
+    SDL_FRect BoutonShieldUpgrade = {935, 800, 125, 100};
+    SDL_FRect BoutonHpUpgrade = {1135, 800, 125, 100};
 
     TTF_Text *ShopMenuText = nullptr;
 
@@ -635,10 +636,11 @@ private:
         if (TTF_SetTextColor(BoutonUpgradeText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0, "Couleur du bouton amelioration n'a pas fonctionné", SDL_GetError());
         }
-        BoutonHPUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, "Shield \nUpgrade", 25);
-        if (TTF_SetTextColor(BoutonHPUpgradeText, 255, 255, 255, 255) == false) {
+        BoutonShieldUpgradeText = TTF_CreateText(textEngine, BoutonUpgradeFont, "Shield \nUpgrade", 25);
+        if (TTF_SetTextColor(BoutonShieldUpgradeText, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0, "Couleur de Bouton HP Upgrade", SDL_GetError());
         }
+        BoutonHpBoostText = TTF_CreateText(textEngine, BoutonUpgradeFont, "HP \nBoost" , 25);
         BoutonCreditsText = TTF_CreateText(textEngine, CreditsFont, "Credits", 25);
 
         if (TTF_SetTextColor(TextShop, 150, 100, 255, 255) == false) {
@@ -2478,7 +2480,7 @@ private:
                         // Calcule l'intensité du rouge selon le temps restant
                         float ratio = enemy_deerMelee->hitFlashTimer / enemy_deerMelee->hitFlashDuration;
                         Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
-                        SDL_SetTextureColorMod(enemy_deerMelee->textureCerfMelee, 255 - flashIntensity, 255 - flashIntensity, 255);
+                        SDL_SetTextureColorMod(enemy_deerMelee->textureCerfMelee, 255, 255 - flashIntensity, 255 - flashIntensity);
                     } else {
                         // Remet la couleur normale
                         SDL_SetTextureColorMod(enemy_deerMelee->textureCerfMelee, 255, 255, 255);
@@ -2554,7 +2556,7 @@ private:
                         // Calcule l'intensité du rouge selon le temps restant
                         float ratio = enemy_barricade->hitFlashTimer / enemy_barricade->hitFlashDuration;
                         Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
-                        SDL_SetTextureColorMod(enemy_barricade->textureBarricade, 255, 255 - flashIntensity, 0);
+                        SDL_SetTextureColorMod(enemy_barricade->textureBarricade, 255, 255 - flashIntensity, 255 - flashIntensity);
                     } else {
                         // Remet la couleur normale
                         SDL_SetTextureColorMod(enemy_barricade->textureBarricade ,255, 255, 255);
@@ -2876,7 +2878,7 @@ private:
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, (Uint8)popupFadeAlpha);
         SDL_RenderFillRect(renderer, &screenRect);
 
-        SDL_FRect screenRect2 = {750,0,500,1080};
+        SDL_FRect screenRect2 = {700,0,600,1080};
         SDL_SetRenderDrawColor(renderer, 40, 160, 200, (Uint8)popupFadeAlpha);
         SDL_RenderFillRect(renderer, &screenRect2);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
@@ -2886,21 +2888,21 @@ private:
 
         //boutons ->
         if (!bPopupFadeIn) {
-            RenderGlobalWeaponProgresBar(840, 750);// Pour render les cubes pour les armes.
-            RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
-            RenderGlobalHpBoostProgresBar(1240, 750);//pour render les cubes du HP
+            RenderGlobalWeaponProgresBar(740, 750);// Pour render les cubes pour les armes.
+            RenderGlobalShieldProgresBar(940, 750);// Pour render les cubes pour les shields
+            RenderGlobalHpBoostProgresBar(1140, 750);//pour render les cubes du HP
             //les Prixs + meat
-            TTF_DrawRendererText(textPrix1, 875, 750);
-            TTF_DrawRendererText(textPrix2, 875, 710);
-            TTF_DrawRendererText(textPrix3, 860, 670);
+            TTF_DrawRendererText(textPrix1, 775, 750);
+            TTF_DrawRendererText(textPrix2, 775, 710);
+            TTF_DrawRendererText(textPrix3, 760, 670);
             //Shield
-            TTF_DrawRendererText(textPrix1, 1075, 750);
-            TTF_DrawRendererText(textPrix2, 1075, 710);
-            TTF_DrawRendererText(textPrix3, 1060, 670);
+            TTF_DrawRendererText(textPrix1, 975, 750);
+            TTF_DrawRendererText(textPrix2, 975, 710);
+            TTF_DrawRendererText(textPrix3, 960, 670);
             //HP Boost
-            TTF_DrawRendererText(textPrix1, 1275, 750);
-            TTF_DrawRendererText(textPrix2, 1275, 710);
-            TTF_DrawRendererText(textPrix3, 1260, 670);
+            TTF_DrawRendererText(textPrix1, 1175, 750);
+            TTF_DrawRendererText(textPrix2, 1175, 710);
+            TTF_DrawRendererText(textPrix3, 1160, 670);
 
             //Texture Meat
             SDL_RenderTexture(renderer, textureMeat, nullptr, &PopUpMeat);
@@ -2966,8 +2968,9 @@ private:
                 RenderBoutons(BoutonWaitPopUp, textWaitPopUp, 40,40,40);
             }
             //rajouter text en dessous des boutons
-            TTF_DrawRendererText(BoutonUpgradeText,850 , 925);
-            TTF_DrawRendererText(BoutonHPUpgradeText,1050 , 925);
+            TTF_DrawRendererText(BoutonUpgradeText,750 , 925);
+            TTF_DrawRendererText(BoutonShieldUpgradeText,950 , 925);
+            TTF_DrawRendererText(BoutonHpBoostText, 1150,925);
 
         }
     SDL_RenderPresent(renderer);
@@ -4010,9 +4013,9 @@ GameApp &app = GameApp::GetInstance();
         //Render
         RenderShopTitle();
         UpdateBackgroundTint(deltaTime);//Le rgb
-        RenderGlobalWeaponProgresBar(840, 750);// Pour render les cubes pour les armes.
-        RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
-        RenderGlobalHpBoostProgresBar(1240, 750);
+        RenderGlobalWeaponProgresBar(740, 750);// Pour render les cubes pour les armes.
+        RenderGlobalShieldProgresBar(940, 750);// Pour render les cubes pour les shields
+        RenderGlobalHpBoostProgresBar(1140, 750);
         SDL_SetTextureColorMod(textureBulletNormal, 255, 255, 255);
 
         //Bouton Upgrade Weapon
@@ -4079,9 +4082,9 @@ GameApp &app = GameApp::GetInstance();
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 40, 40, 40);
         }
         //rajouter text en dessous des boutons
-        TTF_DrawRendererText(BoutonUpgradeText,850 , 925);
-        TTF_DrawRendererText(BoutonHPUpgradeText,1050 , 925);
-
+        TTF_DrawRendererText(BoutonUpgradeText,750 , 925);
+        TTF_DrawRendererText(BoutonShieldUpgradeText,950 , 925);
+TTF_DrawRendererText(BoutonHpBoostText, 1150,925);
 
 
 

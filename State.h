@@ -49,10 +49,17 @@ enum class ShieldAmount {
 };
 //Pour les differents ameliorations des GetMaxShieldHP
 enum class HpAmount{
-NoHpBonus,
-SmallHpBonus,
-MediumHpBonus,
-LargeHpBonus,
+    NoHpBonus,
+    SmallHpBonus,
+    MediumHpBonus,
+    LargeHpBonus,
+};
+//Pour les differents ameliorations des missiles du joueurs
+enum class MissileNiveau {
+    NoMissile,
+    SmallMissile,
+    MediumMissile,
+    LargeMissile,
 };
 
 //Le type de Bullet
@@ -208,4 +215,21 @@ public:
     SDL_Color GetColor() override;
     int GetBonusHP() override { return 250; }
 };
+
+//MISSILES JOUEURS
+class MissileType{
+public:
+    MissileType() = default;
+    virtual ~MissileType() = default;
+    virtual void Affect(Entity* entity);
+    virtual SDL_Color GetColor () = 0;
+    virtual SDL_Texture *GetTexture() {return nullptr;} // valeur default
+    SDL_Texture *texture = nullptr;//chaque bullet different garde sa propre texture
+};
+class InvalidMissileType {
+    public:
+    InvalidMissileType() = default;
+};
+
+
 #endif //DEER_INVADERS_STATE_H

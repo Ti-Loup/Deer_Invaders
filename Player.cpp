@@ -410,3 +410,5 @@ bool Player::HpUpgrade(HpAmount type, int &meatCount) {
     SDL_Log("Boost HP acheter");
     return true;
 }
+
+//Ajout d'une nouvelle arme pour le joueur
