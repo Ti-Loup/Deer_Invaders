@@ -240,10 +240,25 @@ Bullet::Bullet(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color,bool isRGB, SDL
     textureBullet = texture;
 }
 //Pour les missiles lancer du joueur
-Missile::Missile(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, SDL_Texture *texture) {
+MissilePlayer::MissilePlayer(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, SDL_Texture *texture) {
     AddComponent(MOVEMENT);
+    // vitesse toujours 700 peu importe l'angle passé
+    //<cmath>
+    float length = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+    if (length > 0.f) {
+        dir.x /= length;
+        dir.y /= length;
+    }
+    movement.velocity = { 700.f * dir.x, 700.f * dir.y };
     AddComponent(RENDER);
+    render.color = color;
     AddComponent(TRANSFORM);
+    transform.position = spawn;
+    transform.size = (SDL_FPoint){30.f, 60.f};
+    entityType = EntityType::Bullet;
+
+    //texture du missile
+    textureMissile = texture;
 }
 
 //Tick cooldown des tires
@@ -458,6 +473,9 @@ bool Player::MissileUpgrade(MissileNiveau type, int &meatCount) {
         case MissileNiveau::LargeMissile:
             currentMissile = new LargeMissileType();
     }
+    meatCount -= missilePrice;
+    SDL_Log("New Missile Weapon unlocked");
+    return true;//fin fonction bool
 }
 
 

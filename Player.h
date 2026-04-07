@@ -89,9 +89,9 @@ class Bullet : public Entity{
 
 };
 
-class Missile : public Entity {
+class MissilePlayer : public Entity {
 public:
-    Missile(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, SDL_Texture *texture = nullptr);
+    MissilePlayer(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, SDL_Texture *texture = nullptr);
 
     //Texture des missiles
     SDL_Texture *textureMissile = nullptr;
