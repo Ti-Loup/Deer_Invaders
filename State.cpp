@@ -128,3 +128,34 @@ void LargeHpType::Affect(Entity *entity) {
 SDL_Color LargeHpType::GetColor() {
     return (SDL_Color){255, 255, 255, 0};
 }
+//Missile Player
+void MissileType::Affect(Entity *entity) {
+
+}
+void InvalidMissileType::Affect(Entity *entity) {
+    MissileType::Affect(entity);
+}
+SDL_Color InvalidMissileType::GetColor() {
+    return (SDL_Color){255, 234, 43, 0};//opaciter 0 si Invalide
+}
+//petitMissile
+void SmallMissileType::Affect(Entity *entity) {
+    MissileType::Affect(entity);
+}
+SDL_Color SmallMissileType::GetColor() {
+    return (SDL_Color){255, 234, 43, 255};//couleur missile
+}
+//moyenMissile(+)
+void MediumMissileType::Affect(Entity *entity) {
+    MissileType::Affect(entity);
+}
+SDL_Color MediumMissileType::GetColor() {
+    return (SDL_Color){255, 234, 43, 255};//Couleur missile
+}
+//LargeMissile(++)
+void LargeMissileType::Affect(Entity *entity) {
+    MissileType::Affect(entity);
+}
+SDL_Color LargeMissileType::GetColor() {
+    return (SDL_Color){255, 234, 43, 255};//couleur missile
+}

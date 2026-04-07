@@ -226,10 +226,37 @@ public:
     virtual SDL_Texture *GetTexture() {return nullptr;} // valeur default
     SDL_Texture *texture = nullptr;//chaque bullet different garde sa propre texture
 };
-class InvalidMissileType {
+//si invalide
+class InvalidMissileType : public MissileType {
     public:
     InvalidMissileType() = default;
+    void Affect (Entity *entity) override;
+    SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
 };
-
+//Missile Small
+class SmallMissileType : public MissileType {
+    public:
+    SmallMissileType() = default;
+    void Affect (Entity *entity) override;
+    SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
+};
+//Missile Medium
+class MediumMissileType : public MissileType {
+    public:
+    MediumMissileType() = default;
+    void Affect (Entity *entity) override;
+    SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
+};
+//Missile Large
+class LargeMissileType : public MissileType {
+    public:
+    LargeMissileType() = default;
+    void Affect (Entity *entity) override;
+    SDL_Color GetColor () override;
+    SDL_Texture* GetTexture() override { return texture; }
+};
 
 #endif //DEER_INVADERS_STATE_H

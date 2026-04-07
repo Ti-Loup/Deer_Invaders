@@ -121,7 +121,7 @@ void Player::UpdatePhysics(float deltaTime) {
 //Pour tirer
 void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
     SDL_Color BulletColor = currentWeapon->GetColor(); //Prend la couleur de l'arme actuel
-    SDL_Texture* bulletTexture = currentWeapon->GetTexture(); // ← voir étape 4
+    SDL_Texture* bulletTexture = currentWeapon->GetTexture();
     float centerX = transform.position.x + (transform.size.x / 2.0f) - 20.0f; // centre la balle fix avec texture
     float bulletY = transform.position.y - 16.0f;
 
@@ -217,7 +217,7 @@ void Player::AddKillToCompetence() {
         bCompetenceReady = true;
 }
 
-
+//Pour les bullets du joueur
 Bullet::Bullet(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color,bool isRGB, SDL_Texture *texture) {
     //Constructeur
     AddComponent(MOVEMENT);//movement de base
@@ -239,7 +239,12 @@ Bullet::Bullet(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color,bool isRGB, SDL
 
     textureBullet = texture;
 }
-
+//Pour les missiles lancer du joueur
+Missile::Missile(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, SDL_Texture *texture) {
+    AddComponent(MOVEMENT);
+    AddComponent(RENDER);
+    AddComponent(TRANSFORM);
+}
 
 //Tick cooldown des tires
 void Player::ShootUpdate(std::vector<Entity *> &entity, SDL_FPoint dir, float deltaTime) {
@@ -411,4 +416,49 @@ bool Player::HpUpgrade(HpAmount type, int &meatCount) {
     return true;
 }
 
-//Ajout d'une nouvelle arme pour le joueur
+//amilioration Missile joueur
+bool Player::MissileUpgrade(MissileNiveau type, int &meatCount) {
+    int missilePrice = 0;
+    switch (type) {
+        //prix missiles
+        case MissileNiveau::SmallMissile:
+            missilePrice = 25;
+            break;
+        case MissileNiveau::MediumMissile:
+            missilePrice = 50;
+            break;
+        case MissileNiveau::LargeMissile:
+            missilePrice = 250;
+            break;
+        case MissileNiveau::NoMissile:
+            missilePrice = 0;
+            break;
+        default :missilePrice = 0;
+    }
+    //Si pas asser de viande alors on quitte la boucle
+    if (meatCount < missilePrice) {
+        SDL_Log("Impossible to buy a Missile");
+        return false;
+    }
+    //Si on a deja un Missile
+    if (currentMissile != nullptr) {
+        delete currentMissile;
+    }
+    //creation des missiles
+    switch (type) {
+        case MissileNiveau::NoMissile:
+            currentMissile = new InvalidMissileType();
+            break;
+        case MissileNiveau::SmallMissile:
+            currentMissile = new SmallMissileType();
+            break;
+        case MissileNiveau::MediumMissile:
+            currentMissile = new MediumMissileType();
+            break;
+        case MissileNiveau::LargeMissile:
+            currentMissile = new LargeMissileType();
+    }
+}
+
+
+//Une Bombe kamikaz A une seule utilisation et qui coute 100 a chaque achat

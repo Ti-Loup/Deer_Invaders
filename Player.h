@@ -41,6 +41,8 @@ BulletType* previousWeapon = nullptr; // pour restaurer l'arme après
     HpType* currentHpBoost;
         int currentHP = 0; //HP actuel
         int maxHP = 0; // HP MAX
+    MissileType* currentMissile;
+    MissileType* previousMissile = nullptr;
 
 
 //Competence special
@@ -67,6 +69,7 @@ float competenceActiveTimer = 0.0f;
     bool ArmeUpgrade(ArmeNiveau type, int &meatCount);
     bool ShieldUpgrade(ShieldAmount typeShield, int &meatCount);
     bool HpUpgrade(HpAmount type, int &meatCount);
+    bool MissileUpgrade(MissileNiveau type, int &meatCount);
     //Competence Special
     void UpdateCompetence(float deltaTime);
     void ActivateCompetence(SDL_Texture* texture = nullptr);
@@ -84,6 +87,14 @@ class Bullet : public Entity{
     //la texture pour tous les bullets
     SDL_Texture *textureBullet = nullptr;
 
+};
+
+class Missile : public Entity {
+public:
+    Missile(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, SDL_Texture *texture = nullptr);
+
+    //Texture des missiles
+    SDL_Texture *textureMissile = nullptr;
 };
 
 
