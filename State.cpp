@@ -143,19 +143,19 @@ void SmallMissileType::Affect(Entity *entity) {
     MissileType::Affect(entity);
 }
 SDL_Color SmallMissileType::GetColor() {
-    return (SDL_Color){255, 234, 43, 255};//couleur missile
+    return (SDL_Color){254, 163, 71, 255};//couleur missile
 }
 //moyenMissile(+)
 void MediumMissileType::Affect(Entity *entity) {
     MissileType::Affect(entity);
 }
 SDL_Color MediumMissileType::GetColor() {
-    return (SDL_Color){255, 234, 43, 255};//Couleur missile
+    return (SDL_Color){250, 164, 1, 255};//Couleur missile
 }
 //LargeMissile(++)
 void LargeMissileType::Affect(Entity *entity) {
     MissileType::Affect(entity);
 }
 SDL_Color LargeMissileType::GetColor() {
-    return (SDL_Color){255, 234, 43, 255};//couleur missile
+    return (SDL_Color){222, 152, 22, 255};//couleur missile
 }
