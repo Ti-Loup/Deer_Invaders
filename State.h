@@ -52,7 +52,7 @@ enum class HpAmount{
 NoHpBonus,
 SmallHpBonus,
 MediumHpBonus,
-LargeShieldBonus,
+LargeHpBonus,
 };
 
 //Le type de Bullet

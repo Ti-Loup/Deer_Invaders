@@ -246,6 +246,8 @@ public:
     SDL_Texture *textureSmallShield = nullptr;
     SDL_Texture *textureMediumShield = nullptr;
     SDL_Texture *textureLargeShield = nullptr;
+    //Texture HP Boost icon
+    SDL_Texture *textureHpBoost = nullptr;
     //texture terre
     SDL_Texture *textureTerre = nullptr;
     SDL_FRect planetSize{825,300,275,275};
@@ -321,6 +323,7 @@ public:
     //Boutons
     SDL_FRect BoutonUpgrade = {835, 800, 125, 100};
     SDL_FRect BoutonShieldUpgrade = {1035, 800, 125, 100};
+    SDL_FRect BoutonHpUpgrade = {1235, 800, 125, 100};
 
     TTF_Text *ShopMenuText = nullptr;
 
@@ -414,6 +417,9 @@ public:
     //Pour Les shields
     int currentShieldLevel = 0;
     int globalShieldLevel = 0;
+    //Pour Le HpBoost
+    int currentHpBoostLevel = 0;
+    int globalHpBoostLevel = 0;
 
     //POUR LES FONCTIONS DES WAVES
     int currentWave = 0;
@@ -854,6 +860,10 @@ private:
         if (textureLargeShield == nullptr) {
             SDL_LogWarn(0, "failed to load textureLargeShield", SDL_GetError());
         }
+        textureHpBoost = IMG_LoadTexture(renderer, "assets/HpBoost.png");
+        if (textureHpBoost == nullptr) {
+            SDL_LogWarn(0, "failed to load textureHpBoost", SDL_GetError());
+        }
         //TEXURE TERRE
         textureTerre = IMG_LoadTexture(renderer, "assets/PlanetColor.png");
         if (textureTerre == nullptr) {
@@ -1275,6 +1285,7 @@ private:
         SDL_DestroyTexture(textureSmallShield);
         SDL_DestroyTexture(textureMediumShield);
         SDL_DestroyTexture(textureLargeShield);
+        SDL_DestroyTexture(textureHpBoost);
         SDL_DestroyTexture(textureIceCube);
         SDL_DestroyTexture(textureSnowflake);
         //backgrounds
@@ -1485,6 +1496,30 @@ private:
             SDL_RenderFillRect(renderer, &segment);
         }
     }
+    //La fonction du dessin de la barre de progression des HP Boost
+    void RenderGlobalHpBoostProgresBar(float startX, float startY) {
+        //pour un petit rectangle
+        int segmentWidth = 110;
+        int segmentHeight = 30;
+        int espace = 12;
+
+        //3 Shield
+        for (int i = 0; i< 3; i++) {
+            SDL_FRect segment = {startX, startY - (i * (segmentHeight + espace)), (float)segmentWidth, (float)segmentHeight};
+
+            if (i < globalHpBoostLevel) {
+                // Segment rempli
+                if (i == 0) SDL_SetRenderDrawColor(renderer, 182,215,168,255); // Green pale
+                if (i == 1) SDL_SetRenderDrawColor(renderer, 147,196,125, 255); // Green moyen
+                if (i == 2) SDL_SetRenderDrawColor(renderer, 101,134,86,255); // Green foncer
+            } else {
+                // Segment vide
+                SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
+            }
+            SDL_RenderFillRect(renderer, &segment);
+        }
+    }
+
     //Pour les success steam
     void UnlockAchievement(const char* achievementID) {
         if (SteamUser() && SteamUser()->BLoggedOn()) {
@@ -2853,14 +2888,20 @@ private:
         if (!bPopupFadeIn) {
             RenderGlobalWeaponProgresBar(840, 750);// Pour render les cubes pour les armes.
             RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
+            RenderGlobalHpBoostProgresBar(1240, 750);//pour render les cubes du HP
             //les Prixs + meat
             TTF_DrawRendererText(textPrix1, 875, 750);
             TTF_DrawRendererText(textPrix2, 875, 710);
             TTF_DrawRendererText(textPrix3, 860, 670);
-
+            //Shield
             TTF_DrawRendererText(textPrix1, 1075, 750);
             TTF_DrawRendererText(textPrix2, 1075, 710);
             TTF_DrawRendererText(textPrix3, 1060, 670);
+            //HP Boost
+            TTF_DrawRendererText(textPrix1, 1275, 750);
+            TTF_DrawRendererText(textPrix2, 1275, 710);
+            TTF_DrawRendererText(textPrix3, 1260, 670);
+
             //Texture Meat
             SDL_RenderTexture(renderer, textureMeat, nullptr, &PopUpMeat);
             std::string meatStr = " " + std::to_string(currentMeat);
@@ -2901,7 +2942,7 @@ private:
                     SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgrade);
                 }
             }else {
-                RenderBoutons(BoutonShieldUpgrade, nullptr, 80, 80, 80);
+                RenderBoutons(BoutonShieldUpgrade, nullptr, 40, 40, 40);
                 SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
                 if (currentShieldLevel == 1) {
                     SDL_RenderTexture(renderer,textureMediumShield, nullptr, &BoutonShieldUpgrade);
@@ -2909,12 +2950,20 @@ private:
                 else if (currentShieldLevel == 2) {
                     SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgrade);
                 }
-
-            }//Bouton Wait
+            }//Pur le upgrade HP Boost
             if (selectedButtonPopUp == 2) {
+                RenderBoutons(BoutonHpUpgrade, nullptr, r, g, b);
+                SDL_RenderTexture(renderer, textureHpBoost, nullptr, &BoutonHpUpgrade);
+            }
+            else {
+                RenderBoutons(BoutonHpUpgrade, nullptr, 40, 40, 40);
+                SDL_RenderTexture(renderer, textureHpBoost, nullptr, &BoutonHpUpgrade);
+            }
+            //Bouton Wait
+            if (selectedButtonPopUp == 3) {
                 RenderBoutons(BoutonWaitPopUp, textWaitPopUp, r, g, b);
             }else {
-                RenderBoutons(BoutonWaitPopUp, textWaitPopUp, 80,80,80);
+                RenderBoutons(BoutonWaitPopUp, textWaitPopUp, 40,40,40);
             }
             //rajouter text en dessous des boutons
             TTF_DrawRendererText(BoutonUpgradeText,850 , 925);
@@ -3159,17 +3208,17 @@ private:
                             int threshold = -1;
 
                             if (currentMeat >= 25 &&
-                                (currentWeaponLevel == 0 || currentShieldLevel == 0) &&
+                                (currentWeaponLevel == 0 || currentShieldLevel == 0 || currentHpBoostLevel == 0) &&
                                 lastPopupMeatThreshold < 25) {
                                 threshold = 25;
                                 }
                             else if (currentMeat >= 50 &&
-                                (currentWeaponLevel <= 1 || currentShieldLevel <= 1) &&
+                                (currentWeaponLevel <= 1 || currentShieldLevel <= 1 || currentHpBoostLevel <= 1) &&
                                 lastPopupMeatThreshold < 50) {
                                 threshold = 50;
                                 }
                             else if (currentMeat >= 250 &&
-                                (currentWeaponLevel <= 2 || currentShieldLevel <= 2) &&
+                                (currentWeaponLevel <= 2 || currentShieldLevel <= 2 || currentHpBoostLevel <=2) &&
                                 lastPopupMeatThreshold < 250) {
                                 threshold = 250;
                                 }
@@ -3963,7 +4012,7 @@ GameApp &app = GameApp::GetInstance();
         UpdateBackgroundTint(deltaTime);//Le rgb
         RenderGlobalWeaponProgresBar(840, 750);// Pour render les cubes pour les armes.
         RenderGlobalShieldProgresBar(1040, 750);// Pour render les cubes pour les shields
-
+        RenderGlobalHpBoostProgresBar(1240, 750);
         SDL_SetTextureColorMod(textureBulletNormal, 255, 255, 255);
 
         //Bouton Upgrade Weapon
@@ -3989,7 +4038,7 @@ GameApp &app = GameApp::GetInstance();
             else if (currentWeaponLevel == 2) {
                 SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
             }
-        }//Bouton HP
+        }//Bouton SHIELD
         if (selectedButtonShop == 1) {
             RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
             SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
@@ -4009,13 +4058,22 @@ GameApp &app = GameApp::GetInstance();
             else if (currentShieldLevel == 2) {
                 SDL_RenderTexture(renderer, textureLargeShield, nullptr, &BoutonShieldUpgrade);
             }
-        }//Bouton Return GAme
+        }//Pur le upgrade HP Boost
         if (selectedButtonShop == 2) {
+            RenderBoutons(BoutonHpUpgrade, nullptr, r, g, b);
+            SDL_RenderTexture(renderer, textureHpBoost, nullptr, &BoutonHpUpgrade);
+        }
+        else {
+            RenderBoutons(BoutonHpUpgrade, nullptr, 40, 40, 40);
+            SDL_RenderTexture(renderer, textureHpBoost, nullptr, &BoutonHpUpgrade);
+        }
+        //Bouton Return GAme
+        if (selectedButtonShop == 3) {
             RenderBoutons(BoutonResumeGameShop, resumeGameShopText, r, g, b);
         }else {
             RenderBoutons(BoutonResumeGameShop, resumeGameShopText, 40,40,40);
         }//Bouton Quit Menu
-        if (selectedButtonShop == 3) {
+        if (selectedButtonShop == 4) {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
         }else {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, 40, 40, 40);
@@ -4378,6 +4436,11 @@ public:
             player->currentWeapon = new IceBulletType();
             player->currentWeapon->texture = textureBulletIce;
         }
+        else if (globalWeaponLevel == 3) {
+            delete player->currentWeapon;
+            player->currentWeapon = new GoldBulletType();
+            player->currentWeapon->texture = textureBulletGold;
+        }
         // Pareil pour le shield que les armes
         if (globalShieldLevel == 1) {
             delete player->currentShield;
@@ -4397,6 +4460,36 @@ public:
             player->maxShieldHP = player->currentShield->GetMaxShieldHP();
             player->currentShieldHP = player->maxShieldHP;
         }
+        //Pour Le Hp Boost reset
+        if (globalHpBoostLevel == 1) {
+            int totalBonus = 0;
+            if (globalHpBoostLevel >= 1) totalBonus += SmallHpType().GetBonusHP();
+            if (globalHpBoostLevel >= 2) totalBonus += MediumHpType().GetBonusHP();
+            if (globalHpBoostLevel >= 3) totalBonus += LargeHpType().GetBonusHP();
+
+            player->health.max_health = 150 + totalBonus;
+            player->health.current_health = player->health.max_health;
+        }
+        else if (globalHpBoostLevel == 2) {
+            int totalBonus = 0;
+            if (globalHpBoostLevel >= 1) totalBonus += SmallHpType().GetBonusHP();   // 50 + bonus
+            if (globalHpBoostLevel >= 2) totalBonus += MediumHpType().GetBonusHP();  // 100 + bonus
+            if (globalHpBoostLevel >= 3) totalBonus += LargeHpType().GetBonusHP();   // 250 + bonus
+
+            player->health.max_health = 150 + totalBonus;
+            player->health.current_health = player->health.max_health;
+        }
+        else if (globalHpBoostLevel == 3) {
+            int totalBonus = 0;
+            if (globalHpBoostLevel >= 1) totalBonus += SmallHpType().GetBonusHP();   // 50 + bonus
+            if (globalHpBoostLevel >= 2) totalBonus += MediumHpType().GetBonusHP();  // 100 + bonus
+            if (globalHpBoostLevel >= 3) totalBonus += LargeHpType().GetBonusHP();   // 250 + bonus
+
+            player->health.max_health = 150 + totalBonus;
+            player->health.current_health = player->health.max_health;
+        }
+
+
 //save le meat
         currentMeat = savedMeat;
         lastMeat = -1; //
@@ -4939,14 +5032,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         else if (app.StateActuel == State::UpgradePopup) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT){
             app.selectedButtonPopUp++;
-                if (app.selectedButtonPopUp > 2) {
+                if (app.selectedButtonPopUp > 3) {
                     app.selectedButtonPopUp = 0;//Retourne au premier
                 }
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
                 app.selectedButtonPopUp--;
                 if (app.selectedButtonPopUp < 0) {
-                    app.selectedButtonPopUp = 2;//retourne au dernier
+                    app.selectedButtonPopUp = 3;//retourne au dernier
                 }
             }
             //Verification
@@ -5030,7 +5123,35 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             }
                         }
                         break;
-                    case 2:
+                    case 2://HP BOOST
+                        if (app.currentHpBoostLevel == 0) {
+                            if (app.player->HpUpgrade(HpAmount::SmallHpBonus, app.currentMeat)) {
+                                app.currentHpBoostLevel = 1;
+                                app.globalHpBoostLevel = 1;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                        else if (app.currentHpBoostLevel == 1) {
+                            if (app.player->HpUpgrade(HpAmount::MediumHpBonus, app.currentMeat)) {
+                                app.currentHpBoostLevel = 2;
+                                app.globalHpBoostLevel = 2;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                        else if (app.currentHpBoostLevel == 2) {
+                            if (app.player->HpUpgrade(HpAmount::LargeHpBonus, app.currentMeat)) {
+                                app.currentHpBoostLevel = 3;
+                                app.globalHpBoostLevel = 3;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                    case 3:
                         //Retour dans Game
                         app.nextStateAfterFadeOut = State::Game;
                         app.bPopupFadeOut = true;
@@ -5044,14 +5165,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         else if (app.StateActuel == State::Shop) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT){
             app.selectedButtonShop++;
-                if (app.selectedButtonShop > 3) {
+                if (app.selectedButtonShop > 4) {
                     app.selectedButtonShop = 0;//Retourne au premier
                 }
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
                 app.selectedButtonShop--;
                 if (app.selectedButtonShop < 0) {
-                    app.selectedButtonShop = 3;//retourne au dernier
+                    app.selectedButtonShop = 4;//retourne au dernier
                 }
             }
             //Verification
@@ -5095,7 +5216,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         }
                         break;
                     case 1:
-                        //Rien Encore Pour Upgrade SHIELD
+                        //Upgrade SHIELD
                         SDL_Log("Achat Upgrade Shield");
                         // player->ShieldUpgrade();
                         if (app.currentShieldLevel == 0) {
@@ -5117,12 +5238,41 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             }
                         }
                         break;
-                    case 2:
+                    case 2://HpBoost
+                        SDL_Log("Achat Hp Boost");
+                        if (app.currentHpBoostLevel == 0) {
+                            if (app.player->HpUpgrade(HpAmount::SmallHpBonus, app.currentMeat)) {
+                                app.currentHpBoostLevel = 1;
+                                app.globalHpBoostLevel = 1;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                        else if (app.currentHpBoostLevel == 1) {
+                            if (app.player->HpUpgrade(HpAmount::MediumHpBonus, app.currentMeat)) {
+                                app.currentHpBoostLevel = 2;
+                                app.globalHpBoostLevel = 2;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                        else if (app.currentHpBoostLevel == 2) {
+                            if (app.player->HpUpgrade(HpAmount::LargeHpBonus, app.currentMeat)) {
+                                app.currentHpBoostLevel = 3;
+                                app.globalHpBoostLevel = 3;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                    case 3:
                         //Retour menu
                         app.StateActuel = State::Game;
                         app.selectedButtonShop = 0;
                         break;
-                    case 3:
+                    case 4:
                         app.StateActuel = State::Menu;
                         app.selectedButtonShop = 0;
                         break;
@@ -5488,6 +5638,37 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     if (app.player->ShieldUpgrade(ShieldAmount::LargeShield, app.currentMeat)) {
                         app.currentShieldLevel = 3;
                         app.globalShieldLevel = 3;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+            }
+            //Si on appuie sur HPBoost
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonHpUpgrade)) {
+                SDL_Log("Achat Upgrade Hp Boost");
+                if (app.currentHpBoostLevel == 0) {
+                    if (app.player->HpUpgrade(HpAmount::SmallHpBonus, app.currentMeat)) {
+                        app.currentHpBoostLevel = 1;
+                        app.globalHpBoostLevel = 1;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+                else if (app.currentHpBoostLevel == 1) {
+                    if (app.player->HpUpgrade(HpAmount::MediumHpBonus, app.currentMeat)) {
+                        app.currentHpBoostLevel = 2;
+                        app.globalHpBoostLevel = 2;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+                else if (app.currentHpBoostLevel == 2) {
+                    if (app.player->HpUpgrade(HpAmount::LargeHpBonus, app.currentMeat)) {
+                        app.currentHpBoostLevel = 3;
+                        app.globalHpBoostLevel = 3;
                         app.lastPopupMeatThreshold = -1;
                         app.nextStateAfterFadeOut = State::Game;
                         app.bPopupFadeOut = true;

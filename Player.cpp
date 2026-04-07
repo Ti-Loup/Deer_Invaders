@@ -370,7 +370,7 @@ bool Player::HpUpgrade(HpAmount type, int &meatCount) {
             break;
         case HpAmount::MediumHpBonus: HpPrice = 50;
             break;
-        case HpAmount::LargeShieldBonus: HpPrice = 250;
+        case HpAmount::LargeHpBonus: HpPrice = 250;
             break;
         case HpAmount::NoHpBonus: HpPrice = 0;
             break;
@@ -394,7 +394,7 @@ bool Player::HpUpgrade(HpAmount type, int &meatCount) {
         case HpAmount::MediumHpBonus:
             newHpBoost = new MediumHpType();
             break;
-        case HpAmount::LargeShieldBonus:
+        case HpAmount::LargeHpBonus:
             newHpBoost = new LargeHpType();
             break;
     }
@@ -403,8 +403,8 @@ bool Player::HpUpgrade(HpAmount type, int &meatCount) {
     currentHpBoost = newHpBoost;
     // Applique le bonus aux HP du joueur
     int bonus = currentHpBoost->GetBonusHP();
+    health.current_health += bonus;
     health.max_health += bonus;
-    health.current_health = health.max_health;
 
     meatCount -= HpPrice;
     SDL_Log("Boost HP acheter");
