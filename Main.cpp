@@ -411,7 +411,7 @@ public:
 
     //Point Meat
 
-    int currentMeat = 0;
+    int currentMeat = 10000;
     int meatGrab = 1;
     //Meat Rendu
     int lastMeat = -1;
@@ -1588,9 +1588,9 @@ private:
 
             if (i < globalMissilePlayerLevel) {
                 // Segment rempli
-                if (i == 0) SDL_SetRenderDrawColor(renderer, 254, 163, 71,255); // mandarine
-                if (i == 1) SDL_SetRenderDrawColor(renderer, 250, 164, 1, 255); // orange
-                if (i == 2) SDL_SetRenderDrawColor(renderer, 222, 152, 22,255); // Melon
+                if (i == 0) SDL_SetRenderDrawColor(renderer, 255, 220, 50,255); // mandarine
+                if (i == 1) SDL_SetRenderDrawColor(renderer, 255, 140, 0, 255); // orange
+                if (i == 2) SDL_SetRenderDrawColor(renderer, 200, 50,  0,255); // Melon
             } else {
                 // Segment vide
                 SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
@@ -4127,8 +4127,9 @@ GameApp &app = GameApp::GetInstance();
         RenderShopTitle();
         UpdateBackgroundTint(deltaTime);//Le rgb
         RenderGlobalWeaponProgresBar(740, 750);// Pour render les cubes pour les armes.
-        RenderGlobalShieldProgresBar(940, 750);// Pour render les cubes pour les shields
-        RenderGlobalHpBoostProgresBar(1140, 750);
+        RenderGlobalMissilePlayerProgresBar(940, 750);
+        RenderGlobalShieldProgresBar(1140, 750);// Pour render les cubes pour les shields
+        RenderGlobalHpBoostProgresBar(1340, 750);
         SDL_SetTextureColorMod(textureBulletNormal, 255, 255, 255);
 
         //Bouton Upgrade Weapon
@@ -4154,8 +4155,30 @@ GameApp &app = GameApp::GetInstance();
             else if (currentWeaponLevel == 2) {
                 SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
             }
-        }//Bouton SHIELD
+        }
+        //Bouton Missile
         if (selectedButtonShop == 1) {
+            RenderBoutons(BoutonMissileUpgrade, nullptr, r, g, b);
+            SDL_RenderTexture(renderer,textureSmallMissilePlayer, nullptr, &BoutonMissileUpgrade);
+            if (currentMissilePlayerLevel == 1) {
+                SDL_RenderTexture(renderer, textureMediumMissilePlayer, nullptr, &BoutonMissileUpgrade);
+            }
+            else if (currentMissilePlayerLevel == 2) {
+                SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgrade);
+            }
+
+        }else {
+            RenderBoutons(BoutonMissileUpgrade, nullptr, 40, 40, 40);
+            SDL_RenderTexture(renderer,textureSmallMissilePlayer, nullptr, &BoutonMissileUpgrade);
+            if (currentMissilePlayerLevel == 1) {
+                SDL_RenderTexture(renderer, textureMediumMissilePlayer, nullptr, &BoutonMissileUpgrade);
+            }
+            else if (currentMissilePlayerLevel == 2) {
+                SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgrade);
+            }
+        }
+        //Bouton SHIELD
+        if (selectedButtonShop == 2) {
             RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
             SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
             if (currentShieldLevel == 1) {
@@ -4175,7 +4198,7 @@ GameApp &app = GameApp::GetInstance();
                 SDL_RenderTexture(renderer, textureLargeShield, nullptr, &BoutonShieldUpgrade);
             }
         }//Pur le upgrade HP Boost
-        if (selectedButtonShop == 2) {
+        if (selectedButtonShop == 3) {
             RenderBoutons(BoutonHpUpgrade, nullptr, r, g, b);
             SDL_RenderTexture(renderer, textureHpBoost, nullptr, &BoutonHpUpgrade);
         }
@@ -4184,11 +4207,11 @@ GameApp &app = GameApp::GetInstance();
             SDL_RenderTexture(renderer, textureHpBoost, nullptr, &BoutonHpUpgrade);
         }
         //Bouton Return GAme
-        if (selectedButtonShop == 3) {
-            RenderBoutons(BoutonResumeGameShop, resumeGameShopText, r, g, b);
-        }else {
-            RenderBoutons(BoutonResumeGameShop, resumeGameShopText, 40,40,40);
-        }//Bouton Quit Menu
+        // if (selectedButtonShop == 4) {
+        //     RenderBoutons(BoutonResumeGameShop, resumeGameShopText, r, g, b);
+        // }else {
+        //     RenderBoutons(BoutonResumeGameShop, resumeGameShopText, 40,40,40);
+        // }//Bouton Quit Menu
         if (selectedButtonShop == 4) {
             RenderBoutons(BoutonQuitRetourMenu, TextQuitReturnMenu, r, g, b);
         }else {
@@ -4196,9 +4219,9 @@ GameApp &app = GameApp::GetInstance();
         }
         //rajouter text en dessous des boutons
         TTF_DrawRendererText(BoutonUpgradeText,750 , 925);
-        TTF_DrawRendererText(BoutonShieldUpgradeText,950 , 925);
-TTF_DrawRendererText(BoutonHpBoostText, 1150,925);
-
+        TTF_DrawRendererText(BoutonShieldUpgradeText,1350 , 925);
+        TTF_DrawRendererText(BoutonHpBoostText, 1150,925);
+        TTF_DrawRendererText(BoutonMissileUpgradeText,950,925);
 
 
         //RENDER Fonts
@@ -4603,6 +4626,21 @@ public:
 
             player->health.max_health = 150 + totalBonus;
             player->health.current_health = player->health.max_health;
+        }//MISSILE
+        if (globalMissilePlayerLevel == 1) {
+            delete player->currentMissile;
+            player->currentMissile = new SmallMissileType();
+            player->currentMissile->texture = textureSmallMissilePlayer;
+        }
+        else if (globalMissilePlayerLevel == 2) {
+            delete player->currentMissile;
+            player->currentMissile = new MediumMissileType();
+            player->currentMissile->texture = textureMediumMissilePlayer;
+        }
+        else if (globalMissilePlayerLevel == 3) {
+            delete player->currentMissile;
+            player->currentMissile = new LargeMissileType();
+            player->currentMissile->texture = textureLargeMissilePlayer;
         }
 
 
@@ -5208,7 +5246,34 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         }
                         break;
                     case 1 :
-                        //implementation des missiles joueurs a faire
+                        //implementation des missiles joueurs
+                        if (app.currentMissilePlayerLevel == 0) {
+                            if (app.player->MissileUpgrade(MissileNiveau::SmallMissile, app.currentMeat)) {
+                                app.currentMissilePlayerLevel = 1;// missile acheter
+                                app.globalMissilePlayerLevel = 1;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                        else if (app.currentMissilePlayerLevel == 1){
+                            if (app.player->MissileUpgrade(MissileNiveau::MediumMissile, app.currentMeat)) {
+                                app.currentMissilePlayerLevel = 2;// missile acheter
+                                app.globalMissilePlayerLevel = 2;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                        else if (app.currentMissilePlayerLevel == 2) {
+                            if (app.player->MissileUpgrade(MissileNiveau::LargeMissile, app.currentMeat)) {
+                                app.currentMissilePlayerLevel = 3;// missile acheter
+                                app.globalMissilePlayerLevel = 3;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
                         break;
                     case 2:
                         //Rien Encore Pour Upgrade SHIELD
@@ -5335,6 +5400,36 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         }
                         break;
                     case 1:
+                        //implementation des missiles joueurs
+                        if (app.currentMissilePlayerLevel == 0) {
+                            if (app.player->MissileUpgrade(MissileNiveau::SmallMissile, app.currentMeat)) {
+                                app.currentMissilePlayerLevel = 1;// missile acheter
+                                app.globalMissilePlayerLevel = 1;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                        else if (app.currentMissilePlayerLevel == 1){
+                            if (app.player->MissileUpgrade(MissileNiveau::MediumMissile, app.currentMeat)) {
+                                app.currentMissilePlayerLevel = 2;// missile acheter
+                                app.globalMissilePlayerLevel = 2;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                        else if (app.currentMissilePlayerLevel == 2) {
+                            if (app.player->MissileUpgrade(MissileNiveau::LargeMissile, app.currentMeat)) {
+                                app.currentMissilePlayerLevel = 3;// missile acheter
+                                app.globalMissilePlayerLevel = 3;
+                                app.lastPopupMeatThreshold = -1;
+                                app.nextStateAfterFadeOut = State::Game;
+                                app.bPopupFadeOut = true;
+                            }
+                        }
+                        break;
+                    case 2:
                         //Upgrade SHIELD
                         SDL_Log("Achat Upgrade Shield");
                         // player->ShieldUpgrade();
@@ -5357,7 +5452,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             }
                         }
                         break;
-                    case 2://HpBoost
+                    case 3:
                         SDL_Log("Achat Hp Boost");
                         if (app.currentHpBoostLevel == 0) {
                             if (app.player->HpUpgrade(HpAmount::SmallHpBonus, app.currentMeat)) {
@@ -5386,10 +5481,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                                 app.bPopupFadeOut = true;
                             }
                         }
-                    case 3:
-                        //Retour menu
-                        app.StateActuel = State::Game;
-                        app.selectedButtonShop = 0;
+
+
+                        //app.StateActuel = State::Game;
+                        //app.selectedButtonShop = 0;
                         break;
                     case 4:
                         app.StateActuel = State::Menu;
@@ -5733,6 +5828,34 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             // Bouton Upgrade Arme Missile
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonMissileUpgradePopUp)) {
                 SDL_Log ("Achat Upgrade Missile");
+                //implementation des missiles joueurs
+                if (app.currentMissilePlayerLevel == 0) {
+                    if (app.player->MissileUpgrade(MissileNiveau::SmallMissile, app.currentMeat)) {
+                        app.currentMissilePlayerLevel = 1;// missile acheter
+                        app.globalMissilePlayerLevel = 1;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+                else if (app.currentMissilePlayerLevel == 1){
+                    if (app.player->MissileUpgrade(MissileNiveau::MediumMissile, app.currentMeat)) {
+                        app.currentMissilePlayerLevel = 2;// missile acheter
+                        app.globalMissilePlayerLevel = 2;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+                else if (app.currentMissilePlayerLevel == 2) {
+                    if (app.player->MissileUpgrade(MissileNiveau::LargeMissile, app.currentMeat)) {
+                        app.currentMissilePlayerLevel = 3;// missile acheter
+                        app.globalMissilePlayerLevel = 3;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
             }
 
             // Bouton Upgrade Shield
@@ -5800,10 +5923,6 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
         }
 
-
-
-
-
         //Dans le Shop
         else if (app.StateActuel == State::Shop) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
@@ -5849,8 +5968,39 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     }
                 }
             }
+            //Missile
+            if (SDL_PointInRectFloat (&MousePT, &app.BoutonMissileUpgrade)) {
+                //implementation des missiles joueurs
+                if (app.currentMissilePlayerLevel == 0) {
+                    if (app.player->MissileUpgrade(MissileNiveau::SmallMissile, app.currentMeat)) {
+                        app.currentMissilePlayerLevel = 1;// missile acheter
+                        app.globalMissilePlayerLevel = 1;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+                else if (app.currentMissilePlayerLevel == 1){
+                    if (app.player->MissileUpgrade(MissileNiveau::MediumMissile, app.currentMeat)) {
+                        app.currentMissilePlayerLevel = 2;// missile acheter
+                        app.globalMissilePlayerLevel = 2;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+                else if (app.currentMissilePlayerLevel == 2) {
+                    if (app.player->MissileUpgrade(MissileNiveau::LargeMissile, app.currentMeat)) {
+                        app.currentMissilePlayerLevel = 3;// missile acheter
+                        app.globalMissilePlayerLevel = 3;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+            }
 
-            // Bouton Upgrade HP
+            // Bouton Upgrade SHIELD
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonShieldUpgrade)) {
                 SDL_Log("Achat Upgrade HP");
                 // player->ShieldUpgrade();
@@ -5870,6 +6020,37 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     if (app.player->ShieldUpgrade(ShieldAmount::LargeShield, app.currentMeat)) {
                         app.currentShieldLevel = 3;
                         app.globalShieldLevel = 3;
+                    }
+                }
+            }
+            //HP Bonus
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonHpUpgrade)) {
+                SDL_Log("Achat Upgrade Hp Boost");
+                if (app.currentHpBoostLevel == 0) {
+                    if (app.player->HpUpgrade(HpAmount::SmallHpBonus, app.currentMeat)) {
+                        app.currentHpBoostLevel = 1;
+                        app.globalHpBoostLevel = 1;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+                else if (app.currentHpBoostLevel == 1) {
+                    if (app.player->HpUpgrade(HpAmount::MediumHpBonus, app.currentMeat)) {
+                        app.currentHpBoostLevel = 2;
+                        app.globalHpBoostLevel = 2;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
+                    }
+                }
+                else if (app.currentHpBoostLevel == 2) {
+                    if (app.player->HpUpgrade(HpAmount::LargeHpBonus, app.currentMeat)) {
+                        app.currentHpBoostLevel = 3;
+                        app.globalHpBoostLevel = 3;
+                        app.lastPopupMeatThreshold = -1;
+                        app.nextStateAfterFadeOut = State::Game;
+                        app.bPopupFadeOut = true;
                     }
                 }
             }

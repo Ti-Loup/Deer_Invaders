@@ -27,6 +27,8 @@ Player::Player(SDL_Texture *texture) {
     currentShield = new NoShieldType();
     //aucun HP bonus oar default
     currentHpBoost = new NoHpType();
+    //aucun Missile pour le depart
+    currentMissile = new InvalidMissileType();
 
     //Le Type d'entity
     entityType = EntityType::Player;
@@ -46,6 +48,10 @@ Player::~Player() {
     if (currentHpBoost != nullptr) {
         delete currentHpBoost;
         currentHpBoost = nullptr;
+    }
+    if (currentMissile != nullptr) {
+        delete currentMissile;
+        currentMissile = nullptr;
     }
 }
 
