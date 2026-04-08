@@ -5,6 +5,7 @@
 #include "Player.h"
 
 #include <algorithm>
+#include <cfloat>
 
 #include "State.h"
 #include "SDL3/SDL.h"
@@ -294,56 +295,99 @@ MissilePlayer::MissilePlayer(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, 
 
 
 }
-//Utilisation IA pour fonctionnement courbe avec atan2 (tangante)
 void MissilePlayer::UpdateGuidance(std::vector<Entity*>& entities, float deltaTime) {
-    // Trouve l'ennemie le plus proche
-    if (target == nullptr ||  target->health.current_health <= 0) {
-        float bestDist = 9999.f;
+    // --- Acquisition ---
+    if (target == nullptr || target->health.current_health <= 0) {
+        float closestEnnemy = std::numeric_limits<float>::max();
+        target = nullptr;
+
         for (auto* e : entities) {
             if (e->entityType != EntityType::Enemy) continue;
-            float dx = e->transform.position.x - transform.position.x;
-            float dy = e->transform.position.y - transform.position.y;
-            float dist = std::sqrt(dx*dx + dy*dy);
-            if (dist < bestDist) { bestDist = dist; target = e; }
+
+            float distanceX = e->transform.position.x - transform.position.x;
+            float distanceY = e->transform.position.y - transform.position.y;
+            float distSq = distanceX*distanceX + distanceY*distanceY;
+
+            if (distSq < closestEnnemy) {
+                closestEnnemy = distSq;
+                target = e;
+            }
+        }
+    }
+    float velocityX = movement.velocity.x;
+    float velocityY = movement.velocity.y;
+
+    float speedCurrent = std::sqrt(velocityX*velocityX + velocityY*velocityY);
+    if (speedCurrent < 0.001f) {
+        velocityX = 0.0f;
+        velocityY = -1.0f;
+        speedCurrent = speed;
+    }
+
+    velocityX /= speedCurrent;
+    velocityY /= speedCurrent;
+
+    // direction a suivre
+    float desiredX = 0.0f;
+    float desiredY = -1.0f; // par défaut = vers le haut
+
+    if (target != nullptr) {
+        float targetX = target->transform.position.x - transform.position.x;
+        float targetY = target->transform.position.y - transform.position.y;
+
+        float lenSq = targetX*targetX + targetY*targetY;
+
+        if (lenSq > 0.0001f) {
+            float invLen = 1.0f / std::sqrt(lenSq);
+            targetX *= invLen;
+            targetY *= invLen;
+
+            float dot = velocityX * targetX + velocityY * targetY;
+
+            // conditions de tracking
+            if (dot > 0.0f && targetY < 0.3f) { // devant + pas trop vers le bas
+                desiredX = targetX;
+                desiredY = targetY;
+            }
+            else {
+                target = nullptr; // perte de lock
+            }
         }
     }
 
-    if (target == nullptr) return; // pas de cible, vol droit
+    // --- Steering (clé du réalisme) ---
+    float steerX = desiredX - velocityX;
+    float steerY = desiredY - velocityY;
 
-    // Direction actuelle tangante triangle angle
-    float currentAngle = std::atan2(movement.velocity.y, movement.velocity.x);
+    // limite de force
+    float maxForce = turnSpeed * deltaTime;
 
-    // Direction vers la cible
-    float dx = target->transform.position.x - transform.position.x;
-    float dy = target->transform.position.y - transform.position.y;
-    float desiredAngle = std::atan2(dy, dx);
-
-    // difference d'angle
-    float diff = desiredAngle - currentAngle;
-    while (diff >  M_PI) diff -= 2.f * M_PI;
-    while (diff < -M_PI) diff += 2.f * M_PI;
-
-    // Rotation progressive
-    float maxTurn  = turnSpeed * deltaTime;
-    float rotation = std::clamp(diff, -maxTurn, maxTurn);
-    float newAngle = currentAngle + rotation;
-
-    // Réapplique la vitesse dans la nouvelle direction
-    movement.velocity.x = speed * std::cos(newAngle);
-    movement.velocity.y = speed * std::sin(newAngle);
-
-    //Coder par moi ->
-    //Si sord de l'ecran alors detruit
-    if (transform.position.y > 1100.0f) {
-        bIsDestroyed = true;
+    float steerLen = std::sqrt(steerX*steerX + steerY*steerY);
+    if (steerLen > maxForce && steerLen > 0.0001f) {
+        float scale = maxForce / steerLen;
+        steerX *= scale;
+        steerY *= scale;
     }
-    else if (transform.position.y < -20.0f) {
-        bIsDestroyed = true;
+
+    // applique steering à la vitesse
+    velocityX += steerX;
+    velocityY += steerY;
+
+    // renormalise
+    float newLen = std::sqrt(velocityX*velocityX + velocityY*velocityY);
+    if (newLen > 0.0001f) {
+        velocityX /= newLen;
+        velocityY /= newLen;
     }
-    else if (transform.position.x < -20.0f) {
-        bIsDestroyed = true;
-    }
-    else if (transform.position.x > 1940.0f) {
+
+    movement.velocity.x = velocityX * speed;
+    movement.velocity.y = velocityY * speed;
+
+    // Destructeur des Missiles
+    if (transform.position.y > 1100.0f ||
+        transform.position.y < -20.0f ||
+        transform.position.x < -20.0f ||
+        transform.position.x > 1940.0f) {
         bIsDestroyed = true;
     }
 }
