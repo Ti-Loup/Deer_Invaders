@@ -411,7 +411,7 @@ public:
 
     //Point Meat
 
-    int currentMeat = 10000;
+    int currentMeat = 0;
     int meatGrab = 1;
     //Meat Rendu
     int lastMeat = -1;
