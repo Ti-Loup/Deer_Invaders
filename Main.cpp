@@ -151,6 +151,7 @@ public:
     //Texture qui montre un preview des niveaux
     SDL_Texture *textureStage1Preview = nullptr;
     SDL_Texture *textureStage2Preview = nullptr;
+    SDL_Texture *textureStage3Preview = nullptr;
     //SDL_Texture *textureStage3Preview = nullptr;
 
     //text pour dire si accecible ou non
@@ -727,7 +728,10 @@ private:
         if (textureStage2Preview == nullptr) {
             SDL_LogWarn(0, "IMG_LoadTexture failed to load textureStage2Preview", SDL_GetError());
         }
-
+        textureStage3Preview = IMG_LoadTexture(renderer,"assets/Stage3Preview.png");
+        if (textureStage3Preview == nullptr) {
+            SDL_LogWarn(0,"failed to load the image textureStage3Preview");
+        }
         //DANS INTROGAME
 
         texteIntroCerfEtHUmain = TTF_CreateText(textEngine, DialogueFont, phrasesIntroNiveau1[0], 0);
@@ -883,20 +887,20 @@ private:
         if (textureLargeShield == nullptr) {
             SDL_LogWarn(0, "failed to load textureLargeShield", SDL_GetError());
         }
-        textureHpBoost = IMG_LoadTexture(renderer, "assets/HpBoost.png");
+        textureHpBoost = IMG_LoadTexture(renderer, "assets/HealthIcon.png");
         if (textureHpBoost == nullptr) {
             SDL_LogWarn(0, "failed to load textureHpBoost", SDL_GetError());
         }
         //TEXTURE MISSILE PLAYER
-        textureSmallMissilePlayer = IMG_LoadTexture(renderer, "assets/SmallMissilePlayer.png");
+        textureSmallMissilePlayer = IMG_LoadTexture(renderer, "assets/Missile1.png");
         if (textureSmallMissilePlayer == nullptr) {
             SDL_LogWarn(0, "failed to load textureSmallMissilePlayer", SDL_GetError());
         }
-        textureMediumMissilePlayer = IMG_LoadTexture(renderer, "assets/MediumMissilePlayer.png");
+        textureMediumMissilePlayer = IMG_LoadTexture(renderer, "assets/Missile2.png");
         if (textureMediumMissilePlayer == nullptr) {
             SDL_LogWarn(0, "failed to load textureMediumMissilePlayer", SDL_GetError());
         }
-        textureLargeMissilePlayer = IMG_LoadTexture(renderer, "assets/LargeMissilePlayer.png");
+        textureLargeMissilePlayer = IMG_LoadTexture(renderer, "assets/Missile3.png");
         if (textureLargeMissilePlayer == nullptr) {
             SDL_LogWarn(0, "failed to load textureLargeMissilePlayer", SDL_GetError());
         }
@@ -1322,6 +1326,7 @@ private:
         SDL_DestroyTexture(HealUI);
         SDL_DestroyTexture(textureStage1Preview);
         SDL_DestroyTexture(textureStage2Preview);
+        SDL_DestroyTexture(textureStage3Preview);
         //SDL_DestroyTexture(textureStage3Preview);
         SDL_DestroyTexture(textureBulletNormal);
         SDL_DestroyTexture(textureBulletFire);
@@ -1723,6 +1728,12 @@ private:
             BoutonChoixNiveau2.w - (offset * 2.0f),
             BoutonChoixNiveau2.h - (offset * 2.0f)
         };
+        SDL_FRect Stage3Rect = {
+            BoutonChoixNiveau2.x + offset,
+            BoutonChoixNiveau2.y + offset,
+            BoutonChoixNiveau2.w - (offset * 2.0f),
+            BoutonChoixNiveau2.h - (offset * 2.0f)
+        };
 
         //boutons et text
         //Bouton Niveau 1
@@ -1761,17 +1772,21 @@ private:
         if (selectedButtonChoixNiveau == 2) {
             if (bStage2Completed) {
                 RenderBoutons(BoutonChoixNiveau3, nullptr, r, g, b);
+                SDL_RenderTexture(renderer, textureStage3Preview, nullptr, &Stage3Rect);
                 TTF_DrawRendererText(StageAvailable, 1500, 810);
             } else {
                 RenderBoutons(BoutonChoixNiveau3, nullptr, 100, 100, 100);
+                SDL_RenderTexture(renderer, textureStage3Preview, nullptr, &Stage3Rect);
                 TTF_DrawRendererText(StageLocked, 1500, 810);
             }
         } else {
             if (bStage2Completed) {
                 RenderBoutons(BoutonChoixNiveau3, nullptr, 40, 40, 40);
+                SDL_RenderTexture(renderer, textureStage3Preview, nullptr, &Stage3Rect);
                 TTF_DrawRendererText(StageAvailable, 1500, 810); // ← Available même non sélectionné
             } else {
                 RenderBoutons(BoutonChoixNiveau3, nullptr, 40, 40, 40);
+                SDL_RenderTexture(renderer, textureStage3Preview, nullptr, &Stage3Rect);
                 TTF_DrawRendererText(StageLocked, 1500, 810);
             }
         }
@@ -2767,6 +2782,22 @@ private:
                         continue; // ← skip le RenderUpdate coloré
                     }
                 }
+            //Pour le rendu des Missiles joueurs
+            if (MissilePlayer* playerMissile = dynamic_cast<MissilePlayer *>(ent)) {
+                if (playerMissile->textureMissile != nullptr) {
+                    SDL_FRect dest = {
+                        playerMissile->transform.position.x,
+                        playerMissile->transform.position.y,
+                        playerMissile->transform.size.x,
+                        playerMissile->transform.size.y
+                    };
+
+                    SDL_RenderTexture(renderer, playerMissile->textureMissile, nullptr, &dest);
+                    continue; // ← skip le RenderUpdate coloré
+                }
+            }
+
+
             //La boule que les mages lancent
             if (MagicBottle* ball = dynamic_cast<MagicBottle *>(ent)) {
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -3010,6 +3041,9 @@ private:
                 else if (currentWeaponLevel == 2) {
                     SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgradePopUp);
                 }
+                else {
+                    SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgradePopUp);
+                }
             }else {
                 RenderBoutons(BoutonUpgradePopUp, nullptr, 40, 40, 40);
                 if (currentWeaponLevel == 0) {
@@ -3019,6 +3053,9 @@ private:
                     SDL_RenderTexture(renderer, textureBulletIce, nullptr, &BoutonUpgradePopUp);
                 }//texture bullet gold
                 else if (currentWeaponLevel == 2) {
+                    SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgradePopUp);
+                }
+                else {
                     SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgradePopUp);
                 }
             }//Bouton Missile Upgrade
@@ -3033,6 +3070,9 @@ private:
                 else if (currentMissilePlayerLevel == 2) {
                     SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgradePopUp);
                 }
+                else {
+                    SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgradePopUp);
+                }
             }else {
                 RenderBoutons(BoutonMissileUpgradePopUp, nullptr, 40, 40, 40);
                 if (currentMissilePlayerLevel == 0) {
@@ -3044,24 +3084,37 @@ private:
                 else if (currentMissilePlayerLevel == 2) {
                     SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgradePopUp);
                 }
+                else {
+                    SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgradePopUp);
+                }
             }
             //Bouton Shield
             if (selectedButtonPopUp == 2) {
                 RenderBoutons(BoutonShieldUpgradePopUp, nullptr, r, g, b);
-                SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgradePopUp);
-                if (currentShieldLevel == 1) {
+                if (currentShieldLevel == 0) {
+                    SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgradePopUp);
+                }
+                else if (currentShieldLevel == 1) {
                     SDL_RenderTexture(renderer,textureMediumShield, nullptr, &BoutonShieldUpgradePopUp);
                 }
                 else if (currentShieldLevel == 2) {
                     SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgradePopUp);
                 }
+                else {
+                    SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgradePopUp);
+                }
             }else {
                 RenderBoutons(BoutonShieldUpgradePopUp, nullptr, 40, 40, 40);
-                SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgradePopUp);
-                if (currentShieldLevel == 1) {
+                if (currentShieldLevel == 0) {
+                    SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgradePopUp);
+                }
+                else if (currentShieldLevel == 1) {
                     SDL_RenderTexture(renderer,textureMediumShield, nullptr, &BoutonShieldUpgradePopUp);
                 }
                 else if (currentShieldLevel == 2) {
+                    SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgradePopUp);
+                }
+                else {
                     SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgradePopUp);
                 }
             }//Pur le upgrade HP Boost
@@ -4149,6 +4202,9 @@ GameApp &app = GameApp::GetInstance();
             else if (currentWeaponLevel == 2) {
                 SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
             }
+            else {
+                SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
+            }
         }else {
             RenderBoutons(BoutonUpgrade, nullptr, 40, 40, 40);
             if (currentWeaponLevel == 0) {
@@ -4160,48 +4216,73 @@ GameApp &app = GameApp::GetInstance();
             else if (currentWeaponLevel == 2) {
                 SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
             }
+            else {
+                SDL_RenderTexture(renderer, textureBulletGold, nullptr, &BoutonUpgrade);
+            }
         }
         //Bouton Missile
         if (selectedButtonShop == 1) {
             RenderBoutons(BoutonMissileUpgrade, nullptr, r, g, b);
+            if (currentMissilePlayerLevel == 0){
             SDL_RenderTexture(renderer,textureSmallMissilePlayer, nullptr, &BoutonMissileUpgrade);
-            if (currentMissilePlayerLevel == 1) {
+            }
+            else if (currentMissilePlayerLevel == 1) {
                 SDL_RenderTexture(renderer, textureMediumMissilePlayer, nullptr, &BoutonMissileUpgrade);
             }
             else if (currentMissilePlayerLevel == 2) {
                 SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgrade);
             }
+            else {
+                SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgrade);
+            }
 
         }else {
             RenderBoutons(BoutonMissileUpgrade, nullptr, 40, 40, 40);
-            SDL_RenderTexture(renderer,textureSmallMissilePlayer, nullptr, &BoutonMissileUpgrade);
-            if (currentMissilePlayerLevel == 1) {
+            if (currentMissilePlayerLevel == 0){
+                SDL_RenderTexture(renderer,textureSmallMissilePlayer, nullptr, &BoutonMissileUpgrade);
+            }
+            else if (currentMissilePlayerLevel == 1) {
                 SDL_RenderTexture(renderer, textureMediumMissilePlayer, nullptr, &BoutonMissileUpgrade);
             }
             else if (currentMissilePlayerLevel == 2) {
+                SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgrade);
+            }
+            else {
                 SDL_RenderTexture(renderer, textureLargeMissilePlayer, nullptr, &BoutonMissileUpgrade);
             }
         }
         //Bouton SHIELD
         if (selectedButtonShop == 2) {
             RenderBoutons(BoutonShieldUpgrade, nullptr, r, g, b);
-            SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
-            if (currentShieldLevel == 1) {
-                SDL_RenderTexture(renderer, textureMediumShield, nullptr, &BoutonShieldUpgrade);
+            if (currentShieldLevel == 0) {
+                SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
+
+            }
+            else if (currentShieldLevel == 1) {
+                SDL_RenderTexture(renderer,textureMediumShield, nullptr, &BoutonShieldUpgrade);
             }
             else if (currentShieldLevel == 2) {
-                SDL_RenderTexture(renderer, textureLargeShield, nullptr, &BoutonShieldUpgrade);
+                SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgrade);
             }
-
+            else {
+                SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgrade);
+            }
         }else {
             RenderBoutons(BoutonShieldUpgrade, nullptr, 40, 40, 40);
-            SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
-            if (currentShieldLevel == 1) {
-                SDL_RenderTexture(renderer, textureMediumShield, nullptr, &BoutonShieldUpgrade);
+            if (currentShieldLevel == 0) {
+                SDL_RenderTexture(renderer,textureSmallShield, nullptr, &BoutonShieldUpgrade);
+
+            }
+            else if (currentShieldLevel == 1) {
+                SDL_RenderTexture(renderer,textureMediumShield, nullptr, &BoutonShieldUpgrade);
             }
             else if (currentShieldLevel == 2) {
-                SDL_RenderTexture(renderer, textureLargeShield, nullptr, &BoutonShieldUpgrade);
+                SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgrade);
             }
+            else {
+                SDL_RenderTexture(renderer,textureLargeShield, nullptr, &BoutonShieldUpgrade);
+            }
+
         }//Pur le upgrade HP Boost
         if (selectedButtonShop == 3) {
             RenderBoutons(BoutonHpUpgrade, nullptr, r, g, b);
@@ -4224,8 +4305,8 @@ GameApp &app = GameApp::GetInstance();
         }
         //rajouter text en dessous des boutons
         TTF_DrawRendererText(BoutonUpgradeText,750 , 925);
-        TTF_DrawRendererText(BoutonShieldUpgradeText,1350 , 925);
-        TTF_DrawRendererText(BoutonHpBoostText, 1150,925);
+        TTF_DrawRendererText(BoutonShieldUpgradeText,1150 , 925);
+        TTF_DrawRendererText(BoutonHpBoostText, 1350,925);
         TTF_DrawRendererText(BoutonMissileUpgradeText,950,925);
 
 
@@ -5256,6 +5337,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             if (app.player->MissileUpgrade(MissileNiveau::SmallMissile, app.currentMeat)) {
                                 app.currentMissilePlayerLevel = 1;// missile acheter
                                 app.globalMissilePlayerLevel = 1;
+                                app.player->currentMissile->texture = app.textureSmallMissilePlayer;
                                 app.lastPopupMeatThreshold = -1;
                                 app.nextStateAfterFadeOut = State::Game;
                                 app.bPopupFadeOut = true;
@@ -5265,6 +5347,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             if (app.player->MissileUpgrade(MissileNiveau::MediumMissile, app.currentMeat)) {
                                 app.currentMissilePlayerLevel = 2;// missile acheter
                                 app.globalMissilePlayerLevel = 2;
+                                app.player->currentMissile->texture = app.textureMediumMissilePlayer;
                                 app.lastPopupMeatThreshold = -1;
                                 app.nextStateAfterFadeOut = State::Game;
                                 app.bPopupFadeOut = true;
@@ -5274,6 +5357,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             if (app.player->MissileUpgrade(MissileNiveau::LargeMissile, app.currentMeat)) {
                                 app.currentMissilePlayerLevel = 3;// missile acheter
                                 app.globalMissilePlayerLevel = 3;
+                                app.player->currentMissile->texture = app.textureLargeMissilePlayer;
                                 app.lastPopupMeatThreshold = -1;
                                 app.nextStateAfterFadeOut = State::Game;
                                 app.bPopupFadeOut = true;
@@ -5410,6 +5494,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             if (app.player->MissileUpgrade(MissileNiveau::SmallMissile, app.currentMeat)) {
                                 app.currentMissilePlayerLevel = 1;// missile acheter
                                 app.globalMissilePlayerLevel = 1;
+                                app.player->currentMissile->texture = app.textureSmallMissilePlayer;
                                 app.lastPopupMeatThreshold = -1;
                                 app.nextStateAfterFadeOut = State::Game;
                                 app.bPopupFadeOut = true;
@@ -5419,6 +5504,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             if (app.player->MissileUpgrade(MissileNiveau::MediumMissile, app.currentMeat)) {
                                 app.currentMissilePlayerLevel = 2;// missile acheter
                                 app.globalMissilePlayerLevel = 2;
+                                app.player->currentMissile->texture = app.textureMediumMissilePlayer;
                                 app.lastPopupMeatThreshold = -1;
                                 app.nextStateAfterFadeOut = State::Game;
                                 app.bPopupFadeOut = true;
@@ -5428,6 +5514,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             if (app.player->MissileUpgrade(MissileNiveau::LargeMissile, app.currentMeat)) {
                                 app.currentMissilePlayerLevel = 3;// missile acheter
                                 app.globalMissilePlayerLevel = 3;
+                                app.player->currentMissile->texture = app.textureLargeMissilePlayer;
                                 app.lastPopupMeatThreshold = -1;
                                 app.nextStateAfterFadeOut = State::Game;
                                 app.bPopupFadeOut = true;
@@ -5838,6 +5925,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     if (app.player->MissileUpgrade(MissileNiveau::SmallMissile, app.currentMeat)) {
                         app.currentMissilePlayerLevel = 1;// missile acheter
                         app.globalMissilePlayerLevel = 1;
+                        app.player->currentMissile->texture = app.textureSmallMissilePlayer;
                         app.lastPopupMeatThreshold = -1;
                         app.nextStateAfterFadeOut = State::Game;
                         app.bPopupFadeOut = true;
@@ -5847,6 +5935,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     if (app.player->MissileUpgrade(MissileNiveau::MediumMissile, app.currentMeat)) {
                         app.currentMissilePlayerLevel = 2;// missile acheter
                         app.globalMissilePlayerLevel = 2;
+                        app.player->currentMissile->texture = app.textureMediumMissilePlayer;
                         app.lastPopupMeatThreshold = -1;
                         app.nextStateAfterFadeOut = State::Game;
                         app.bPopupFadeOut = true;
@@ -5856,6 +5945,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                     if (app.player->MissileUpgrade(MissileNiveau::LargeMissile, app.currentMeat)) {
                         app.currentMissilePlayerLevel = 3;// missile acheter
                         app.globalMissilePlayerLevel = 3;
+                        app.player->currentMissile->texture = app.textureLargeMissilePlayer;
                         app.lastPopupMeatThreshold = -1;
                         app.nextStateAfterFadeOut = State::Game;
                         app.bPopupFadeOut = true;

@@ -287,7 +287,7 @@ MissilePlayer::MissilePlayer(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, 
     render.color = color;
     AddComponent(TRANSFORM);
     transform.position = spawn;
-    transform.size = (SDL_FPoint){15.f, 35.f};
+    transform.size = (SDL_FPoint){65.f, 80.f};
     entityType = EntityType::Bullet;
 
     //texture du missile
