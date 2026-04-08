@@ -7,7 +7,7 @@
 #include "Entity.h"
 #include "State.h"
 #include <vector>
-
+#include <cmath>
 class Player : public Entity{
 public:
     Player (SDL_Texture *texture = nullptr);
@@ -26,9 +26,12 @@ public:
     float originY = 0.0f;      // position Y de base
     bool recoilReturning = false; // phase de retour
 
-
+//Shoot Bullet
   float shootCooldown = 0.f;
   float shootDefaultCooldown = 90.0f;//la vitesse de tire
+  //Shoot Missile
+  float shootMissileCooldown = 0.0f;
+  float shootMissileDefaultCooldown = 360.0f;
 
      //Le type d'arme (-> Dans State.h)
     BulletType* currentWeapon;
@@ -62,7 +65,7 @@ float competenceActiveTimer = 0.0f;
     void UpdatePhysics(float deltaTime);
 
     void Shoot(std::vector<Entity *> &entity, SDL_FPoint dir);
-
+    void ShootMissile(std::vector<Entity*>& entities);
     void ShootUpdate (std::vector<Entity *> &entity, SDL_FPoint dir,float deltaTime);
 
     //Pour les boutons du shop, pouvoir changer l'arme et le shield en fonction du nombre de meat
@@ -92,9 +95,13 @@ class Bullet : public Entity{
 class MissilePlayer : public Entity {
 public:
     MissilePlayer(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, SDL_Texture *texture = nullptr);
-
+    void UpdateGuidance(std::vector<Entity*>& entities, float deltaTime);
     //Texture des missiles
     SDL_Texture *textureMissile = nullptr;
+
+    Entity* target = nullptr;
+    float turnSpeed = 1.5f;
+    float speed     = 500.f;
 };
 
 

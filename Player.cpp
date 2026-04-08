@@ -3,6 +3,9 @@
 //
 
 #include "Player.h"
+
+#include <algorithm>
+
 #include "State.h"
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_timer.h"
@@ -124,7 +127,7 @@ void Player::UpdatePhysics(float deltaTime) {
 
 }
 
-//Pour tirer
+//Pour tirer BULLETS
 void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
     SDL_Color BulletColor = currentWeapon->GetColor(); //Prend la couleur de l'arme actuel
     SDL_Texture* bulletTexture = currentWeapon->GetTexture();
@@ -177,6 +180,31 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
         entity.push_back(new Bullet(spawnPoint, dir, BulletColor, false, bulletTexture));
     }
 }
+//Tire Missile
+void Player::ShootMissile(std::vector<Entity*>& entities) {
+    if (currentMissile == nullptr) return;
+    // vérifie que c'est pas le missile invalide (pas acheté)
+    if (dynamic_cast<InvalidMissileType*>(currentMissile)) return;
+
+    float leftX  = transform.position.x;
+    float middleX = transform.position.x + transform.size.x * 0.5f;
+    float rightX = transform.position.x + transform.size.x;
+    float spawnY = transform.position.y;
+    if (dynamic_cast<SmallMissileType*>(currentMissile)) {
+        entities.push_back(new MissilePlayer({leftX,  spawnY}, {-0.2f, -1.f}, {255,140,0,255}, currentMissile->texture));
+
+    }
+    else if (dynamic_cast<MediumMissileType*>(currentMissile)) {
+        entities.push_back(new MissilePlayer({leftX,  spawnY}, {-0.2f, -1.f}, {255,140,0,255}, currentMissile->texture));
+        entities.push_back(new MissilePlayer({rightX, spawnY}, { 0.2f, -1.f}, {255,140,0,255}, currentMissile->texture));
+    }
+    else if (dynamic_cast<LargeMissileType*>(currentMissile)) {
+        entities.push_back(new MissilePlayer({leftX,  spawnY}, {-0.4f, -1.f}, {255,140,0,255}, currentMissile->texture));
+        entities.push_back(new MissilePlayer({middleX,  spawnY}, {0, -1.f}, {255,140,0,255}, currentMissile->texture));
+        entities.push_back(new MissilePlayer({rightX, spawnY}, { 0.4f, -1.f}, {255,140,0,255}, currentMissile->texture));
+    }
+}
+
 
 void Player::UpdateCompetence(float deltaTime) {
     if (bCompetenceActive) {
@@ -248,8 +276,6 @@ Bullet::Bullet(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color,bool isRGB, SDL
 //Pour les missiles lancer du joueur
 MissilePlayer::MissilePlayer(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, SDL_Texture *texture) {
     AddComponent(MOVEMENT);
-    // vitesse toujours 700 peu importe l'angle passé
-    //<cmath>
     float length = std::sqrt(dir.x * dir.x + dir.y * dir.y);
     if (length > 0.f) {
         dir.x /= length;
@@ -260,11 +286,66 @@ MissilePlayer::MissilePlayer(SDL_FPoint spawn, SDL_FPoint dir, SDL_Color color, 
     render.color = color;
     AddComponent(TRANSFORM);
     transform.position = spawn;
-    transform.size = (SDL_FPoint){30.f, 60.f};
+    transform.size = (SDL_FPoint){15.f, 35.f};
     entityType = EntityType::Bullet;
 
     //texture du missile
     textureMissile = texture;
+
+
+}
+//Utilisation IA pour fonctionnement courbe avec atan2 (tangante)
+void MissilePlayer::UpdateGuidance(std::vector<Entity*>& entities, float deltaTime) {
+    // Trouve l'ennemie le plus proche
+    if (target == nullptr ||  target->health.current_health <= 0) {
+        float bestDist = 9999.f;
+        for (auto* e : entities) {
+            if (e->entityType != EntityType::Enemy) continue;
+            float dx = e->transform.position.x - transform.position.x;
+            float dy = e->transform.position.y - transform.position.y;
+            float dist = std::sqrt(dx*dx + dy*dy);
+            if (dist < bestDist) { bestDist = dist; target = e; }
+        }
+    }
+
+    if (target == nullptr) return; // pas de cible, vol droit
+
+    // Direction actuelle tangante triangle angle
+    float currentAngle = std::atan2(movement.velocity.y, movement.velocity.x);
+
+    // Direction vers la cible
+    float dx = target->transform.position.x - transform.position.x;
+    float dy = target->transform.position.y - transform.position.y;
+    float desiredAngle = std::atan2(dy, dx);
+
+    // difference d'angle
+    float diff = desiredAngle - currentAngle;
+    while (diff >  M_PI) diff -= 2.f * M_PI;
+    while (diff < -M_PI) diff += 2.f * M_PI;
+
+    // Rotation progressive
+    float maxTurn  = turnSpeed * deltaTime;
+    float rotation = std::clamp(diff, -maxTurn, maxTurn);
+    float newAngle = currentAngle + rotation;
+
+    // Réapplique la vitesse dans la nouvelle direction
+    movement.velocity.x = speed * std::cos(newAngle);
+    movement.velocity.y = speed * std::sin(newAngle);
+
+    //Coder par moi ->
+    //Si sord de l'ecran alors detruit
+    if (transform.position.y > 1100.0f) {
+        bIsDestroyed = true;
+    }
+    else if (transform.position.y < -20.0f) {
+        bIsDestroyed = true;
+    }
+    else if (transform.position.x < -20.0f) {
+        bIsDestroyed = true;
+    }
+    else if (transform.position.x > 1940.0f) {
+        bIsDestroyed = true;
+    }
 }
 
 //Tick cooldown des tires
@@ -281,6 +362,13 @@ void Player::ShootUpdate(std::vector<Entity *> &entity, SDL_FPoint dir, float de
         }
     } else {
         shootCooldown -= deltaTime * 150.f;
+    }
+    // Missile
+    if (shootMissileCooldown <= 0.f && isCurrentlyShooting) {
+        ShootMissile(entity);
+        shootMissileCooldown = shootMissileDefaultCooldown;
+    } else {
+        shootMissileCooldown -= deltaTime * 150.f;
     }
 }
 

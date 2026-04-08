@@ -1588,9 +1588,9 @@ private:
 
             if (i < globalMissilePlayerLevel) {
                 // Segment rempli
-                if (i == 0) SDL_SetRenderDrawColor(renderer, 255, 220, 50,255); // mandarine
+                if (i == 0) SDL_SetRenderDrawColor(renderer, 255, 220, 50,255); // jaune
                 if (i == 1) SDL_SetRenderDrawColor(renderer, 255, 140, 0, 255); // orange
-                if (i == 2) SDL_SetRenderDrawColor(renderer, 200, 50,  0,255); // Melon
+                if (i == 2) SDL_SetRenderDrawColor(renderer, 200, 50,  0,255); // foncer
             } else {
                 // Segment vide
                 SDL_SetRenderDrawColor(renderer, 40, 40, 40, 255);
@@ -3497,7 +3497,12 @@ private:
                     }
                 }
             }
-
+        //Le update de la guidance des missiles
+        for (auto* e : entities) {
+            if (auto* m = dynamic_cast<MissilePlayer*>(e)) {
+                m->UpdateGuidance(entities, deltaTime);
+            }
+        }
             //L'algorithme de collision entre bullet et cerf
             //vérifier chaque balle pour voir si elle touche un ennemi.
             for (auto &bullet: entities) {
