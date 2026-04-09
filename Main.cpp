@@ -1684,7 +1684,7 @@ private:
         for (auto* star : randomStars) {
             star->Update(deltaTime);
         }
-        RenderEntities();
+        RenderStars();
 
         RenderTitle();
         //RenderAnimation();
@@ -1746,7 +1746,11 @@ private:
         SDL_RenderClear(renderer);
         //Background menu
         SDL_RenderTexture(renderer, textureBackgroundMenu, nullptr, nullptr);
-
+        //etoiles des menus
+        for (auto* star : randomStars) {
+            star->Update(deltaTime);
+        }
+        RenderStars();
         //marge 20 pc
         float offset = 20.0f;
 
@@ -1850,6 +1854,11 @@ private:
         else if (currentStage == 3) {
             SDL_RenderTexture(renderer, textureBackground3, nullptr, nullptr);
         }
+        //etoiles des menus
+        for (auto* star : randomStars) {
+            star->Update(deltaTime);
+        }
+        RenderStars();
     const char* currentPhrase = "";
     if (StateActuel == State::IntroNiveau1)
         currentPhrase = phrasesIntroNiveau1[indexMessageIntroNiveau1];
@@ -2897,8 +2906,9 @@ private:
             }
                 ent->RenderUpdate(renderer);
             }
-
-        //Rendu des etoiles du menu
+    }
+    //Render les etoiles
+    void RenderStars() {
         for (auto* star : randomStars) {
             SDL_FRect dest = {
                 star->transform.position.x,
@@ -2921,6 +2931,8 @@ private:
             }
         }
     }
+
+
     //Fonction pour popup
 
     void UpgradePopUp(float deltaTime) {
@@ -4200,6 +4212,11 @@ GameApp &app = GameApp::GetInstance();
         // Rendu du Score
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Fond noir
         SDL_RenderClear(renderer);
+        //etoiles des menus
+        for (auto* star : randomStars) {
+            star->Update(deltaTime);
+        }
+        RenderStars();
         RenderScoreTitle();
         UpdateBackgroundTint(deltaTime);
         // Affiche chaque score de la liste
@@ -4237,6 +4254,11 @@ GameApp &app = GameApp::GetInstance();
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //Fond noir
        //clean
         SDL_RenderClear(renderer);
+        //etoiles des menus
+        for (auto* star : randomStars) {
+            star->Update(deltaTime);
+        }
+        RenderStars();
         //Render
         RenderShopTitle();
         UpdateBackgroundTint(deltaTime);//Le rgb
@@ -4502,6 +4524,11 @@ GameApp &app = GameApp::GetInstance();
         //Render
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //Fond noir
         SDL_RenderClear(renderer);
+        //etoiles des menus
+        for (auto* star : randomStars) {
+            star->Update(deltaTime);
+        }
+        RenderStars();
         UpdateBackgroundTint(deltaTime);//Le rgb
         RenderCreditsTitle();
         //boutons
