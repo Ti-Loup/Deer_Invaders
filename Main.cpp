@@ -35,7 +35,7 @@
  *
  *Object pool (Bullet)
  *Observer a finir
- *
+ *Menu Avec des etoiles qui bougent
  *UPDATE LEVELS
  *MOUVEMENT DIFFERENTS POUR LES CERFS DE CERTAIN NIVEAUX
  *Different ennemie que meteorite pour survival (si temps)
@@ -106,10 +106,12 @@ public:
     TTF_Text *MenuTitle2 = nullptr;
     TTF_Text *BoutonCreditsText = nullptr;
     SDL_Texture *DeerLogo = nullptr;
+    //Texture etoiles
+    SDL_Texture *textureStars = nullptr;
 
     SDL_Texture *textureCerfCarrot = nullptr;
-    SDL_FRect MenuCerfCarrotPosition={50,75,300,325};
-    SDL_FRect MenuCerfFraisePosition={1600,75,300,325};
+    SDL_FRect MenuCerfCarrotPosition={685,550,100,125};
+    SDL_FRect MenuCerfFraisePosition={1130,575,100,100};
 
     //Texte special
     TTF_Font *MenuSpecialFont = nullptr;
@@ -501,6 +503,8 @@ public:
     bool bDatabaseInitialized = false;
     std::vector<ScoreRecord> highScores;
 
+    //Les Etoiles randoms du menu
+    std::vector<Stars*> randomStars;
 
 private:
     //Score Lorsque Cerf Mort
@@ -562,8 +566,10 @@ private:
             SDL_LogWarn(0, "SDL_Image failed to load DeerLogo", "assets/Deer_Logo.png", SDL_GetError());
         }
         SDL_SetTextureScaleMode(DeerLogo, SDL_SCALEMODE_NEAREST);
-
-
+        textureStars = IMG_LoadTexture(renderer, "assets/textureStars.png");
+        if (textureStars == nullptr) {
+            SDL_LogWarn(0, "failed to load textureStars texture", SDL_GetError());
+        }
 
 
         ScoreUI = IMG_LoadTexture(renderer, "assets/ScoreUICompress.png");
@@ -1256,6 +1262,12 @@ private:
             SDL_LogWarn(0,"failed to set the color of textSousTitreArmePopUp", SDL_GetError());
         }
 
+        // -> DANS MENU <-
+
+        //Creation des etoiles
+        for (int i = 0; i < 150; ++i) {
+            randomStars.push_back(new Stars());
+        }
 
         // -> Dans Game <-
 
@@ -1336,6 +1348,7 @@ private:
         //textures
         SDL_DestroyTexture(spritesheet);
         SDL_DestroyTexture(DeerLogo);
+        SDL_DestroyTexture(textureStars);
         SDL_DestroyTexture(textureStrawberry);
         SDL_DestroyTexture(textureCerf);
         SDL_DestroyTexture(textureCerfHealer);
@@ -1667,10 +1680,11 @@ private:
         SDL_RenderClear(renderer);
         //Background menu
         SDL_RenderTexture(renderer, textureBackgroundMenu, nullptr, nullptr);
-        //photo cerf
-        //dessin cerf + fraise menu
-        SDL_RenderTextureRotated(renderer, textureCerfCarrot,nullptr, &MenuCerfCarrotPosition, 25.0, nullptr, SDL_FLIP_NONE);
-        SDL_RenderTextureRotated(renderer, textureStrawberry,nullptr, &MenuCerfFraisePosition, -25.0, nullptr, SDL_FLIP_NONE);
+        //etoiles par dessus le menu mais en dessous du reste
+        for (auto* star : randomStars) {
+            star->Update(deltaTime);
+        }
+        RenderEntities();
 
         RenderTitle();
         //RenderAnimation();
@@ -1714,6 +1728,10 @@ private:
         TTF_DrawRendererText(tutoText, 10, 750);//Text du petit tuto
         TTF_DrawRendererText(tutoText2, 10, 450);//Text du petit tuto
         TTF_DrawRendererText(fpsText, 1800, 10);
+        //dessin cerf + fraise menu
+        SDL_RenderTextureRotated(renderer, textureCerfCarrot,nullptr, &MenuCerfCarrotPosition, 25.0, nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(renderer, textureStrawberry,nullptr, &MenuCerfFraisePosition, -25.0, nullptr, SDL_FLIP_NONE);
+
         SDL_RenderPresent(renderer);
     }
 
@@ -2877,10 +2895,31 @@ private:
                 SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
                 continue;
             }
-
-
                 ent->RenderUpdate(renderer);
             }
+
+        //Rendu des etoiles du menu
+        for (auto* star : randomStars) {
+            SDL_FRect dest = {
+                star->transform.position.x,
+                star->transform.position.y,
+                star->transform.size.x,
+                star->transform.size.y
+            };
+            if (textureStars != nullptr) {
+                SDL_SetTextureColorMod(textureStars,
+                    star->render.color.r,
+                    star->render.color.g,
+                    star->render.color.b);
+                SDL_RenderTexture(renderer, textureStars, nullptr, &dest);
+            } else {
+                SDL_SetRenderDrawColor(renderer,
+                    star->render.color.r,
+                    star->render.color.g,
+                    star->render.color.b, 255);
+                SDL_RenderFillRect(renderer, &dest);
+            }
+        }
     }
     //Fonction pour popup
 

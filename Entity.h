@@ -30,12 +30,7 @@ public:
     virtual void Update(float deltaTime) {}
     // Constructeur des EntityType
     //Collectible
-    Entity(EntityType Collectible) : entityType(Collectible) {
-
-    }
-
-
-
+    Entity(EntityType Collectible) : entityType(Collectible) {}
     // Les instances des componants
     //Les fonctions dans Components.h
     HealthComponents health;
@@ -89,6 +84,35 @@ SDL_FRect srcRect{};
         }
     }
 
+};
+//Pour les etoiles qui apparaient dans le menu etcc
+class Stars : public Entity {
+public:
+//texture des etoiless
+    SDL_Texture *texture = nullptr;
+    Stars(){
+    entityType = EntityType::Particle;
+
+     // grosseur aleatoire + position aleatoire
+     float size = (float)(SDL_rand(6) + 1);
+     transform.position.x = (float)SDL_rand(1920);
+     transform.position.y = (float)SDL_rand(1080);
+     transform.size       = { size, size };
+
+     // les gros etoiles descendent plus vite
+     movement.velocity.y  = size * 15.0f + (float)SDL_rand(20);
+     movement.velocity.x = size * 15.0f + (float)SDL_rand(20);
+     Uint8 brightness = (Uint8)(80 + (size / 6.0f) * 175);
+     render.color = { brightness, brightness, brightness, 255 };}
+    void Update(float deltaTime) override {
+            transform.position.y += movement.velocity.y * deltaTime;
+            transform.position.x += movement.velocity.x * deltaTime;
+            // respawn en haut
+            if (transform.position.y > 1080 || transform.position.x > 1920) {
+            transform.position.y = -5.0f;
+            transform.position.x =  -400 +(float)SDL_rand(1920);
+            }
+    }
 };
 
 
