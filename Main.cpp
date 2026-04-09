@@ -30,12 +30,10 @@
  *      LE UI DU SHOP A REFAIRE.
  *      La database
  *IMPLEMENTATION DATABASE DANS SCORE
- *
+ *Steamwork API a faire
  *TO DO :
  *
- *
- *Steamwork API a faire
- *Object pool
+ *Object pool (Bullet)
  *Observer a finir
  *
  *UPDATE LEVELS
@@ -262,7 +260,13 @@ public:
     SDL_Texture *textureSnowflake = nullptr;
     //Texture Cerf Melee
     SDL_Texture *textureCerfMelee = nullptr;
-
+    //Texture Barricade
+    //Style1 (Mauve)
+    SDL_Texture *textureBarricadeStyle1 = nullptr;
+    //Style2 (Bleu)
+    SDL_Texture *textureBarricadeStyle2 = nullptr;
+    //Style3 (Rouge)
+    SDL_Texture *textureBarricadeStyle3 = nullptr;
     // -> WINSCREEN <-
     TTF_Font *WinScreenFont = nullptr;
     TTF_Font *WinScreenSousFont = nullptr;
@@ -923,6 +927,19 @@ private:
         textureCerfMelee = IMG_LoadTexture(renderer, "assets/DeerEnnemieFire.png");
         if (textureCerfMelee == nullptr) {
             SDL_LogWarn(0, "failed to load textureCerfMelee");
+        }
+        //TEXTURE BARRICADE
+        textureBarricadeStyle1 = IMG_LoadTexture(renderer, "assets/Barricade1.png");
+        if (textureBarricadeStyle1 == nullptr) {
+            SDL_LogWarn(0, "failed to load the texture : textureBarricadeStyle1");
+        }
+        textureBarricadeStyle2 = IMG_LoadTexture(renderer, "assets/Barricade2.png");
+        if (textureBarricadeStyle2 == nullptr) {
+            SDL_LogWarn(0, "failed to load the texture : textureBarricadeStyle2");
+        }
+        textureBarricadeStyle3 = IMG_LoadTexture(renderer, "assets/Barricade3.png");
+        if (textureBarricadeStyle3 == nullptr) {
+            SDL_LogWarn(0, "failed to load the texture : textureBarricadeStyle3");
         }
 
 
@@ -1919,6 +1936,9 @@ private:
 
         //entities.push_back(new Enemy_MageIceDeer(1450, 240, textureCerfMageIce));
 
+        //entities.push_back(new Enemy_Barricade(1150.0f, 580.0f, textureBarricadeStyle1));
+        //entities.push_back(new Enemy_Barricade(1150.0f, 680.0f, textureBarricadeStyle2));
+        //entities.push_back(new Enemy_Barricade(1150.0f, 780.0f, textureBarricadeStyle3));
     }
 
     //WAVE 2
@@ -2084,8 +2104,8 @@ private:
         entities.push_back(new Enemy_MageDeer(1650, 240, textureCerfMage));
 
         //Barricade
-        entities.push_back(new Enemy_Barricade(1150.0f, 580.0f, nullptr));
-        entities.push_back(new Enemy_Barricade(300.0f, 580.0f, nullptr));
+        entities.push_back(new Enemy_Barricade(1150.0f, 580.0f, textureBarricadeStyle1));
+        entities.push_back(new Enemy_Barricade(300.0f, 580.0f, textureBarricadeStyle2));
     }
 
     void SpawnWave3Stage2() {
@@ -2177,7 +2197,7 @@ private:
         entities.push_back(new Enemy_MageIceDeer(500, 100, textureCerfMageIce));
         entities.push_back(new Enemy_MageIceDeer(1650, 100, textureCerfMageIce));
 
-        entities.push_back(new Enemy_Barricade(800, 700, nullptr));
+        entities.push_back(new Enemy_Barricade(800, 700, textureBarricadeStyle3));
     }
     //wave 2 (survival)
     void SpawnWave2Stage3(float deltaTime) {
@@ -2656,9 +2676,6 @@ private:
 
                     SDL_RenderTexture(renderer, enemy_barricade->textureBarricade, nullptr, &dest);
 
-                    //cube en attendant les textures. couleur jaune palle
-                    SDL_SetRenderDrawColor(renderer, 237, 232, 208, 255);
-                    SDL_RenderFillRect(renderer, &dest);
                     continue;
                 }
             }

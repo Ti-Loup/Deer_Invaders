@@ -374,7 +374,7 @@ Enemy_Barricade::Enemy_Barricade(float startX, float startY, SDL_Texture *textur
     render.color = { 237, 232, 208, 255 };//couleur Barricade (baige)
     AddComponent (TRANSFORM);
     transform.position = { startX, startY };
-    transform.size = { 300.f, 10.f };
+    transform.size = { 350.f, 30.f };
 
     //texture barricade
     textureBarricade = texture;
