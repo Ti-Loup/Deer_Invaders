@@ -2104,20 +2104,37 @@ private:
 
     //STAGE 2 WAVES
     void SpawnWave1Stage2() {
+        //ligne 1
+        entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 50.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true, textureCerf));
 
-        // Pointe du triangle (haut centre)
-        entities.push_back(new Enemy_MageDeer(960, 80, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(760, 200, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1160, 200, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(560, 320, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1360, 320, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(360, 440, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(760, 440, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1160, 440, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1560, 440, textureCerfMage));
+        entities.push_back(new Enemy_Deer(1050.0f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1200.0f, 50.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(1350.0f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1500.0f, 50.0f,true, textureCerf));
 
-        // HealerDeer au centre du triangle
-        entities.push_back(new Enemy_HealerDeer(960, 320, textureCerfHealer));
+        // centre
+        entities.push_back(new Enemy_MageDeer(150, 250, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(350, 250, textureCerfMage));
+        entities.push_back(new Enemy_MageIceDeer(825, 250, textureCerfMageIce));
+        entities.push_back(new Enemy_MageDeer(1250, 250, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1450, 250, textureCerfMage));
+       //ligne3
+        entities.push_back(new Enemy_Deer(100.f, 400.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 400.0f, true, textureCerf));
+        entities.push_back(new Enemy_Deer(400.f, 400.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 400.0f, true, textureCerf));
+
+        entities.push_back(new Enemy_Deer(1050.0f, 400.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1200.0f, 400.0f,true, textureCerf));
+        entities.push_back(new Enemy_Deer(1350.0f, 400.0f,false, textureCerf));
+        entities.push_back(new Enemy_Deer(1500.0f, 400.0f,true, textureCerf));
+
+        //Barricade
+        entities.push_back(new Enemy_Barricade(700, 550,textureBarricadeStyle2));
+
     }
     void SpawnWave2Stage2() {
         //carre gauche
@@ -2259,7 +2276,7 @@ private:
         GameApp &app = GameApp::GetInstance();
         waveInProgress = true;
         //delimitation des differentes stage et wave
-        if (currentStage == 1){
+        if (currentStage == 2){
             if (wave == 1) {
                 //Les cerfs normaux
                 currentWaveType = WaveType::Elimination;
@@ -2328,7 +2345,7 @@ private:
         }
         //Le stage 2 du jeu
 
-        else if (currentStage == 2) {
+        else if (currentStage == 1) {
 
             if (wave == 1) {
             currentWaveType = WaveType::Elimination;
