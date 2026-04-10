@@ -418,7 +418,7 @@ public:
 
     //Point Meat
 
-    int currentMeat = 0;
+    int currentMeat = 100;
     int meatGrab = 1;
     //Meat Rendu
     int lastMeat = -1;
@@ -2137,39 +2137,62 @@ private:
 
     }
     void SpawnWave2Stage2() {
+        //4 mages aux fonds
+        entities.push_back(new Enemy_MageDeer(300, 120, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(650, 120, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(950, 120, textureCerfMage));
+        entities.push_back(new Enemy_MageDeer(1250, 120, textureCerfMage));
+
         //carre gauche
-        entities.push_back(new Enemy_MageDeer(250, 80, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(450, 80, textureCerfMage));
-        entities.push_back(new Enemy_MageIceDeer(350, 160, textureCerfMageIce));
-        entities.push_back(new Enemy_MageDeer(250, 240, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(450, 240, textureCerfMage));
+        entities.push_back(new Enemy_Deer(250, 280, true,textureCerf,true));
+        entities.push_back(new Enemy_Deer(450, 280,false, textureCerfCarrot,true));
+        entities.push_back(new Enemy_MageIceDeer(350, 360, textureCerfMageIce));
+        entities.push_back(new Enemy_Deer(250, 440,true, textureCerfCarrot,true));
+        entities.push_back(new Enemy_Deer(450, 440, false,textureCerf,true));
         // Carre milieu
-        entities.push_back(new Enemy_MageDeer(850, 220, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1050, 220, textureCerfMage));
-        entities.push_back(new Enemy_HealerDeer(950, 300, textureCerfHealer));
-        entities.push_back(new Enemy_MageDeer(850, 380, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1050, 380, textureCerfMage));
+        entities.push_back(new Enemy_Deer(850, 420, true,textureCerfCarrot,true));
+        entities.push_back(new Enemy_Deer(1050, 420,false, textureCerf,true));
+        entities.push_back(new Enemy_HealerDeer(950, 500, textureCerfHealer));
+        entities.push_back(new Enemy_Deer(850, 680,true, textureCerf,true));
+        entities.push_back(new Enemy_Deer(1050, 680,false ,textureCerfCarrot,true));
 
         //carre droite
-        entities.push_back(new Enemy_MageDeer(1450, 80, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1650, 80, textureCerfMage));
-        entities.push_back(new Enemy_MageIceDeer(1550, 160, textureCerfMageIce));
-        entities.push_back(new Enemy_MageDeer(1450, 240, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1650, 240, textureCerfMage));
+        entities.push_back(new Enemy_Deer(1450, 280,true, textureCerf,true));
+        entities.push_back(new Enemy_Deer(1650, 280,false, textureCerfCarrot,true));
+        entities.push_back(new Enemy_MageIceDeer(1550, 350, textureCerfMageIce));
+        entities.push_back(new Enemy_Deer(1450, 440,false, textureCerfCarrot,true));
+        entities.push_back(new Enemy_Deer(1650, 440, true,textureCerf,true));
 
         //Barricade
-        entities.push_back(new Enemy_Barricade(1150.0f, 580.0f, textureBarricadeStyle1));
-        entities.push_back(new Enemy_Barricade(300.0f, 580.0f, textureBarricadeStyle2));
+        entities.push_back(new Enemy_Barricade(1150.0f, 700.0f, textureBarricadeStyle1));
+        entities.push_back(new Enemy_Barricade(300.0f, 700.0f, textureBarricadeStyle2));
     }
 
     void SpawnWave3Stage2() {
-        //losange
-        entities.push_back(new Enemy_MageDeer(1000, 50, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(300, 150, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1000, 700, textureCerfMage));
-        entities.push_back(new Enemy_MageDeer(1600, 150, textureCerfMage));
 
-        entities.push_back(new Enemy_MageIceDeer(1000, 300, textureCerfMageIce));
+        entities.push_back(new Enemy_Deer(100.f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 50.0f, true, textureCerfCarrot));
+        entities.push_back(new Enemy_Deer(400.f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 50.0f, true, textureCerfCarrot));
+
+        entities.push_back(new Enemy_Deer(700.0f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 50.0f, true, textureCerfCarrot));
+        entities.push_back(new Enemy_Deer(1000.0f, 50.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 50.0f,true, textureCerfCarrot));
+
+        //Ligne 2 de cerfs
+        entities.push_back(new Enemy_Deer(100.f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 180.0f, true, textureCerfCarrot));
+        entities.push_back(new Enemy_Deer(400.f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 180.0f, true, textureCerfCarrot));
+
+        entities.push_back(new Enemy_Deer(700.0f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 180.0f,true, textureCerfCarrot));
+        entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true, textureCerfCarrot));
+        //mages mouvement differents ->
+
+
     }
 
     //Vague meteorite
@@ -3629,7 +3652,7 @@ private:
                         }
                         // Bas
                         else if ((ent->transform.position.y + ent->transform.size.y) >= 800.0f) { // 800 distance maximal en bas
-                            ent->transform.position.y = 600.0f - ent->transform.size.y;
+                            ent->transform.position.y = 700.0f - ent->transform.size.y;
                             ent->movement.velocity.y = -std::abs(ent->movement.velocity.y); // force vers le haut
                         }
                     }

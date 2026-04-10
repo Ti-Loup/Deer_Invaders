@@ -14,7 +14,7 @@
 
 
 //enemy_Deer
-Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser, SDL_Texture *texture) {
+Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser, SDL_Texture *texture, bool stationary) {
     AddComponent (HEALTH);
     health.max_health = 40;
 
@@ -38,7 +38,7 @@ Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser, SDL_T
     }
     //temps avant de lancer leur premiere fraise
     this->strawberryCooldown = 1.0f + (static_cast<float>(rand() %9000) / 100.0f);
-
+    this->bIsStationary = stationary;
     textureCerf= texture;//assigne la texture au BulletStrawb -> deja assigner dans le constructeur main
 
 /*
@@ -61,6 +61,8 @@ Enemy_Deer::Enemy_Deer(float startX, float startY, bool mouvementInverser, SDL_T
 }
 //Ennemi Deer Monte et dessant progressivement
 void Enemy_Deer::HeightMovement(float deltaTime) {
+    //si true alors aucun mouvement
+    if (bIsStationary) return;
 
     if (movementFunction != nullptr) {
         movementFunction(this, deltaTime);
@@ -117,7 +119,7 @@ Enemy_HealerDeer::Enemy_HealerDeer(float startX, float  startY, SDL_Texture *tex
     health.max_health = 100;
     health.current_health = 100;
     AddComponent (MOVEMENT);
-    movement.velocity = { 40.0f,0.0f };
+    movement.velocity = { 50.0f,0.0f };
     AddComponent (RENDER);
     render.color = { 139, 69, 19, 255 };//couleur brun
     AddComponent (TRANSFORM);
@@ -149,7 +151,7 @@ Enemy_MageDeer::Enemy_MageDeer(float startX, float startY, SDL_Texture *texture)
     health.max_health = 100;
     health.current_health = 100;
     AddComponent (MOVEMENT);
-    movement.velocity = { 40.0f,0.0f };
+    movement.velocity = { 50.0f,0.0f };
     AddComponent (RENDER);
     render.color = { 139, 69, 19, 255 };
     AddComponent (TRANSFORM);
@@ -208,7 +210,7 @@ Enemy_MageIceDeer::Enemy_MageIceDeer(float startX, float startY, SDL_Texture *te
     health.max_health = 100;
     health.current_health = 100;
     AddComponent (MOVEMENT);
-    movement.velocity = { 40.0f,0.0f };
+    movement.velocity = { 50.0f,0.0f };
     AddComponent (RENDER);
     render.color = { 255, 255, 255, 255 };
     AddComponent (TRANSFORM);
@@ -369,7 +371,7 @@ Enemy_Barricade::Enemy_Barricade(float startX, float startY, SDL_Texture *textur
     health.max_health = 500;
     health.current_health = 500;
     AddComponent (MOVEMENT);
-    movement.velocity = { 40.0f,0.0f };
+    movement.velocity = { 50.0f,0.0f };
     AddComponent (RENDER);
     render.color = { 237, 232, 208, 255 };//couleur Barricade (baige)
     AddComponent (TRANSFORM);
