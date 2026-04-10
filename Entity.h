@@ -90,18 +90,25 @@ class Stars : public Entity {
 public:
 //texture des etoiless
     SDL_Texture *texture = nullptr;
+
+    //Pour la rotation droite et gauche
+        float angle = 0.0f;
+        float rotationSpeed = 90.0f;
+
     Stars(){
     entityType = EntityType::Particle;
 
      // grosseur aleatoire + position aleatoire
-     float size = (float)(SDL_rand(6) + 1);
+     float size = (float)(SDL_rand(30) + 15);
      transform.position.x = (float)SDL_rand(1920);
      transform.position.y = (float)SDL_rand(1080);
      transform.size       = { size, size };
 
      // les gros etoiles descendent plus vite
-     movement.velocity.y  = size * 15.0f + (float)SDL_rand(20);
-     movement.velocity.x = size * 15.0f + (float)SDL_rand(20);
+     movement.velocity.y  = size * 1.5f + (float)SDL_rand(340);
+     movement.velocity.x = size * 1.5f + (float)SDL_rand(20);
+     rotationSpeed = (SDL_rand(2) == 0) ? 90.0f : -90.0f;
+
      Uint8 brightness = (Uint8)(80 + (size / 6.0f) * 175);
      render.color = { brightness, brightness, brightness, 255 };}
     void Update(float deltaTime) override {
@@ -112,6 +119,10 @@ public:
             transform.position.y = -5.0f;
             transform.position.x =  -400 +(float)SDL_rand(1920);
             }
+
+            angle += rotationSpeed * deltaTime;
+              if (angle >= 360.0f) angle -= 360.0f;
+              if (angle < 0.0f)    angle += 360.0f;
     }
 };
 

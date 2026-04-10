@@ -110,8 +110,8 @@ public:
     SDL_Texture *textureStars = nullptr;
 
     SDL_Texture *textureCerfCarrot = nullptr;
-    SDL_FRect MenuCerfCarrotPosition={685,550,100,125};
-    SDL_FRect MenuCerfFraisePosition={1130,575,100,100};
+    SDL_FRect MenuCerfCarrotPosition={700,550,100,125};
+    SDL_FRect MenuCerfFraisePosition={1075,675,100,100};
 
     //Texte special
     TTF_Font *MenuSpecialFont = nullptr;
@@ -1449,6 +1449,7 @@ private:
 
             SDL_RenderTexture(renderer, spritesheet, &src, &dst);
         }//Pour le Logo Du jeu
+        /*
         if (DeerLogo != nullptr) {
             float imgW, imgH;
             SDL_GetTextureSize(DeerLogo, &imgW, &imgH);
@@ -1467,13 +1468,14 @@ private:
             // On dessine avec nullptr pour prendre tout le logo Deer Invaders
             SDL_RenderTexture(renderer, DeerLogo, nullptr, &dst);
         }
+        */
     }
 
 
     //Petite fonction pour mettre un titre MENU
     void RenderTitle() {
-        TTF_DrawRendererText(MenuTitle, 775, 225);
-        TTF_DrawRendererText(MenuTitle2,775,350);
+        TTF_DrawRendererText(MenuTitle, 775, 125);
+        TTF_DrawRendererText(MenuTitle2,775,250);
         TTF_DrawRendererText(MenuSpecialDraw, 000, 980);
     }
 
@@ -1687,7 +1689,7 @@ private:
         RenderStars();
 
         RenderTitle();
-        //RenderAnimation();
+        RenderAnimation();
 
         // Mise à jour animation
         AdvanceAnimation(deltaTime);
@@ -1729,8 +1731,8 @@ private:
         TTF_DrawRendererText(tutoText2, 10, 450);//Text du petit tuto
         TTF_DrawRendererText(fpsText, 1800, 10);
         //dessin cerf + fraise menu
-        SDL_RenderTextureRotated(renderer, textureCerfCarrot,nullptr, &MenuCerfCarrotPosition, 25.0, nullptr, SDL_FLIP_NONE);
-        SDL_RenderTextureRotated(renderer, textureStrawberry,nullptr, &MenuCerfFraisePosition, -25.0, nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(renderer, textureCerfCarrot,nullptr, &MenuCerfCarrotPosition, -25.0, nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(renderer, textureStrawberry,nullptr, &MenuCerfFraisePosition, 25.0, nullptr, SDL_FLIP_NONE);
 
         SDL_RenderPresent(renderer);
     }
@@ -2915,13 +2917,18 @@ private:
                 star->transform.position.y,
                 star->transform.size.x,
                 star->transform.size.y
+            };//Pour la rotation
+            SDL_FPoint center = {
+                star->transform.size.x / 2.0f,
+                star->transform.size.y / 2.0f
             };
+
             if (textureStars != nullptr) {
                 SDL_SetTextureColorMod(textureStars,
                     star->render.color.r,
                     star->render.color.g,
                     star->render.color.b);
-                SDL_RenderTexture(renderer, textureStars, nullptr, &dest);
+                SDL_RenderTextureRotated(renderer,textureStars,nullptr,&dest,star->angle,&center, SDL_FLIP_NONE);
             } else {
                 SDL_SetRenderDrawColor(renderer,
                     star->render.color.r,
