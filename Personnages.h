@@ -83,7 +83,10 @@ class Enemy_MageDeer : public Entity {
    //pour la classe MagicBottle
    float magicShootTimer = 0.0f;
    float magicShootCooldown = 6.0f;
-
+    // mouvement stage 2 wave 3
+    float timeAlive = 0.f;
+    float orbitAngle = 0.f;
+    std::function<void(Enemy_MageDeer*, float)> movementFunction = nullptr;
 };
 
 class Enemy_MageIceDeer : public Entity {

@@ -170,6 +170,9 @@ Enemy_MageDeer::Enemy_MageDeer(float startX, float startY, SDL_Texture *texture)
     textureDeerMage = texture;
 }
 void Enemy_MageDeer::Update(float deltaTime, std::vector<Entity*> &entities) {
+    if (movementFunction) {
+        movementFunction(this, deltaTime);
+    }
     //Rajoue de la mechanique de tire
     magicShootTimer += deltaTime;
 

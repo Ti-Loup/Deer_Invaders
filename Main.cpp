@@ -2191,7 +2191,28 @@ private:
         entities.push_back(new Enemy_Deer(1000.0f, 180.0f, false, textureCerf));
         entities.push_back(new Enemy_Deer(1150.0f, 180.0f, true, textureCerfCarrot));
         //mages mouvement differents ->
+        int nbMages = 4;
+        float espacement = 425.f;
+        float startX = 200.f;
+        float baseY = 450.f;
 
+        for (int i = 0; i < nbMages; i++) {
+
+            float cx = startX + i * espacement;
+            float cy = baseY;
+            float localRadius = 60.f;
+            float speed = 1.5f + i * 0.3f;
+
+            auto moveCircle = [cx, cy, localRadius, speed](Enemy_MageDeer* cerf, float dt) {
+                cerf->timeAlive += dt;
+                cerf->transform.position.x = cx + std::cos(cerf->timeAlive * speed) * localRadius;
+                cerf->transform.position.y = cy + std::sin(cerf->timeAlive * speed) * localRadius;
+            };
+
+            Enemy_MageDeer* cerfMage = new Enemy_MageDeer(cx, cy, textureCerfMage);
+            cerfMage->movementFunction = moveCircle;
+            entities.push_back(cerfMage);
+        }
 
     }
 
