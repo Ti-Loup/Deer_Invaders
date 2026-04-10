@@ -1183,35 +1183,35 @@ private:
         if (TTF_SetTextColor(CreditsName1Text, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Couleur pour Nom n'a pas fonctionner");
         }
-        CreditsName2Text = TTF_CreateText(textEngine, CreditsNameFont,"Nom", 25);
+        CreditsName2Text = TTF_CreateText(textEngine, CreditsNameFont,"Gen", 25);
         if (CreditsName2Text == nullptr){
             SDL_LogWarn(0,"Impossible de charger le text Nom2", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsName2Text, 255, 255, 255,255) == false) {
             SDL_LogWarn(0, "Couleur non fonctionnel", SDL_GetError());
         }
-        CreditsName3Text = TTF_CreateText(textEngine, CreditsNameFont,"Nom", 25);
+        CreditsName3Text = TTF_CreateText(textEngine, CreditsNameFont,"Louis", 25);
         if (CreditsName3Text == nullptr){
             SDL_LogWarn(0,"Impossible de charger le text Nom2", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsName3Text, 255, 255, 255,255) == false) {
             SDL_LogWarn(0, "Couleur non fonctionnel", SDL_GetError());
         }
-        CreditsRoleText = TTF_CreateText(textEngine, CreditsRoleFont, "Role Patate : ", 25);
+        CreditsRoleText = TTF_CreateText(textEngine, CreditsRoleFont, "Game Director : ", 25);
         if (CreditsRoleText == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsRoleText, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
-        CreditsRoleText2 = TTF_CreateText(textEngine, CreditsRoleFont, "Role Pomme : ", 25);
+        CreditsRoleText2 = TTF_CreateText(textEngine, CreditsRoleFont, "Art : ", 25);
         if (CreditsRoleText2 == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsRoleText2, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
-        CreditsRoleText3 = TTF_CreateText(textEngine, CreditsRoleFont, "Role Fraise : ", 25);
+        CreditsRoleText3 = TTF_CreateText(textEngine, CreditsRoleFont, "Gameplay Programming : ", 25);
         if (CreditsRoleText3 == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
