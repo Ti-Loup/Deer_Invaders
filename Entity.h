@@ -101,7 +101,7 @@ public:
      // grosseur aleatoire + position aleatoire
      float size = (float)(SDL_rand(30) + 15);
      transform.position.x = (float)SDL_rand(1920);
-     transform.position.y = (float)SDL_rand(1080);
+     transform.position.y = -(float)SDL_rand(1080);
      transform.size       = { size, size };
 
      // les gros etoiles descendent plus vite
@@ -126,6 +126,35 @@ public:
     }
 };
 
+
+//Pour les etoiles types starwars durant le jeu
+class GameStars : public Entity {
+public:
+    SDL_Texture *texture = nullptr;
+
+    GameStars(){
+        entityType = EntityType::Particle;
+
+        float size = (float)(SDL_rand(4) + 1);
+        transform.position.x = (float)SDL_rand(1920);
+        transform.position.y = (float)SDL_rand(1080);
+        transform.size = {size, size * 6.0f};
+
+        movement.velocity.y = 100.0f + (size * 80.0f) + (float)SDL_rand(300);
+        //color differente
+        Uint8 brightness = (Uint8)(30 + (size / 5.0f) * 80);
+        render.color = { brightness, brightness, brightness, 255 };
+    }
+
+    void Update(float deltaTime) override {
+        transform.position.y += movement.velocity.y * deltaTime;
+
+        if (transform.position.y > 1120) {
+            transform.position.y = -10.0f;
+            transform.position.x = (float)SDL_rand(1920);
+        }
+    }
+};
 
 
 #endif //DEER_INVADERS_ENTITY_H

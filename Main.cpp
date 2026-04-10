@@ -505,6 +505,8 @@ public:
 
     //Les Etoiles randoms du menu
     std::vector<Stars*> randomStars;
+    //Les etoiles randoms dans game
+    std::vector<GameStars*> randomGameStars;
 
 private:
     //Score Lorsque Cerf Mort
@@ -1277,6 +1279,12 @@ private:
         player->currentWeapon->texture = textureBulletNormal;
         player->texturePlayerShip = texturePlayerShip;
         entities.push_back(player);
+
+        //Les etoiles dans game
+        for (int i = 0; i < 25; ++i) {
+            randomGameStars.push_back(new GameStars());
+        }
+
 
         //Timer FPS
         fpsTimerID = SDL_AddTimer(250, TimerCallback, &shouldUpdateText);
@@ -2938,7 +2946,20 @@ private:
             }
         }
     }
+    //Render les etoiles du game
+    void RenderGameStars() {
+        for (auto* gameStar : randomGameStars) {
+            SDL_FRect dest = {
+                gameStar->transform.position.x,
+                gameStar->transform.position.y,
+                gameStar->transform.size.x,
+                gameStar->transform.size.y
+            };
 
+            SDL_SetRenderDrawColor(renderer,gameStar->render.color.r,gameStar->render.color.g,gameStar->render.color.b, 255);
+            SDL_RenderFillRect(renderer, &dest);
+        }
+    }
 
     //Fonction pour popup
 
@@ -2955,6 +2976,12 @@ private:
         else if (currentStage == 3) {
             SDL_RenderTexture(renderer, textureBackground3, nullptr, nullptr);
         }
+        //etoiles du jeu
+        for (auto* gameStars : randomGameStars) {
+            gameStars->Update(deltaTime);
+        }
+        RenderGameStars();
+
         // On dessine les entities et UI sans les faire bouger
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
 
@@ -3223,6 +3250,7 @@ private:
     void Game(float deltaTime) {
         SDL_Event GameEvents;
         GameApp &app = GameApp::GetInstance();
+
         //Ajout de la fonction UpdateBackgroundTint pour avoir le rgb
         //mis sur le text dynamicscoreText -> UpdateText avec TTF
         UpdateBackgroundTint(deltaTime);
@@ -3846,6 +3874,12 @@ private:
         else if (currentStage == 3) {
             SDL_RenderTexture(renderer, textureBackground3, nullptr, nullptr);
         }
+        //etoiles du jeu
+        for (auto* gameStars : randomGameStars) {
+            gameStars->Update(deltaTime);
+        }
+        RenderGameStars();
+
         SDL_RenderTexture(renderer, ScoreUI, nullptr, &scoreSize);
         SDL_RenderTexture(renderer,HealUI,nullptr, &healSize);
 
@@ -4256,7 +4290,6 @@ GameApp &app = GameApp::GetInstance();
     //Avoir un shop pour acheter des skins -> amilioration d'arme
     void Shop(float deltaTime) {
         SDL_Event ShopEvents;
-
         //Render
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); //Fond noir
        //clean
