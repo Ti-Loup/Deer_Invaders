@@ -2224,7 +2224,7 @@ private:
             meteorSpawnTimer += deltaTime;
 
             // Spawn plus rapide qu'en wave 2
-            float spawnRate = 0.4f;
+            float spawnRate = 0.2f;
 
             if (meteorSpawnTimer >= spawnRate) {
                 meteorSpawnTimer = 0.0f;
