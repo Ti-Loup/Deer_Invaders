@@ -2838,6 +2838,9 @@ survivalTimer += deltaTime;
             }
         }
         //Les cerfs
+        else if (currentStageBonus == 2) {
+            
+        }
 
     }
     //fonction de transition
@@ -5678,6 +5681,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
                         app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
                         app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+                        app.currentStage = 0;
                         app.currentStageBonus = 1;
                         app.StateActuel = State::Game;
                         break;
@@ -5690,6 +5694,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
                         app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
                         app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+                        app.currentStage = 0;
                         app.currentStageBonus = 2;
                         app.StateActuel = State::Game;
                         break;
@@ -6379,7 +6384,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
                 app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
                 app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
-                app.currentStage = 0;
+                app.currentStage = 0;//on met current Stage a 0 comme sa le else if de currentStageBonus ce met
                 app.currentStageBonus = 2;
                 app.StateActuel = State::Game;
             }
