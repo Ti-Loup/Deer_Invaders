@@ -1204,14 +1204,14 @@ private:
         if (TTF_SetTextColor(CreditsRoleText, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
-        CreditsRoleText2 = TTF_CreateText(textEngine, CreditsRoleFont, "Art : ", 25);
+        CreditsRoleText2 = TTF_CreateText(textEngine, CreditsRoleFont, "Artist : ", 25);
         if (CreditsRoleText2 == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
         if (TTF_SetTextColor(CreditsRoleText2, 255,255,255,255) == false) {
             SDL_LogWarn(0,"Erreur couleur Role1", SDL_GetError());
         }
-        CreditsRoleText3 = TTF_CreateText(textEngine, CreditsRoleFont, "Gameplay Programming : ", 25);
+        CreditsRoleText3 = TTF_CreateText(textEngine, CreditsRoleFont, "Programmer : ", 25);
         if (CreditsRoleText3 == nullptr) {
             SDL_LogWarn(0, "Impossible de changer le role", SDL_GetError());
         }
@@ -2311,7 +2311,57 @@ private:
     }
     //wave 2 (survival)
     void SpawnWave2Stage3(float deltaTime) {
+survivalTimer += deltaTime;
 
+        if (survivalTimer < survivalDuration) {
+            meteorSpawnTimer += deltaTime;
+
+            // Spawn plus rapide qu'en wave 2
+            float spawnRate = 0.2f;
+
+            if (meteorSpawnTimer >= spawnRate) {
+                meteorSpawnTimer = 0.0f;
+
+                // Pattern aléatoire parmi 3 types
+                int pattern = rand() % 3;
+
+                if (pattern == 0) {
+                    // Rafale de 3 météorites en ligne
+                    float baseX = static_cast<float>(rand() % 1600);
+                    for (int i = 0; i < 2; i++) {
+                        Enemy_Meteor* m = new Enemy_Meteor(baseX + i * 100.0f, -80.0f, textureMeteor);
+                        entities.push_back(m);
+                    }
+                }
+                else if (pattern == 1) {
+                    // Météorite diagonale (vitesse X ajoutée)
+                    float spawnX = static_cast<float>(rand() % 1800);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f, textureMeteor);
+                    float direction = (rand() % 2 == 0) ? 1.0f : -1.0f;
+                    m->movement.velocity.x = direction * 150.0f; // Dérive latérale
+                    entities.push_back(m);
+                }
+                else {
+                    // Météorite rapide simple
+                    float spawnX = static_cast<float>(rand() % 1800);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f, textureMeteor);
+                    float direction = (rand()%2 == 0) ? 1.0f : -1.0f;//gauche ou droite
+                    m->movement.velocity.y *= 1.8f; // Plus rapide vers le bas
+                    entities.push_back(m);
+                }
+            }
+        } else {
+            bool anyMeteorLeft = false;
+            for (auto& ent : entities) {
+                if (ent->entityType == EntityType::Enemy && !ent->bIsDestroyed) {
+                    anyMeteorLeft = true;
+                    break;
+                }
+            }
+            if (!anyMeteorLeft) {
+                PreparationNextWave();
+            }
+        }
     }
     //wave 3
     void SpawnWave3Stage3() {
@@ -2321,8 +2371,17 @@ private:
     void SpawnWave4Stage3() {
 
     }
-    //wave 5
+    //wave 5 boss
     void SpawnWave5Stage3() {
+        entities.push_back(new Enemy_DeerMelee(200,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(600,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1200,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1700,100,textureCerfMelee));
+        entities.push_back(new Enemy_FraiseBoss(800.0f, 200.0f , textureBossStage_1_2));
+        entities.push_back(new Enemy_DeerMelee(200,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(600,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1200,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1700,100,textureCerfMelee));
 
     }
 
@@ -4658,8 +4717,8 @@ GameApp &app = GameApp::GetInstance();
         TTF_DrawRendererText(CreditsName1Text, 950,450);
         TTF_DrawRendererText(CreditsName2Text, 500,650);
         TTF_DrawRendererText(CreditsName3Text, 1400,650);
-        TTF_DrawRendererText(CreditsRoleText, 850,350);
-        TTF_DrawRendererText(CreditsRoleText2, 400, 550);
+        TTF_DrawRendererText(CreditsRoleText, 800,350);
+        TTF_DrawRendererText(CreditsRoleText2, 450, 550);
         TTF_DrawRendererText(CreditsRoleText3, 1300, 550);
         SDL_RenderPresent(renderer);
     }
