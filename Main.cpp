@@ -418,7 +418,7 @@ public:
 
     //Point Meat
 
-    int currentMeat = 0;
+    int currentMeat = 5000;
     int meatGrab = 1;
     //Meat Rendu
     int lastMeat = -1;
@@ -2164,7 +2164,7 @@ private:
         entities.push_back(new Enemy_Deer(1650, 440, true,textureCerf,true));
 
         //Barricade
-        entities.push_back(new Enemy_Barricade(1150.0f, 700.0f, textureBarricadeStyle1));
+        entities.push_back(new Enemy_Barricade(1150.0f, 700.0f, textureBarricadeStyle2));
         entities.push_back(new Enemy_Barricade(300.0f, 700.0f, textureBarricadeStyle2));
     }
 
@@ -2365,11 +2365,63 @@ survivalTimer += deltaTime;
     }
     //wave 3
     void SpawnWave3Stage3() {
+//Barricade 1
+        entities.push_back(new Enemy_Barricade(300, 50, textureBarricadeStyle3));
+        entities.push_back(new Enemy_Barricade(900, 50, textureBarricadeStyle3));
+        entities.push_back(new Enemy_Barricade(1400, 50, textureBarricadeStyle3));
+
+        entities.push_back(new Enemy_DeerMelee(100.f, 150.0f,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(250.f, 150.0f,  textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(400.f, 150.0f,  textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(550.0f, 150.0f,  textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1050.0f, 150.0f,  textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1200.0f, 150.0f,  textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1350.0f, 150.0f,  textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1500.0f, 150.0f, textureCerfMelee));
+
+//barricade 2
+        entities.push_back(new Enemy_Barricade(300, 350, textureBarricadeStyle2));
+        entities.push_back(new Enemy_Barricade(900, 350, textureBarricadeStyle2));
+        entities.push_back(new Enemy_Barricade(1400, 350, textureBarricadeStyle2));
+
+        entities.push_back(new Enemy_MageIceDeer(300, 450, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(700, 450, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(1300, 450, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(1700, 450, textureCerfMageIce));
+
+        entities.push_back(new Enemy_Deer(100.f, 850.0f, false, textureCerf, true));
+        entities.push_back(new Enemy_Deer(250.f, 850.0f, true, textureCerfCarrot,true));
+        entities.push_back(new Enemy_Deer(400.f, 850.0f, false, textureCerf,true));
+        entities.push_back(new Enemy_Deer(550.0f, 850.0f, true, textureCerfCarrot,true));
+
+        entities.push_back(new Enemy_Deer(1050.0f, 750.0f, false, textureCerf,true));
+        entities.push_back(new Enemy_Deer(1200.0f, 750.0f,true, textureCerfCarrot,true));
+        entities.push_back(new Enemy_Deer(1350.0f, 750.0f,false, textureCerf,true));
+        entities.push_back(new Enemy_Deer(1500.0f, 750.0f,true, textureCerfCarrot,true));
 
     }
     //wave 4
     void SpawnWave4Stage3() {
+        entities.push_back(new Enemy_Barricade(300, 50, textureBarricadeStyle3));
+        entities.push_back(new Enemy_Barricade(900, 50, textureBarricadeStyle3));
+        entities.push_back(new Enemy_Barricade(1400, 50, textureBarricadeStyle3));
 
+        entities.push_back(new Enemy_DeerMelee(200,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(900,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1700,100,textureCerfMelee));
+        entities.push_back(new Enemy_Deer(550.0f, 150.0f, false, textureCerf,true));
+        entities.push_back(new Enemy_Deer(1350.0f, 150.0f, true, textureCerfCarrot,true));
+
+        entities.push_back(new Enemy_HealerDeer(400.0f, 300.0f,textureCerfHealer));
+        entities.push_back(new Enemy_HealerDeer(800.0f, 300.0f,textureCerfHealer));
+        entities.push_back(new Enemy_HealerDeer(1200.0f, 300.0f,textureCerfHealer));
+        entities.push_back(new Enemy_HealerDeer(1600.0f, 300.0f,textureCerfHealer));
+
+        entities.push_back(new Enemy_DeerMelee(200,600,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(900,600,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1700,600,textureCerfMelee));
+        entities.push_back(new Enemy_Deer(550.0f, 650.0f, false, textureCerf,true));
+        entities.push_back(new Enemy_Deer(1350.0f, 650.0f, true, textureCerfCarrot,true));
     }
     //wave 5 boss
     void SpawnWave5Stage3() {
@@ -2378,10 +2430,10 @@ survivalTimer += deltaTime;
         entities.push_back(new Enemy_DeerMelee(1200,100,textureCerfMelee));
         entities.push_back(new Enemy_DeerMelee(1700,100,textureCerfMelee));
         entities.push_back(new Enemy_FraiseBoss(800.0f, 200.0f , textureBossStage_1_2));
-        entities.push_back(new Enemy_DeerMelee(200,100,textureCerfMelee));
-        entities.push_back(new Enemy_DeerMelee(600,100,textureCerfMelee));
-        entities.push_back(new Enemy_DeerMelee(1200,100,textureCerfMelee));
-        entities.push_back(new Enemy_DeerMelee(1700,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(200,600,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(600,600,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1200,600,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1700,600,textureCerfMelee));
 
     }
 
@@ -2391,7 +2443,7 @@ survivalTimer += deltaTime;
         GameApp &app = GameApp::GetInstance();
         waveInProgress = true;
         //delimitation des differentes stage et wave
-        if (currentStage == 1){
+        if (currentStage == 3){
             if (wave == 1) {
                 //Les cerfs normaux
                 currentWaveType = WaveType::Elimination;
@@ -2520,7 +2572,7 @@ survivalTimer += deltaTime;
             }
         }
         //le stage 3 du jeu
-        else if (currentStage == 3) {
+        else if (currentStage == 1) {
 
             if (wave == 1) {
                 currentWaveType = WaveType::Elimination;
