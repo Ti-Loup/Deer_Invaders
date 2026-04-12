@@ -2593,8 +2593,14 @@ survivalTimer += deltaTime;
     }
 
 
-    //Bonus  elimination
+    //Bonus  elimination des cerfs bonus !@!@!
     void SpawnWave1Bonus2() {
+
+    }
+    void SpawnWave2Bonus2() {
+
+    }
+    void SpawnWave3Bonus2() {
 
     }
 
@@ -2839,7 +2845,53 @@ survivalTimer += deltaTime;
         }
         //Les cerfs
         else if (currentStageBonus == 2) {
-            
+            if (wave == 1) {
+                currentWaveType = WaveType::Elimination;
+                SpawnWave1Bonus2();
+            }
+            else if (wave == 2) {
+            currentWaveType = WaveType::Elimination;
+                SpawnWave2Bonus2();
+            }
+            else if (wave == 3) {
+                currentWaveType = WaveType::Elimination;
+                SpawnWave3Bonus2();
+            }
+            else {
+                waveInProgress = false; // stop la logique de wave
+                //met score dans database avec nom joueur
+                if (bDatabaseInitialized) {
+                    SDL_Log(" Début insert score ");
+
+                    ScoreRecord record;
+                    record.player_name = "Player";
+                    record.value = currentScore;
+                    SDL_Log("Score à insérer: %d", currentScore);
+
+                    if (SteamUser() && SteamUser()->BLoggedOn()) {
+                        ISteamFriends* friends = SteamFriends();
+                        if (friends) {
+                            const char* name = friends->GetPersonaName();
+                            if (name && name[0] != '\0') {
+                                record.player_name = name;
+                            }
+                        }
+                    }
+
+                    SDL_Log("Nom: %s", record.player_name.c_str());
+
+                    try {
+                        database.InsertScore(record);
+                        SDL_Log(" Insert score OK ");
+                    } catch (const std::exception& e) {
+                        SDL_LogWarn(0, "InsertScore crash: %s", e.what());
+                    } catch (...) {
+                        SDL_LogWarn(0, "InsertScore crash inconnu");
+                    }
+                }
+                app.StateActuel = State::NiveauGagnerScreen;
+                return;
+            }
         }
 
     }
