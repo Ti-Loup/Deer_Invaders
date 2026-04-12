@@ -418,7 +418,7 @@ public:
 
     //Point Meat
 
-    int currentMeat = 5000;
+    int currentMeat = 0;
     int meatGrab = 1;
     //Meat Rendu
     int lastMeat = -1;
@@ -2316,8 +2316,8 @@ survivalTimer += deltaTime;
         if (survivalTimer < survivalDuration) {
             meteorSpawnTimer += deltaTime;
 
-            // Spawn plus rapide qu'en wave 2
-            float spawnRate = 0.2f;
+            // Spawn plus rapide
+            float spawnRate = 0.05f;
 
             if (meteorSpawnTimer >= spawnRate) {
                 meteorSpawnTimer = 0.0f;
@@ -2326,9 +2326,8 @@ survivalTimer += deltaTime;
                 int pattern = rand() % 3;
 
                 if (pattern == 0) {
-                    // Rafale de 3 météorites en ligne
                     float baseX = static_cast<float>(rand() % 1600);
-                    for (int i = 0; i < 2; i++) {
+                    for (int i = 0; i < 4; i++) {
                         Enemy_Meteor* m = new Enemy_Meteor(baseX + i * 100.0f, -80.0f, textureMeteor);
                         entities.push_back(m);
                     }
@@ -2443,7 +2442,7 @@ survivalTimer += deltaTime;
         GameApp &app = GameApp::GetInstance();
         waveInProgress = true;
         //delimitation des differentes stage et wave
-        if (currentStage == 3){
+        if (currentStage == 1){
             if (wave == 1) {
                 //Les cerfs normaux
                 currentWaveType = WaveType::Elimination;
@@ -2572,7 +2571,7 @@ survivalTimer += deltaTime;
             }
         }
         //le stage 3 du jeu
-        else if (currentStage == 1) {
+        else if (currentStage == 3) {
 
             if (wave == 1) {
                 currentWaveType = WaveType::Elimination;
