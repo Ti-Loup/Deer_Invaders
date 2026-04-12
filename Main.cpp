@@ -2538,7 +2538,65 @@ survivalTimer += deltaTime;
     }
 
     // -> BONUS <-
+    //Bonus wave 1 survival
+    void SpawnWave1Bonus1(float deltaTime) {
+        survivalTimer += deltaTime;
 
+        if (survivalTimer < survivalDuration) {
+            meteorSpawnTimer += deltaTime;
+
+            // Spawn plus rapide
+            float spawnRate = 0.005f;
+
+            if (meteorSpawnTimer >= spawnRate) {
+                meteorSpawnTimer = 0.0f;
+
+                // Pattern aléatoire parmi 3 types
+                int pattern = rand() % 3;
+
+                if (pattern == 0) {
+                    float baseX = static_cast<float>(rand() % 1600);
+                    for (int i = 0; i < 4; i++) {
+                        Enemy_Meteor* m = new Enemy_Meteor(baseX + i * 100.0f, -80.0f, textureMeteor);
+                        entities.push_back(m);
+                    }
+                }
+                else if (pattern == 1) {
+                    // Météorite diagonale (vitesse X ajoutée)
+                    float spawnX = static_cast<float>(rand() % 1800);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f, textureMeteor);
+                    float direction = (rand() % 2 == 0) ? 1.0f : -1.0f;
+                    m->movement.velocity.x = direction * 150.0f; // Dérive latérale
+                    entities.push_back(m);
+                }
+                else {
+                    // Météorite rapide simple
+                    float spawnX = static_cast<float>(rand() % 1800);
+                    Enemy_Meteor* m = new Enemy_Meteor(spawnX, -80.0f, textureMeteor);
+                    float direction = (rand()%2 == 0) ? 1.0f : -1.0f;//gauche ou droite
+                    m->movement.velocity.y *= 1.8f; // Plus rapide vers le bas
+                    entities.push_back(m);
+                }
+            }
+        } else {
+            bool anyMeteorLeft = false;
+            for (auto& ent : entities) {
+                if (ent->entityType == EntityType::Enemy && !ent->bIsDestroyed) {
+                    anyMeteorLeft = true;
+                    break;
+                }
+            }
+            if (!anyMeteorLeft) {
+                PreparationNextWave();
+            }
+        }
+    }
+
+
+    //Bonus  elimination
+    void SpawnWave1Bonus2() {
+
+    }
 
 //Fonction pour commencer une wave
     // Le else represente lorsque tous les waves sont passer alors jouer gagner
@@ -2736,7 +2794,50 @@ survivalTimer += deltaTime;
 
             }
         }
+        //Les stages bonus
+        //Spawn Meteorite
+        else if (currentStageBonus == 1) {
+            if (wave == 1) {
+                currentWaveType = WaveType::Survival;
+                survivalTimer = 0.0f;
+                meteorSpawnTimer = 0.0f;
+            }else {
+                waveInProgress = false; // stop la logique de wave
+                //met score dans database avec nom joueur
+                if (bDatabaseInitialized) {
+                    SDL_Log(" Début insert score ");
 
+                    ScoreRecord record;
+                    record.player_name = "Player";
+                    record.value = currentScore;
+                    SDL_Log("Score à insérer: %d", currentScore);
+
+                    if (SteamUser() && SteamUser()->BLoggedOn()) {
+                        ISteamFriends* friends = SteamFriends();
+                        if (friends) {
+                            const char* name = friends->GetPersonaName();
+                            if (name && name[0] != '\0') {
+                                record.player_name = name;
+                            }
+                        }
+                    }
+
+                    SDL_Log("Nom: %s", record.player_name.c_str());
+
+                    try {
+                        database.InsertScore(record);
+                        SDL_Log(" Insert score OK ");
+                    } catch (const std::exception& e) {
+                        SDL_LogWarn(0, "InsertScore crash: %s", e.what());
+                    } catch (...) {
+                        SDL_LogWarn(0, "InsertScore crash inconnu");
+                    }
+                }
+                app.StateActuel = State::NiveauGagnerScreen;
+                return;
+            }
+        }
+        //Les cerfs
 
     }
     //fonction de transition
@@ -3599,7 +3700,12 @@ survivalTimer += deltaTime;
             if (currentWaveType == WaveType::Survival && waveInProgress)
             {
                 // les waves survivals
-                    if (currentWave == 2) {
+                if (currentWave == 1) {
+                    if (currentStageBonus == 1) {
+                        SpawnWave1Bonus1(deltaTime);
+                    }
+                 }
+                    else if (currentWave == 2) {
                         if (currentStage == 1) {
                             SpawnWave2Stage1(deltaTime);
                         }
@@ -5539,7 +5645,57 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 
         }
+//Les niveaux bonus
+        else if (app.StateActuel == State::ChoixBonus) {
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT) {
+                //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
+                app.selectedButtonChoixBonus++;
+                //Dessend 0 vers 2~ 3 choix
+                if (app.selectedButtonChoixBonus > 1) {
+                    app.selectedButtonChoixBonus = 0;
+                }
+            }
+            //Monte ~
+            if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
+                //Monte
+                app.selectedButtonChoixNiveau--;
+                if (app.selectedButtonChoixBonus < 0) {
+                    app.selectedButtonChoixBonus = 1;
+                }
+            }
+            //validation Touche A
+            if (event->gbutton.button ==  SDL_GAMEPAD_BUTTON_SOUTH) {
+                SDL_Log("blablabla");
 
+                //switch case ChoixNiveau
+                switch (app.selectedButtonChoixBonus) {
+                    case 0:
+                        app.ResetGame();
+                        app.RebindKeys();
+                        app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                        app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                        app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                        app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                        app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                        app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+                        app.currentStageBonus = 1;
+                        app.StateActuel = State::Game;
+                        break;
+                    case 1:
+                        app.ResetGame();
+                        app.RebindKeys();
+                        app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                        app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                        app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                        app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                        app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                        app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+                        app.currentStageBonus = 2;
+                        app.StateActuel = State::Game;
+                        break;
+                }
+            }
+        }
 
        else if (app.StateActuel == State::Pause) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
@@ -6199,6 +6355,37 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.StateActuel = State::ChoixBonus;
             }
         }
+        //Dans le Bonus
+        else if (app.StateActuel == State::ChoixBonus) {
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixBonus1)) {
+                app.ResetGame();
+                app.RebindKeys();
+                app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+                app.currentStage = 0;
+                app.currentStageBonus = 1;
+                app.StateActuel = State::Game;
+            }
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixBonus2)) {
+                app.ResetGame();
+                app.RebindKeys();
+                app.keyBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, true, true);
+                app.keyBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, true, false);
+                app.keyBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, true);
+                app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
+                app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
+                app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
+                app.currentStage = 0;
+                app.currentStageBonus = 2;
+                app.StateActuel = State::Game;
+            }
+        }
+
+
         //Dans Le IntroNiveau1
         else if (app.StateActuel == State::IntroNiveau1) {
             app.indexMessageIntroNiveau1++;
