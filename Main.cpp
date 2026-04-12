@@ -161,10 +161,19 @@ public:
     SDL_FRect BoutonChoixNiveau1 ={200, 550, 300,300};
     SDL_FRect BoutonChoixNiveau2 ={800, 550, 300,300};
     SDL_FRect BoutonChoixNiveau3 ={1400, 550, 300,300};
-
-    //BONUS
     SDL_FRect BoutonChoixBonus = {750 , 1000, 400, 60};
-    SDL_FRect ChoixTextureCerf={1050,950,100,120};
+
+    // -> BONUS <-
+    TTF_Text *ChoixBonusTitre = nullptr;
+    TTF_Text *ChoixBonus1Text = nullptr;
+    TTF_Text *ChoixBonus2Text = nullptr;
+    SDL_FRect ChoixTextureCerf={1100,950,100,120};
+
+    SDL_FRect BoutonChoixBonus1 ={300, 550, 300,300};
+    SDL_FRect BoutonChoixBonus2 ={1400, 550, 300,300};
+    //Texture qui montre un preview des niveau Bonus
+    SDL_Texture *textureBonus1Preview = nullptr;
+    SDL_Texture *textureBonus2Preview = nullptr;
 
 
     // -> INTRONIVEAU 1 / 2 / 3 <-
@@ -351,7 +360,7 @@ public:
     TTF_Text *ShopMenuText = nullptr;
 
     // -> Credits <- Text et Fonts
-    TTF_Font *Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont = nullptr;
+    TTF_Font *Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont = nullptr;
     TTF_Font *CreditsNameFont = nullptr;
     TTF_Font *CreditsRoleFont = nullptr;
     TTF_Text *CreditsMenuText = nullptr;
@@ -412,6 +421,7 @@ public:
     //Boutons gbutton
     int selectedButtonMenu = 0;
     int selectedButtonChoixNiveau = 0;
+    int selectedButtonChoixBonus = 0;
     int selectedButtonScore = 0;
     int selectedButtonWin = 0;
     int selectedButtonDeath = 0;
@@ -724,7 +734,7 @@ private:
         }
 
         //FONT POUR TITRE SCORE, SHOP, CREDITS, DeathScreen
-        Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
 
 
         // CHOIX NIVEAU
@@ -732,7 +742,7 @@ private:
         if (ChoixNiveauFont == nullptr) {
             SDL_LogWarn(0, "SDL_ttf failed to set the font", SDL_GetError());
         }
-        ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Choose Your Stage", 25);
+        ChoixNiveauTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont, "Choose Your Stage", 25);
         ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend Home", 25);
         ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Invasion Deer Mages", 25);
         ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Trial by fire", 25);
@@ -752,6 +762,24 @@ private:
         if (textureStage3Preview == nullptr) {
             SDL_LogWarn(0,"failed to load the image textureStage3Preview");
         }
+        // CHOIX BONUS
+        ChoixBonusTitre = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont, "Bonus Stages", 25);
+        if (ChoixBonusTitre == nullptr) {
+            SDL_LogWarn(0, "SDL_ttf failed to set the text for ChoixBonusTitre", SDL_GetError());
+        }
+        ChoixBonus1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Impossible Meteor", 25);
+        ChoixBonus2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "OverPopulated Deers", 25);
+        //texture bonus preview
+        textureBonus1Preview = IMG_LoadTexture(renderer,"assets/Bonus1Preview.png");
+        if (textureBonus1Preview == nullptr) {
+            SDL_LogWarn(0, "failed to load the texture for textureBonus1Preview", SDL_GetError());
+        }
+        textureBonus2Preview = IMG_LoadTexture(renderer,"assets/Bonus2Preview.png");
+        if (textureBonus2Preview == nullptr) {
+            SDL_LogWarn(0, "failed to load the texture for textureBonus2Preview", SDL_GetError());
+        }
+
+
         //DANS INTROGAME
 
         texteIntroCerfEtHUmain = TTF_CreateText(textEngine, DialogueFont, phrasesIntroNiveau1[0], 0);
@@ -1014,7 +1042,7 @@ private:
 
 
         //Score
-        ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Score", 25);
+        ScoreMenuText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont, "Score", 25);
         if (ScoreMenuText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
         }
@@ -1024,7 +1052,7 @@ private:
         //WINSCREEN
         WinScreenFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
         WinScreenSousFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
-        WinScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "YOU WON", 25);//font du titre
+        WinScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont, "YOU WON", 25);//font du titre
         if (WinScreenTitleText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of WinScreenTitleText", SDL_GetError());
         }
@@ -1049,7 +1077,7 @@ private:
         //DEATHSCREEN
         DeathScreenFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 40);
         DeathScreenSousFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 60);
-        DeathScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "GAME OVER", 25);//font du titre
+        DeathScreenTitleText = TTF_CreateText(textEngine,Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont, "GAME OVER", 25);//font du titre
         if (DeathScreenTitleText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of DeathScreenTitleText", SDL_GetError());
         }
@@ -1072,7 +1100,7 @@ private:
         }
 
         //SHOP
-        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Shop", 25);
+        ShopMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont, "Shop", 25);
         if (ShopMenuText == nullptr) {
             SDL_LogWarn(0,"failed to set the text of Shop title", SDL_GetError());
         }
@@ -1176,8 +1204,8 @@ private:
         //credits
         CreditsRoleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 50);//Pour les roles
         CreditsNameFont = TTF_OpenFont ("assets/Cosmo Corner.ttf", 40);//Pour les noms
-        Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
-        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont, "Credits", 25);
+        Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
+        CreditsMenuText = TTF_CreateText(textEngine, Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont, "Credits", 25);
         if (CreditsMenuText == nullptr) {
             SDL_LogWarn(0, "EERREUR ! Le texte CreditsText n'a pas charger", SDL_GetError());
         }
@@ -1340,7 +1368,7 @@ private:
         TTF_CloseFont(waveDynamicNumberFont);
         TTF_CloseFont(waveDynamicWaveTypeFont);
         TTF_CloseFont(CreditsFont);
-        TTF_CloseFont(Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_TitleFont);
+        TTF_CloseFont(Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont);
         TTF_CloseFont(FontPause);
         TTF_DestroyText(TextStart);
         TTF_DestroyText(tutoText);
@@ -1548,6 +1576,10 @@ private:
     //Render Titre Choix Niveau
     void RenderChoixNiveauTitle() {
         TTF_DrawRendererText(ChoixNiveauTitre, 450,150);
+    }
+    //Render titre choix bonus
+    void RenderChoixBonusTitle() {
+        TTF_DrawRendererText(ChoixBonusTitre, 575,150);
     }
 
     //Rendu Du titre DeathTitle
@@ -1853,11 +1885,11 @@ private:
         //BoutonBonus
         if (selectedButtonChoixNiveau == 3) {
             RenderBoutons(BoutonChoixBonus, ChoixBonusText, r, g, b);
-            SDL_RenderTexture(renderer, textureCerfMage, nullptr, &ChoixTextureCerf);
+            SDL_RenderTextureRotated(renderer, textureCerfMageIce,nullptr, &ChoixTextureCerf, 25.0, nullptr, SDL_FLIP_NONE);
         }
         else {
             RenderBoutons(BoutonChoixBonus, ChoixBonusText, 100, 100, 100);
-            SDL_RenderTexture(renderer, textureCerfMage, nullptr, &ChoixTextureCerf);
+            SDL_RenderTextureRotated(renderer, textureCerfMageIce,nullptr, &ChoixTextureCerf, 25.0, nullptr, SDL_FLIP_NONE);
         }
 
         TTF_DrawRendererText(ChoixNiveau1Text, 200, 900);
@@ -1876,12 +1908,42 @@ private:
         SDL_RenderClear(renderer);
         //Background menu
         SDL_RenderTexture(renderer, textureBackgroundMenu, nullptr, nullptr);
+        RenderChoixBonusTitle();
         //etoiles des menus
         for (auto* star : randomStars) {
             star->Update(deltaTime);
         }
         RenderStars();
-
+        float offset = 20.0f;
+        //regtangle reduit des boutons
+        SDL_FRect Bonus1Rect = {
+            BoutonChoixBonus1.x + offset,
+            BoutonChoixBonus1.y + offset,
+            BoutonChoixBonus1.w - (offset * 2.0f),
+            BoutonChoixBonus1.h - (offset * 2.0f)
+        };SDL_FRect Bonus2Rect = {
+            BoutonChoixBonus2.x + offset,
+            BoutonChoixBonus2.y + offset,
+            BoutonChoixBonus2.w - (offset * 2.0f),
+            BoutonChoixBonus2.h - (offset * 2.0f)
+        };
+        //2 Boutons Bonus
+        if (selectedButtonChoixBonus == 0) {
+                RenderBoutons(BoutonChoixBonus1, nullptr, r, g, b);
+                SDL_RenderTexture(renderer, textureBonus1Preview, nullptr, &Bonus1Rect);
+        }else {
+            RenderBoutons(BoutonChoixBonus1, nullptr, 40, 40, 40);
+            SDL_RenderTexture(renderer, textureBonus1Preview, nullptr, &Bonus1Rect);
+        }
+        if (selectedButtonChoixBonus == 1) {
+            RenderBoutons(BoutonChoixBonus2, nullptr, r, g, b);
+            SDL_RenderTexture(renderer, textureBonus2Preview, nullptr, &Bonus2Rect);
+        }else {
+            RenderBoutons(BoutonChoixBonus2, nullptr, 40, 40, 40);
+            SDL_RenderTexture(renderer, textureBonus2Preview, nullptr, &Bonus2Rect);
+        }
+        TTF_DrawRendererText(ChoixBonus1Text, 300, 900);
+        TTF_DrawRendererText(ChoixBonus2Text, 1400, 900);
         SDL_RenderPresent(renderer);
     }
 
@@ -5148,7 +5210,7 @@ public:
             case State::ChoixNiveau:
                 ChoixNiveau(deltaTime);
                 break;
-            case State::Bonus:
+            case State::ChoixBonus:
                 ChoixBonus(deltaTime);
                 break;
 
@@ -5469,7 +5531,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                         }
                         break;
                     case 3://Pour aller vers la page bonus
-                        app.StateActuel = State::Bonus;
+                        app.StateActuel = State::ChoixBonus;
                         break;
                 }
 
@@ -6134,7 +6196,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             //Va vers Section Bonus
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixBonus)) {
-                app.StateActuel = State::Bonus;
+                app.StateActuel = State::ChoixBonus;
             }
         }
         //Dans Le IntroNiveau1

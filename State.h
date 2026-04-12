@@ -12,7 +12,7 @@ class Entity;
 enum class State {
 Menu,
 ChoixNiveau,//Apres start pour choisir le niveau
-Bonus,
+ChoixBonus,
 UpgradePopup, // Style vampire survivor
 Game,
 IntroNiveau1,
