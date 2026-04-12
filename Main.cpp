@@ -153,7 +153,6 @@ public:
     SDL_Texture *textureStage1Preview = nullptr;
     SDL_Texture *textureStage2Preview = nullptr;
     SDL_Texture *textureStage3Preview = nullptr;
-    //SDL_Texture *textureStage3Preview = nullptr;
 
     //text pour dire si accecible ou non
     TTF_Text *StageLocked = nullptr;
@@ -164,7 +163,9 @@ public:
     SDL_FRect BoutonChoixNiveau3 ={1400, 550, 300,300};
 
     //BONUS
-    SDL_FRect BoutonChoixBonus = {800 , 1000, 400, 100};
+    SDL_FRect BoutonChoixBonus = {750 , 1000, 400, 60};
+    SDL_FRect ChoixTextureCerf={1050,950,100,120};
+
 
     // -> INTRONIVEAU 1 / 2 / 3 <-
     SDL_Texture *HumainTexture = nullptr;
@@ -1791,6 +1792,8 @@ private:
             BoutonChoixNiveau3.w - (offset * 2.0f),
             BoutonChoixNiveau3.h - (offset * 2.0f)
         };
+        //Bonus rect
+
 
         //boutons et text
         //Bouton Niveau 1
@@ -1850,11 +1853,11 @@ private:
         //BoutonBonus
         if (selectedButtonChoixNiveau == 3) {
             RenderBoutons(BoutonChoixBonus, ChoixBonusText, r, g, b);
-            SDL_RenderTexture(renderer, textureCerfMage, nullptr, nullptr);
+            SDL_RenderTexture(renderer, textureCerfMage, nullptr, &ChoixTextureCerf);
         }
         else {
             RenderBoutons(BoutonChoixBonus, ChoixBonusText, 100, 100, 100);
-            SDL_RenderTexture(renderer, textureCerfMage, nullptr, nullptr);
+            SDL_RenderTexture(renderer, textureCerfMage, nullptr, &ChoixTextureCerf);
         }
 
         TTF_DrawRendererText(ChoixNiveau1Text, 200, 900);
@@ -1864,6 +1867,26 @@ private:
         TTF_DrawRendererText(fpsText, 1800, 10);
         SDL_RenderPresent(renderer);
     }
+
+    //Fonction pour le contenue bonus
+    void ChoixBonus(float deltaTime) {
+        UpdateBackgroundTint(deltaTime);  // <- Pour le rgb
+        // Rendu du menu
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+        //Background menu
+        SDL_RenderTexture(renderer, textureBackgroundMenu, nullptr, nullptr);
+        //etoiles des menus
+        for (auto* star : randomStars) {
+            star->Update(deltaTime);
+        }
+        RenderStars();
+
+        SDL_RenderPresent(renderer);
+    }
+
+
+
 
     //fonction Intro pour la narration de debut
 
@@ -5124,6 +5147,9 @@ public:
 
             case State::ChoixNiveau:
                 ChoixNiveau(deltaTime);
+                break;
+            case State::Bonus:
+                ChoixBonus(deltaTime);
                 break;
 
             case State::UpgradePopup:
