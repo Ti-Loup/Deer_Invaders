@@ -1778,10 +1778,10 @@ private:
             BoutonChoixNiveau2.h - (offset * 2.0f)
         };
         SDL_FRect Stage3Rect = {
-            BoutonChoixNiveau2.x + offset,
-            BoutonChoixNiveau2.y + offset,
-            BoutonChoixNiveau2.w - (offset * 2.0f),
-            BoutonChoixNiveau2.h - (offset * 2.0f)
+            BoutonChoixNiveau3.x + offset,
+            BoutonChoixNiveau3.y + offset,
+            BoutonChoixNiveau3.w - (offset * 2.0f),
+            BoutonChoixNiveau3.h - (offset * 2.0f)
         };
 
         //boutons et text
@@ -2286,14 +2286,26 @@ private:
     //Stage 3
     //wave 1
     void SpawnWave1Stage3() {
-        entities.push_back(new Enemy_MageIceDeer(300, 100, textureCerfMageIce));
-        entities.push_back(new Enemy_MageIceDeer(1450, 100, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(300, 450, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(1450, 450, textureCerfMageIce));
 
-        entities.push_back(new Enemy_DeerMelee(600,250,textureCerfMelee));
-        entities.push_back(new Enemy_DeerMelee(900,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(200,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(600,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1200,100,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1700,100,textureCerfMelee));
 
-        entities.push_back(new Enemy_MageIceDeer(500, 100, textureCerfMageIce));
-        entities.push_back(new Enemy_MageIceDeer(1650, 100, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(500, 450, textureCerfMageIce));
+        entities.push_back(new Enemy_MageIceDeer(1650, 450, textureCerfMageIce));
+
+        entities.push_back(new Enemy_Deer(100.f, 250.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(250.f, 250.0f, true, textureCerfCarrot));
+        entities.push_back(new Enemy_Deer(400.f, 250.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(550.0f, 250.0f, true, textureCerfCarrot));
+
+        entities.push_back(new Enemy_Deer(700.0f, 250.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(850.0f, 250.0f, true, textureCerfCarrot));
+        entities.push_back(new Enemy_Deer(1000.0f, 250.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1150.0f, 250.0f,true, textureCerfCarrot));
 
         entities.push_back(new Enemy_Barricade(800, 700, textureBarricadeStyle3));
     }
@@ -2305,8 +2317,8 @@ private:
     void SpawnWave3Stage3() {
 
     }
-    //wave 4 (survival)
-    void SpawnWave4Stage3(float deltaTime) {
+    //wave 4
+    void SpawnWave4Stage3() {
 
     }
     //wave 5
@@ -2465,9 +2477,8 @@ private:
                 SpawnWave3Stage3();
             }
             else if (wave == 4) {
-                currentWaveType = WaveType::Survival;
-                survivalTimer = 0.0f;
-                meteorSpawnTimer = 0.0f;
+                currentWaveType = WaveType::Elimination;
+                SpawnWave4Stage3();
             }
             else if (wave == 5) {
                 currentWaveType = WaveType::Elimination;
@@ -2766,7 +2777,7 @@ private:
                         // Calcule l'intensité du rouge selon le temps restant
                         float ratio = enemy_barricade->hitFlashTimer / enemy_barricade->hitFlashDuration;
                         Uint8 flashIntensity = static_cast<Uint8>(ratio * 200); // 0 à 200
-                        SDL_SetTextureColorMod(enemy_barricade->textureBarricade, 255, 255 - flashIntensity, 255 - flashIntensity);
+                        SDL_SetTextureColorMod(enemy_barricade->textureBarricade, 255- flashIntensity, 255 - flashIntensity, 255 - flashIntensity);
                     } else {
                         // Remet la couleur normale
                         SDL_SetTextureColorMod(enemy_barricade->textureBarricade ,255, 255, 255);
@@ -3389,9 +3400,6 @@ private:
                         else if (currentStage == 2) {
                             SpawnWave4Stage2(deltaTime);
                         }
-                        else if (currentStage == 3) {
-                            SpawnWave4Stage3(deltaTime);
-                        }
                     }
 
             }
@@ -3794,7 +3802,12 @@ private:
                                 barricadeHit->bIsFlashing = true;
                                 barricadeHit->hitFlashTimer = barricadeHit->hitFlashDuration;
                             }
-
+                            //declenche le falsh pour le cerrf melee
+                            Enemy_DeerMelee* deerMeleeHit = dynamic_cast<Enemy_DeerMelee *>(ennemi);
+                            if (deerMeleeHit != nullptr) {
+                                deerMeleeHit->bIsFlashing = true;
+                                deerMeleeHit->hitFlashTimer = deerMeleeHit->hitFlashDuration;
+                            }
 
 
                             //si heal plus petit que 0 alors le cerf est detruit + score totaux

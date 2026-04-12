@@ -121,7 +121,7 @@ public:
     bool bIsFlashing = false;
 
     float waitTimer = 0.0f;
-    const float waitDuration = 3.0f; // attente avant de charger
+    const float waitDuration = SDL_rand(10); // attente avant de charger
     bool bIsCharging = false;
     float chargeSpeed = 100.0f;
 };

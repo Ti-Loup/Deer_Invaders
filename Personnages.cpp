@@ -271,8 +271,8 @@ void Enemy_MageIceDeer::Update(float deltaTime, std::vector<Entity *> &entities)
 //CERF MELEE
 Enemy_DeerMelee::Enemy_DeerMelee(float startX, float startY, SDL_Texture *texture) {
     AddComponent(HEALTH);
-    health.max_health = 200;
-    health.current_health = 200;
+    health.max_health = 40;
+    health.current_health = 40;
     AddComponent (MOVEMENT);
     movement.velocity = { 0.0f,0.0f };
     AddComponent(RENDER);
