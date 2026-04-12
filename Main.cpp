@@ -148,6 +148,7 @@ public:
     TTF_Text *ChoixNiveau1Text = nullptr;
     TTF_Text *ChoixNiveau2Text = nullptr;
     TTF_Text *ChoixNiveau3Text = nullptr;
+    TTF_Text *ChoixBonusText = nullptr;
     //Texture qui montre un preview des niveaux
     SDL_Texture *textureStage1Preview = nullptr;
     SDL_Texture *textureStage2Preview = nullptr;
@@ -162,6 +163,8 @@ public:
     SDL_FRect BoutonChoixNiveau2 ={800, 550, 300,300};
     SDL_FRect BoutonChoixNiveau3 ={1400, 550, 300,300};
 
+    //BONUS
+    SDL_FRect BoutonChoixBonus = {800 , 1000, 400, 100};
 
     // -> INTRONIVEAU 1 / 2 / 3 <-
     SDL_Texture *HumainTexture = nullptr;
@@ -485,6 +488,9 @@ public:
     bool bStage3Completed = false;//quand stage 3 est fini
     int currentStage = 1;
 
+    //Pour les stages challenges bonus
+    int currentStageBonus = 1;
+
     //pour atteindre le dernier seuil attein (Pour les weapons upgrade fix du bug)
     int lastPopupMeatThreshold = -1;
 
@@ -729,6 +735,7 @@ private:
         ChoixNiveau1Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Defend Home", 25);
         ChoixNiveau2Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Invasion Deer Mages", 25);
         ChoixNiveau3Text = TTF_CreateText(textEngine, ChoixNiveauFont, "Trial by fire", 25);
+        ChoixBonusText = TTF_CreateText(textEngine, ChoixNiveauFont, "Bonus", 25);
         StageAvailable = TTF_CreateText(textEngine, ChoixNiveauFont, "Available", 25);
         StageLocked = TTF_CreateText(textEngine, ChoixNiveauFont, "Locked", 25);
         //Texture des previews dans ChoixNiveau
@@ -1307,6 +1314,7 @@ private:
         TTF_DestroyText(ChoixNiveau1Text);
         TTF_DestroyText(ChoixNiveau2Text);
         TTF_DestroyText(ChoixNiveau3Text);
+        TTF_DestroyText(ChoixBonusText);
         TTF_CloseFont(ChoixNiveauFont);
         TTF_CloseFont(DialogueFont);
         //Shop
@@ -1839,6 +1847,15 @@ private:
                 TTF_DrawRendererText(StageLocked, 1500, 810);
             }
         }
+        //BoutonBonus
+        if (selectedButtonChoixNiveau == 3) {
+            RenderBoutons(BoutonChoixBonus, ChoixBonusText, r, g, b);
+            SDL_RenderTexture(renderer, textureCerfMage, nullptr, nullptr);
+        }
+        else {
+            RenderBoutons(BoutonChoixBonus, ChoixBonusText, 100, 100, 100);
+            SDL_RenderTexture(renderer, textureCerfMage, nullptr, nullptr);
+        }
 
         TTF_DrawRendererText(ChoixNiveau1Text, 200, 900);
         TTF_DrawRendererText(ChoixNiveau2Text, 800, 900);
@@ -2317,7 +2334,7 @@ survivalTimer += deltaTime;
             meteorSpawnTimer += deltaTime;
 
             // Spawn plus rapide
-            float spawnRate = 0.05f;
+            float spawnRate = 0.2f;
 
             if (meteorSpawnTimer >= spawnRate) {
                 meteorSpawnTimer = 0.0f;
@@ -2433,8 +2450,10 @@ survivalTimer += deltaTime;
         entities.push_back(new Enemy_DeerMelee(600,600,textureCerfMelee));
         entities.push_back(new Enemy_DeerMelee(1200,600,textureCerfMelee));
         entities.push_back(new Enemy_DeerMelee(1700,600,textureCerfMelee));
-
     }
+
+    // -> BONUS <-
+
 
 //Fonction pour commencer une wave
     // Le else represente lorsque tous les waves sont passer alors jouer gagner
@@ -5359,7 +5378,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
                 app.selectedButtonChoixNiveau++;
                 //Dessend 0 vers 2~ 3 choix
-                if (app.selectedButtonChoixNiveau > 2) {
+                if (app.selectedButtonChoixNiveau > 3) {
                     app.selectedButtonChoixNiveau = 0;//loop entre 3 et 0
                 }
             }
@@ -5368,7 +5387,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 //Monte
                 app.selectedButtonChoixNiveau--;
                 if (app.selectedButtonChoixNiveau < 0) {
-                    app.selectedButtonChoixNiveau = 2;
+                    app.selectedButtonChoixNiveau = 3;
                 }
             }
             //validation Touche A
@@ -5422,6 +5441,9 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                             TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
                             app.StateActuel = State::IntroNiveau3; // <- A FAIRE LES DIFFERENTS INTRO
                         }
+                        break;
+                    case 3://Pour aller vers la page bonus
+                        app.StateActuel = State::Bonus;
                         break;
                 }
 
@@ -6083,6 +6105,10 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
                 app.StateActuel = State::IntroNiveau3;
                 }
+            }
+            //Va vers Section Bonus
+            if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixBonus)) {
+                app.StateActuel = State::Bonus;
             }
         }
         //Dans Le IntroNiveau1
