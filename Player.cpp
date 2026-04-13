@@ -138,6 +138,7 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
     if (dynamic_cast<FireBulletType*>(currentWeapon)) {
         // ARME FIRE Double Cannon
         float decalage = 20.0f; //decalage pour tirer d'un autre angle
+        
         // balle de gauche
         SDL_FPoint spawnGauche = { centerX - decalage, bulletY };
         entity.push_back(new Bullet(spawnGauche, dir, BulletColor, false, bulletTexture));

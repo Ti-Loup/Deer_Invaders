@@ -17,7 +17,9 @@ add_executable(Deer_Invaders
         Entity.cpp
         Entity.h
         Database.cpp
-        Database.h)
+        Database.h
+        ObjectPool.cpp
+        ObjectPool.h)
 
 # Steamworks SDK
 set(STEAM_SDK_PATH "${CMAKE_SOURCE_DIR}/libs/steamworks")
