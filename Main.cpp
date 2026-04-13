@@ -31,15 +31,12 @@
  *      La database
  *IMPLEMENTATION DATABASE DANS SCORE
  *Steamwork API a faire
+Menu Avec des etoiles qui bougent
+UPDATE LEVELS
  *TO DO :
- *
  *Object pool (Bullet)
  *Observer a finir
- *Menu Avec des etoiles qui bougent
- *UPDATE LEVELS
  *MOUVEMENT DIFFERENTS POUR LES CERFS DE CERTAIN NIVEAUX
- *Different ennemie que meteorite pour survival (si temps)
- *Different ennemie boss pour stage 2 et 3 (si temps)
  */
 
 
