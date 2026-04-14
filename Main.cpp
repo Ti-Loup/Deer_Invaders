@@ -20,6 +20,7 @@
 #include "Player.h"
 #include "Database.h"
 #include <steam/steam_api.h>
+#include "ObjectPool.h"
 //CURRENT STUFF TO DO FOR TUESDAY PLAYTEST LISTS
 /*
  *FINISHED:
@@ -2401,10 +2402,10 @@ private:
         entities.push_back(new Enemy_Deer(400.f, 250.0f, false, textureCerf));
         entities.push_back(new Enemy_Deer(550.0f, 250.0f, true, textureCerfCarrot));
 
-        entities.push_back(new Enemy_Deer(700.0f, 250.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(850.0f, 250.0f, true, textureCerfCarrot));
-        entities.push_back(new Enemy_Deer(1000.0f, 250.0f, false, textureCerf));
-        entities.push_back(new Enemy_Deer(1150.0f, 250.0f,true, textureCerfCarrot));
+        entities.push_back(new Enemy_Deer(1050.0f, 250.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1200.0f, 250.0f, true, textureCerfCarrot));
+        entities.push_back(new Enemy_Deer(1350.0f, 250.0f, false, textureCerf));
+        entities.push_back(new Enemy_Deer(1500.0f, 250.0f,true, textureCerfCarrot));
 
         entities.push_back(new Enemy_Barricade(800, 700, textureBarricadeStyle3));
     }
@@ -2543,7 +2544,7 @@ survivalTimer += deltaTime;
             meteorSpawnTimer += deltaTime;
 
             // Spawn plus rapide
-            float spawnRate = 0.005f;
+            float spawnRate = 0.05f;
 
             if (meteorSpawnTimer >= spawnRate) {
                 meteorSpawnTimer = 0.0f;
@@ -4270,11 +4271,18 @@ survivalTimer += deltaTime;
                 }
             }
 
+
         //Pour Detruire Un objet après détruit
         for (auto enemyEntities = entities.begin(); enemyEntities != entities.end(); ) {
 
             if ((*enemyEntities)->bIsDestroyed) {
-                delete *enemyEntities;              // libère memoire
+                // Les bullets retournent au pool
+                if (Bullet* bullet = dynamic_cast<Bullet*>(*enemyEntities)) {
+                    BulletPool::GetInstance().Return(bullet);
+                } else {
+                    delete *enemyEntities;
+                }
+
                 enemyEntities = entities.erase(enemyEntities); // pour retirer les cerfs de la liste pour eviter les troues
             } else {
                 ++enemyEntities; // entité suivante

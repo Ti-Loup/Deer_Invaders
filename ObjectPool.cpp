@@ -9,8 +9,7 @@ BulletPool::BulletPool() {
 
     // prealloue toutes les balles au debut
     for (int i = 0; i < POOL_SIZE; i++) {
-        Bullet* bullet = new Bullet({0.f, 0.f}, {0.f, -1.f},
-                               {255, 255, 255, 255}, false, nullptr);
+        Bullet* bullet = new Bullet({0.f, 0.f}, {0.f, -1.f},{255, 255, 255, 255}, false, nullptr);
         bullet->bIsDestroyed = true;
         all.push_back(bullet);
         available.push_back(bullet);

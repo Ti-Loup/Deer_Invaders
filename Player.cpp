@@ -3,7 +3,7 @@
 //
 
 #include "Player.h"
-
+#include "ObjectPool.h"
 #include <algorithm>
 #include <cfloat>
 
@@ -11,6 +11,8 @@
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_timer.h"
 #include <cmath>
+
+#include "ObjectPool.h"
 
 Player::Player(SDL_Texture *texture) {
     //constructeur
@@ -136,50 +138,77 @@ void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
     float bulletY = transform.position.y - 16.0f;
 
     if (dynamic_cast<FireBulletType*>(currentWeapon)) {
+        auto& bulletPool = BulletPool::GetInstance();
+
         // ARME FIRE Double Cannon
         float decalage = 20.0f; //decalage pour tirer d'un autre angle
-        
+
         // balle de gauche
         SDL_FPoint spawnGauche = { centerX - decalage, bulletY };
-        entity.push_back(new Bullet(spawnGauche, dir, BulletColor, false, bulletTexture));
+        //ancienne methode
+        //entity.push_back(new Bullet(spawnGauche, dir, BulletColor, false, bulletTexture));
+        //object pool
 
+        if (Bullet* bullet = bulletPool.Get(spawnGauche, dir, BulletColor, false, bulletTexture)) entity.push_back(bullet);
         // balle de droite
         SDL_FPoint spawnDroite = { centerX + decalage, bulletY };
-        entity.push_back(new Bullet(spawnDroite, dir, BulletColor, false, bulletTexture));
+        if (Bullet *bullet = bulletPool.Get(spawnDroite, dir, BulletColor, false, bulletTexture)) entity.push_back(bullet);
+        //entity.push_back(new Bullet(spawnDroite, dir, BulletColor, false, bulletTexture));
     }//Pour ICE
     else if (dynamic_cast<IceBulletType*>(currentWeapon)) {
+        auto& bulletPool = BulletPool::GetInstance();
+
         //code
         float decalage = 25.0f;
         float hight = -10.0f;
-        entity.push_back(new Bullet({ centerX, bulletY + hight},          { 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // centre
-        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // gauche droit
-        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // droite droit
+        if (Bullet *bullet = bulletPool.Get({centerX, bulletY + hight}, { 0.f,-1.f}, BulletColor, false, bulletTexture))entity.push_back(bullet);
+        if (Bullet* bullet = bulletPool.Get({ centerX - decalage, bulletY }, { 0.f, -1.f }, BulletColor, false, bulletTexture))entity.push_back(bullet);
+        if (Bullet* bullet = bulletPool.Get({ centerX + decalage, bulletY }, { 0.f, -1.f }, BulletColor, false, bulletTexture))entity.push_back(bullet);
+        //entity.push_back(new Bullet({ centerX, bulletY + hight},{ 0.f, -1.f}, BulletColor, false, bulletTexture)); // centre
+       // entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,-1.f }, BulletColor, false, bulletTexture)); // gauche droit
+       // entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,-1.f }, BulletColor, false, bulletTexture)); // droite droit
     }//Pour Gold Bullet
     else if (dynamic_cast<GoldBulletType*>(currentWeapon)) {
+        auto& bulletPool = BulletPool::GetInstance();
+
         float decalage = 50.0f;
         float smallDecalage = 25.0f;
         float hight = -10.0f;
 
-        entity.push_back(new Bullet({ centerX- smallDecalage, bulletY + hight},          { 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // centre
-        entity.push_back(new Bullet({ centerX+ smallDecalage, bulletY + hight},          { 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // centre
-        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // gauche droit
-        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, false, bulletTexture)); // droite droit
-
+        if (Bullet* bullet = bulletPool.Get({ centerX - smallDecalage, bulletY + hight }, { 0.f, -1.f }, BulletColor, false, bulletTexture)) entity.push_back(bullet);
+        if (Bullet* bullet = bulletPool.Get({ centerX + smallDecalage, bulletY + hight }, { 0.f, -1.f }, BulletColor, false, bulletTexture))entity.push_back(bullet);
+        if (Bullet* bullet = bulletPool.Get({ centerX - decalage, bulletY }, { 0.f, -1.f }, BulletColor, false, bulletTexture))entity.push_back(bullet);
+        if (Bullet* bullet = bulletPool.Get({ centerX + decalage, bulletY }, { 0.f, -1.f }, BulletColor, false, bulletTexture))entity.push_back(bullet);
+/*
+        entity.push_back(new Bullet({ centerX- smallDecalage, bulletY + hight},{ 0.f,-1.f}, BulletColor, false, bulletTexture)); // centre
+        entity.push_back(new Bullet({ centerX+ smallDecalage, bulletY + hight},{ 0.f,-1.f}, BulletColor, false, bulletTexture)); // centre
+        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,-1.f}, BulletColor, false, bulletTexture)); // gauche droit
+        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,-1.f}, BulletColor, false, bulletTexture)); // droite droit
+*/
     }//Pour la compétence special
     else if (dynamic_cast<CompetenceSpecialBulletType*>(currentWeapon)) {
+        auto& bulletPool = BulletPool::GetInstance();
         float decalage = 25.0f;
         constexpr float angleBullet = 0.577f; // l'angle de tir ~ 30 Degree
 
-        entity.push_back(new Bullet({ centerX, bulletY },          { 0.f,      -1.f    }, BulletColor, true, bulletTexture)); // centre
-        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, true, bulletTexture)); // gauche droit
-        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,      -1.f    }, BulletColor, true, bulletTexture)); // droite droit
-        entity.push_back(new Bullet({ centerX, bulletY },          { -angleBullet, -1.f    }, BulletColor, true, bulletTexture)); // diag gauche 30°
-        entity.push_back(new Bullet({ centerX, bulletY },          { angleBullet,  -1.f    }, BulletColor, true, bulletTexture)); // diag droite 30°
+        if (Bullet* bullet = bulletPool.Get({ centerX, bulletY }, { 0.f, -1.f }, BulletColor, true, bulletTexture))entity.push_back(bullet);
+        if (Bullet* bullet = bulletPool.Get({ centerX - decalage, bulletY }, { 0.f, -1.f }, BulletColor, true, bulletTexture))entity.push_back(bullet);
+        if (Bullet* bullet = bulletPool.Get({ centerX + decalage, bulletY }, { 0.f, -1.f }, BulletColor, true, bulletTexture))entity.push_back(bullet);
+        if (Bullet* bullet = bulletPool.Get({ centerX, bulletY }, { -angleBullet, -1.f }, BulletColor, true, bulletTexture))entity.push_back(bullet);
+        if (Bullet* bullet = bulletPool.Get({ centerX, bulletY }, { angleBullet, -1.f }, BulletColor, true, bulletTexture))entity.push_back(bullet);
+        /*
+        entity.push_back(new Bullet({ centerX, bulletY },{ 0.f,-1.f}, BulletColor, true, bulletTexture)); // centre
+        entity.push_back(new Bullet({ centerX - decalage, bulletY },{ 0.f,-1.f}, BulletColor, true, bulletTexture)); // gauche droit
+        entity.push_back(new Bullet({ centerX + decalage, bulletY },{ 0.f,-1.f}, BulletColor, true, bulletTexture)); // droite droit
+        entity.push_back(new Bullet({ centerX, bulletY },{ -angleBullet,-1.f}, BulletColor, true, bulletTexture)); //diago
+        entity.push_back(new Bullet({ centerX, bulletY },{ angleBullet,-1.f}, BulletColor, true, bulletTexture)); //diago
+        */
     }
     else {
+        auto& bulletPool = BulletPool::GetInstance();
         // arme de base
         SDL_FPoint spawnPoint = { centerX, bulletY };
-        entity.push_back(new Bullet(spawnPoint, dir, BulletColor, false, bulletTexture));
+        if (Bullet* bullet = bulletPool.Get(spawnPoint, dir, BulletColor, false, bulletTexture))entity.push_back(bullet);
     }
 }
 //Tire Missile
