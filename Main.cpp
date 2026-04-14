@@ -2594,12 +2594,44 @@ survivalTimer += deltaTime;
     //Bonus  elimination des cerfs bonus !@!@!
     void SpawnWave1Bonus2() {
 
-    }
+    }//wave2Bonus
     void SpawnWave2Bonus2() {
+        SDL_FPoint planetCenter = {960.0f, 300.0f};
+        float radius = 750.0f;//radius auquel les cerfs tournent autour de la planet
+        int nbCerfs = 400;
 
-    }
+        for (int i = 0; i < nbCerfs; i++) {
+            float angle = (2.0f * M_PI / nbCerfs) * i; // angle pi
+
+            // Vitesse légèrement différente pour chaque cerf
+            // valeur qui cycle entre 0, 1, 2, 3.
+            float vitesseX = 0.8f + (static_cast<float>(i % 4) * 0.1f);
+            float vitesseY = 0.3f + (static_cast<float>(i % 3) * 0.05f);
+
+            // Chaque cerf a sa propre vitesse }} Radius similaire
+            auto moveCircle = [planetCenter, radius, vitesseX, vitesseY](Enemy_Deer* cerf, float dt) {
+                cerf->timeAlive += dt;
+                cerf->transform.position.x = planetCenter.x + std::cos(cerf->timeAlive * vitesseX + cerf->orbitAngle) * radius;
+                cerf->transform.position.y = planetCenter.y + std::sin(cerf->timeAlive * vitesseY + cerf->orbitAngle) * (radius * 0.4f);
+
+                //cos → controle gauche/droite
+                //sin → controle haut/bas
+            };
+
+            float startX = planetCenter.x + std::cos(angle) * radius;
+            float startY = planetCenter.y + std::sin(angle) * radius;
+
+            //Cette partie la est pour faire fonctionner les fonctions
+            Enemy_Deer* cerf = new Enemy_Deer(startX, startY, false, textureCerf);
+            cerf->orbitAngle = angle;//leur point de depart
+            cerf->movementFunction = moveCircle;
+            entities.push_back(cerf);
+        }
+    }// 3 boss
     void SpawnWave3Bonus2() {
-
+        entities.push_back(new Enemy_FraiseBoss(1700.0f, 200.0f , textureBossStage_1_2));
+        entities.push_back(new Enemy_FraiseBoss(900.0f, 400.0f , textureBossStage_1_2));
+        entities.push_back(new Enemy_FraiseBoss(100.0f, 600.0f , textureBossStage_1_2));
     }
 
 //Fonction pour commencer une wave
