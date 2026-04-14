@@ -114,9 +114,8 @@ public:
     //Texte special
     TTF_Font *MenuSpecialFont = nullptr;
     TTF_Text *MenuSpecialDraw = nullptr;
-
     //Audio Menu
-    MIX_Audio *menuAudio = nullptr;
+    
 
     //creation des boutons pour le menu
     SDL_FRect BoutonPlay = {760, 600, 400, 80};
