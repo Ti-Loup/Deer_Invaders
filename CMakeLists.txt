@@ -25,7 +25,7 @@ add_executable(Deer_Invaders
 set(STEAM_SDK_PATH "${CMAKE_SOURCE_DIR}/libs/steamworks")
 target_include_directories(Deer_Invaders PRIVATE ${STEAM_SDK_PATH}/public)
 target_link_libraries(Deer_Invaders PRIVATE
-        SDL3 SDL3_image SDL3_ttf sqlite3
+        SDL3 SDL3_image SDL3_ttf sqlite3 SDL3_mixer
         ${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.lib)
 
 # Copy steam_api64.dll next to the .exe automatically

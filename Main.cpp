@@ -1,12 +1,12 @@
 //defines
 #define SDL_MAIN_USE_CALLBACKS//Pour le main
 
-
 //includes
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -114,6 +114,9 @@ public:
     //Texte special
     TTF_Font *MenuSpecialFont = nullptr;
     TTF_Text *MenuSpecialDraw = nullptr;
+
+    //Audio Menu
+    MIX_Audio *menuAudio = nullptr;
 
     //creation des boutons pour le menu
     SDL_FRect BoutonPlay = {760, 600, 400, 80};
@@ -730,6 +733,7 @@ private:
         if (TTF_SetTextColor(tutoText2, 255, 255, 255, 255) == false) {
             SDL_LogWarn(0,"SDL_ttf failed to set the tutotext color", SDL_GetError());
         }
+        //AUDIO MENU
 
         //FONT POUR TITRE SCORE, SHOP, CREDITS, DeathScreen
         Credits_Shop_Score_WinScreen_DeathScreen_ChoixNiveau_ChoixBonus_TitleFont = TTF_OpenFont("assets/Cosmo Corner.ttf", 108);
@@ -2593,12 +2597,50 @@ survivalTimer += deltaTime;
 
     //Bonus  elimination des cerfs bonus !@!@!
     void SpawnWave1Bonus2() {
+        entities.push_back(new Enemy_DeerMelee(50,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(150,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(250,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(350,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(450,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(550,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(650,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(750,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(850,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(950,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1050,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1150,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1250,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1350,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1450,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1550,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1650,50,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1750,50,textureCerfMelee));
+
+        entities.push_back(new Enemy_DeerMelee(50,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(150,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(250,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(350,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(450,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(550,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(650,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(750,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(850,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(950,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1050,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1150,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1250,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1350,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1450,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1550,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1650,250,textureCerfMelee));
+        entities.push_back(new Enemy_DeerMelee(1750,250,textureCerfMelee));
+        //Mage Ice
 
     }//wave2Bonus
     void SpawnWave2Bonus2() {
         SDL_FPoint planetCenter = {960.0f, 300.0f};
         float radius = 750.0f;//radius auquel les cerfs tournent autour de la planet
-        int nbCerfs = 400;
+        int nbCerfs = 200;
 
         for (int i = 0; i < nbCerfs; i++) {
             float angle = (2.0f * M_PI / nbCerfs) * i; // angle pi
