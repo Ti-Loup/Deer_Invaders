@@ -34,10 +34,10 @@
  *Steamwork API a faire
 Menu Avec des etoiles qui bougent
 UPDATE LEVELS
+Object pool (Bullet)
  *TO DO :
- *Object pool (Bullet)
+ *SOUNDS +  BONUS DEER LVL FOR VERSION 1.O.0
  *Observer a finir
- *MOUVEMENT DIFFERENTS POUR LES CERFS DE CERTAIN NIVEAUX
  */
 
 
