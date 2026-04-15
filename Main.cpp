@@ -598,12 +598,11 @@ private:
         // Musique Menu
         char *pathMenu = nullptr;
         SDL_asprintf(&pathMenu, "assets/main_menu_-_dark.mp3", SDL_GetBasePath());
-        SDL_Log("Tentative de lecture : %s", pathMenu);
         MIX_Audio *audioMenu = MIX_LoadAudio(mixer, pathMenu, false);
         if (audioMenu == nullptr) {
-            SDL_Log("ERREUR : Impossible de charger l'audio ! %s", SDL_GetError());
+            SDL_Log("impossible de charger audio de audioMenu%s", SDL_GetError());
         } else {
-            SDL_Log("SUCCÈS : Audio chargé avec succès.");
+            SDL_Log("audio is working");
         }
         SDL_free(pathMenu);
 
@@ -619,7 +618,6 @@ private:
 
         audioClick = MIX_LoadAudio(mixer, pathClick, false);
         SDL_free(pathClick); // Toujours libere le chemin after usage
-
         if (audioClick == nullptr) {
             SDL_LogWarn(0, "Echec du chargement du son de clic: %s", SDL_GetError());
         } else {
@@ -5461,15 +5459,20 @@ public:
         }
     }
 
-
-
-
     //La fonction pour rebind les boutons apres le reset de niveau
     void RebindKeys() {
         for (auto& [key, cmd] : keyBindings) delete cmd;
         keyBindings.clear();
         for (auto& [key, cmd] : keyReleaseBindings) delete cmd;
         keyReleaseBindings.clear();
+    }
+
+    //Audio quand appuie sur une touche
+    void PlayClickSound() {
+        if (trackSFX && audioClick) {
+            MIX_SetTrackAudio(trackSFX, audioClick);
+            MIX_PlayTrack(trackSFX, 0);
+        }
     }
 
     SDL_AppResult RunCallBacks() {
@@ -6487,9 +6490,11 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         // Dans le MENU
         if (app.StateActuel == State::Menu) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonPlay)) {
+                app.PlayClickSound();
                 app.StateActuel = State::ChoixNiveau;
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonScore)) {
+                app.PlayClickSound();
                 app.StateActuel = State::ScoreBoard;
                 if (app.bDatabaseInitialized) {
                     app.highScores.clear();
@@ -6497,12 +6502,15 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 }
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonShop)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Shop;
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonCredits)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Credits;
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuit)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Quit;
             }
         }
@@ -6521,6 +6529,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.currentStage = 1;
                 app.indexMessageIntroNiveau1 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau1[0], 0);
+                app.PlayClickSound();
                 app.StateActuel = State::IntroNiveau1;
             }
             //va vers intro de niveau 2
@@ -6537,6 +6546,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.currentStage = 2;
                 app.indexMessageIntroNiveau2 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau2[0], 0);
+                    app.PlayClickSound();
                 app.StateActuel = State::IntroNiveau2;
                 }
             }
@@ -6554,11 +6564,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.currentStage = 3;
                 app.indexMessageIntroNiveau3 = 0;
                 TTF_SetTextString(app.texteIntroCerfEtHUmain, app.phrasesIntroNiveau3[0], 0);
+                    app.PlayClickSound();
                 app.StateActuel = State::IntroNiveau3;
                 }
             }
             //Va vers Section Bonus
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixBonus)) {
+                app.PlayClickSound();
                 app.StateActuel = State::ChoixBonus;
             }
         }
@@ -6575,6 +6587,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
                 app.currentStage = 0;
                 app.currentStageBonus = 1;
+                app.PlayClickSound();
                 app.StateActuel = State::Game;
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonChoixBonus2)) {
@@ -6588,6 +6601,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
                 app.currentStage = 0;//on met current Stage a 0 comme sa le else if de currentStageBonus ce met
                 app.currentStageBonus = 2;
+                app.PlayClickSound();
                 app.StateActuel = State::Game;
             }
         }
@@ -6628,13 +6642,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //Dans Le Pause
         else if (app.StateActuel == State::Pause) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonResume)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Game;
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonGoShop)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Shop;
             }
 
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonReturnMenu)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Menu;
             }
         }
@@ -6651,7 +6668,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
                 app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
                 app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
-
+                app.PlayClickSound();
                 app.StateActuel = State::Menu;
             }
         }
@@ -6668,7 +6685,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
                 app.keyReleaseBindings[SDL_SCANCODE_D] = new MoveCommand(app.player, false, true);
                 app.keyReleaseBindings[SDL_SCANCODE_A] = new MoveCommand(app.player, false, false);
                 app.keyReleaseBindings[SDL_SCANCODE_SPACE] = new ShootCommand(app.player, false);
-
+                app.PlayClickSound();
                 app.StateActuel = State::Menu;
             }
         }
@@ -6676,6 +6693,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         // Dans le Score
         else if (app.StateActuel == State::ScoreBoard) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Menu;
             }
         }
@@ -6683,11 +6701,13 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //Dans le UpgradePopUp
         else if (app.StateActuel == State::UpgradePopup) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonWaitPopUp)) {
+                app.PlayClickSound();
                 app.nextStateAfterFadeOut = State::Game;
                 app.bPopupFadeOut = true;
             }
             // Bouton Upgrade Arme
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonUpgradePopUp)) {
+                app.PlayClickSound();
                 SDL_Log("Achat Upgrade Arme");
                 // player->ArmeUpgrade();
                 if (app.currentWeaponLevel == 0) {
@@ -6734,6 +6754,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             // Bouton Upgrade Arme Missile
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonMissileUpgradePopUp)) {
+                app.PlayClickSound();
                 SDL_Log ("Achat Upgrade Missile");
                 //implementation des missiles joueurs
                 if (app.currentMissilePlayerLevel == 0) {
@@ -6770,6 +6791,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             // Bouton Upgrade Shield
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonShieldUpgradePopUp)) {
+                app.PlayClickSound();
                 SDL_Log("Achat Upgrade SHIELD");
                 // player->ShieldUpgrade();
                 if (app.currentShieldLevel == 0) {
@@ -6802,6 +6824,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             //Si on appuie sur HPBoost
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonHpUpgradePopUp)) {
+                app.PlayClickSound();
                 SDL_Log("Achat Upgrade Hp Boost");
                 if (app.currentHpBoostLevel == 0) {
                     if (app.player->HpUpgrade(HpAmount::SmallHpBonus, app.currentMeat)) {
@@ -6836,13 +6859,16 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //Dans le Shop
         else if (app.StateActuel == State::Shop) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Menu;
             }
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonResumeGameShop)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Game;
             }
             // Bouton Upgrade Arme
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonUpgrade)) {
+                app.PlayClickSound();
                 SDL_Log("Achat Upgrade Arme");
                 // player->ArmeUpgrade();
                 if (app.currentWeaponLevel == 0) {
@@ -6880,6 +6906,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             //Missile
             if (SDL_PointInRectFloat (&MousePT, &app.BoutonMissileUpgrade)) {
+                app.PlayClickSound();
                 //implementation des missiles joueurs
                 if (app.currentMissilePlayerLevel == 0) {
                     if (app.player->MissileUpgrade(MissileNiveau::SmallMissile, app.currentMeat)) {
@@ -6912,6 +6939,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             // Bouton Upgrade SHIELD
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonShieldUpgrade)) {
+                app.PlayClickSound();
                 SDL_Log("Achat Upgrade HP");
                 // player->ShieldUpgrade();
                 if (app.currentShieldLevel == 0) {
@@ -6935,6 +6963,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             //HP Bonus
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonHpUpgrade)) {
+                app.PlayClickSound();
                 SDL_Log("Achat Upgrade Hp Boost");
                 if (app.currentHpBoostLevel == 0) {
                     if (app.player->HpUpgrade(HpAmount::SmallHpBonus, app.currentMeat)) {
@@ -6968,6 +6997,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //pour les credits
         else if (app.StateActuel == State::Credits) {
             if (SDL_PointInRectFloat(&MousePT, &app.BoutonQuitRetourMenu)) {
+                app.PlayClickSound();
                 app.StateActuel = State::Menu;
             }
         }
