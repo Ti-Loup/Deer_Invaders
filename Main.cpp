@@ -127,6 +127,9 @@ public:
     //Son pour tirer
     MIX_Audio *audioShoot = nullptr;
     MIX_Track *trackShoot = nullptr;
+    //Pour ennemi mort
+    MIX_Audio *audioEnemyDeath = nullptr;
+    MIX_Track *trackEnemyDeath = nullptr;
 
 
     //creation des boutons pour le menu
@@ -618,7 +621,19 @@ private:
             MIX_SetTrackAudio(trackMusique, audioMenu);
             MIX_PlayTrack(trackMusique, -1); //loop infini
         }
-
+        //Musique game
+        char *pathGame = nullptr;
+        SDL_asprintf(&pathGame, "assets/GameMusic.ogg", SDL_GetBasePath());
+        MIX_Audio *audioGame = MIX_LoadAudio(mixer, pathGame, false);
+        if (audioGame == nullptr) {
+            SDL_Log("Impossible de charger audio de audioGame%s", SDL_GetError());
+        } else {
+            SDL_Log("audioGame is working");
+        }
+        if (audioGame) {
+            trackGame = MIX_CreateTrack(mixer);
+            MIX_SetTrackAudio(trackGame, audioGame);
+        }
         //Click menu SOUND
         char *pathClick = nullptr;
         SDL_asprintf(&pathClick, "assets/Menu_UIClickedSound.wav", SDL_GetBasePath());
@@ -644,6 +659,17 @@ private:
             SDL_LogWarn(0, "Echec chargement son de tir: %s", SDL_GetError());
         }
 
+        //Son Enemy Mort
+        char *pathDeath = nullptr;
+        SDL_asprintf(&pathDeath, "assets/EnemyDeath.ogg", SDL_GetBasePath());
+        audioEnemyDeath = MIX_LoadAudio(mixer, pathDeath, false);
+        SDL_free(pathDeath);
+        if (audioEnemyDeath) {
+            trackEnemyDeath = MIX_CreateTrack(mixer);
+            MIX_SetTrackAudio(trackEnemyDeath, audioEnemyDeath);
+        } else {
+            SDL_LogWarn(0, "Echec chargement son de mort ennemi: %s", SDL_GetError());
+        }
 
 
         //Pour Le Logo
@@ -4330,6 +4356,7 @@ survivalTimer += deltaTime;
                             //LES 4 BOUTS DE LA TEXTURE QUI EXPLOSE
                             if (ennemi->health.current_health <= 0) {
                                 ennemi->bIsDestroyed = true;
+                                PlayEnemyDeathSound();
                                 totalEnemiesKilled++;
                                 if (totalEnemiesKilled >= 100) {
                                     UnlockAchievement("ACH_TRAVEL_FAR_ACCUM");
@@ -5487,6 +5514,13 @@ public:
             MIX_PlayTrack(trackShoot, 0);
         }
     }
+    //Audio quand enemy death
+    void PlayEnemyDeathSound() {
+        if (trackEnemyDeath && audioEnemyDeath) {
+            MIX_SetTrackAudio(trackEnemyDeath, audioEnemyDeath);
+            MIX_PlayTrack(trackEnemyDeath, 0);
+        }
+    }
 
     SDL_AppResult RunCallBacks() {
         static uint64_t lastTime = SDL_GetTicks();
@@ -5528,6 +5562,7 @@ public:
                 if (trackMusique && !MIX_TrackPlaying(trackMusique)) {
                     MIX_PlayTrack(trackMusique, -1);
                 }
+                MIX_StopTrack(trackGame, 0);
                 Menu(deltaTime);
                 break;
 
@@ -5543,9 +5578,11 @@ public:
                 break;
 
             case State::Game:
+                if (trackGame && !MIX_TrackPlaying(trackGame)) {
+                    MIX_PlayTrack(trackGame, -1);
+                }
                     MIX_StopTrack(trackMusique, 0);
                     StateActuel = State::Game;      // Puis on change d'état
-
                 Game(deltaTime);
                 break;
 
@@ -5554,6 +5591,7 @@ public:
                 break;
             //Pour ouvrir le shop
             case State::Shop:
+                MIX_StopTrack(trackGame, 0);
                 Shop(deltaTime);
                 break;
             //Pour ouvrir Credits
