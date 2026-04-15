@@ -612,6 +612,23 @@ private:
             MIX_SetTrackAudio(trackMusique, audioMenu);
             MIX_PlayTrack(trackMusique, -1); //loop infini
         }
+
+        //Click menu SOUND
+        char *pathClick = nullptr;
+        SDL_asprintf(&pathClick, "assets/Menu_UIClickedSound.wav", SDL_GetBasePath());
+
+        audioClick = MIX_LoadAudio(mixer, pathClick, false);
+        SDL_free(pathClick); // Toujours libere le chemin after usage
+
+        if (audioClick == nullptr) {
+            SDL_LogWarn(0, "Echec du chargement du son de clic: %s", SDL_GetError());
+        } else {
+            // sfx
+            trackSFX = MIX_CreateTrack(mixer);
+            MIX_SetTrackAudio(trackSFX, audioClick);
+        }
+
+
 /*
         // Son tir
         char *pathShoot = nullptr;
@@ -5510,6 +5527,9 @@ public:
                 break;
 
             case State::Game:
+                    MIX_StopTrack(trackMusique, 0);
+                    StateActuel = State::Game;      // Puis on change d'état
+
                 Game(deltaTime);
                 break;
 
