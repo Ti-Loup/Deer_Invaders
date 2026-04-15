@@ -121,7 +121,7 @@ public:
     MIX_Track *trackSFX = nullptr;
     //son pour les boutons
     MIX_Audio *audioClick = nullptr;
-    
+
     //creation des boutons pour le menu
     SDL_FRect BoutonPlay = {760, 600, 400, 80};
     bool bClickedOnPlay = false;

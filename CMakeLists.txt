@@ -55,4 +55,14 @@ add_custom_command(TARGET Deer_Invaders POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.dll"
         $<TARGET_FILE_DIR:Deer_Invaders>)
+
+# Dossier où se trouve ton .exe
+set(BIN_DIR $<TARGET_FILE_DIR:Deer_Invaders>)
+
+# Copie automatique de TOUTES les DLL nécessaires
+add_custom_command(TARGET Deer_Invaders POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SDL3_mixer::SDL3_mixer> ${BIN_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.dll" ${BIN_DIR}
+        COMMENT "Copie des DLL pour l'execution autonome..."
+)
 add_dependencies(${PROJECT_NAME} assets)
