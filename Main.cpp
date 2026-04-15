@@ -5744,7 +5744,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //validation Touche A
             if (event->gbutton.button ==  SDL_GAMEPAD_BUTTON_SOUTH) {
                 SDL_Log("blablabla");
-
+                app.PlayClickSound();
             //switch case MENU
             switch (app.selectedButtonMenu) {
                 case 0:
@@ -5795,7 +5795,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //validation Touche A
             if (event->gbutton.button ==  SDL_GAMEPAD_BUTTON_SOUTH) {
                 SDL_Log("blablabla");
-
+                app.PlayClickSound();
                 //switch case ChoixNiveau
                 switch (app.selectedButtonChoixNiveau) {
                     case 0:
@@ -5866,7 +5866,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //Monte ~
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
                 //Monte
-                app.selectedButtonChoixNiveau--;
+                app.selectedButtonChoixBonus--;
                 if (app.selectedButtonChoixBonus < 0) {
                     app.selectedButtonChoixBonus = 1;
                 }
@@ -5874,7 +5874,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //validation Touche A
             if (event->gbutton.button ==  SDL_GAMEPAD_BUTTON_SOUTH) {
                 SDL_Log("blablabla");
-
+                app.PlayClickSound();
                 //switch case ChoixNiveau
                 switch (app.selectedButtonChoixBonus) {
                     case 0:
@@ -5923,6 +5923,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
                 SDL_Log("Button A Down");
+                app.PlayClickSound();
                 //SwitchCase
                 switch (app.selectedButtonPause) {
                     case 0:
@@ -5963,6 +5964,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //Verification
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
                 SDL_Log("Button A Down");
+                app.PlayClickSound();
                 //SwitchCase
                 switch (app.selectedButtonWin) {
                     case 0:
@@ -6000,6 +6002,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //Verification
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
                 SDL_Log("Button A Down");
+                app.PlayClickSound();
                 //SwitchCase
                 switch (app.selectedButtonDeath) {
                     case 0:
@@ -6040,6 +6043,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //Verification
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
                 SDL_Log("Button A Down");
+                app.PlayClickSound();
                 //SwitchCase
                 switch (app.selectedButtonCredits) {
                     case 0:
@@ -6067,6 +6071,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             //Verification
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
+                app.PlayClickSound();
                 SDL_Log("Button A Down");
                 //SwitchCase
                 switch (app.selectedButtonPopUp) {
@@ -6234,6 +6239,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //Verification
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
                 SDL_Log("Button A Down");
+                app.PlayClickSound();
                 //SwitchCase
                 switch (app.selectedButtonShop) {
                     case 0:
@@ -6386,6 +6392,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //Verification
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) {
                 SDL_Log("Button A Down");
+                app.PlayClickSound();
                 //SwitchCase
                 switch (app.selectedButtonCredits) {
                     case 0:
