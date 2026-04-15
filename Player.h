@@ -8,6 +8,8 @@
 #include "State.h"
 #include <vector>
 #include <cmath>
+#include <functional>
+
 class Player : public Entity{
 public:
     Player (SDL_Texture *texture = nullptr);
@@ -78,6 +80,8 @@ float competenceActiveTimer = 0.0f;
     void ActivateCompetence(SDL_Texture* texture = nullptr);
     void AddKillToCompetence(); //ajout du temps si ennemi tuer
 
+    // callback son de tir
+    std::function<void()> onShoot;
 };
 
 //Pour que le joueur puisse tirer

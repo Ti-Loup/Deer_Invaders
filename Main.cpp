@@ -114,13 +114,20 @@ public:
     //Texte special
     TTF_Font *MenuSpecialFont = nullptr;
     TTF_Text *MenuSpecialDraw = nullptr;
-    //Audio Menu
+
+
+
+    //AUDIO
     MIX_Mixer *mixer = nullptr;
     MIX_Track *trackMusique = nullptr;
     MIX_Track *trackGame = nullptr;
     MIX_Track *trackSFX = nullptr;
     //son pour les boutons
     MIX_Audio *audioClick = nullptr;
+    //Son pour tirer
+    MIX_Audio *audioShoot = nullptr;
+    MIX_Track *trackShoot = nullptr;
+
 
     //creation des boutons pour le menu
     SDL_FRect BoutonPlay = {760, 600, 400, 80};
@@ -625,20 +632,18 @@ private:
             trackSFX = MIX_CreateTrack(mixer);
             MIX_SetTrackAudio(trackSFX, audioClick);
         }
-
-
-/*
         // Son tir
         char *pathShoot = nullptr;
-        SDL_asprintf(&pathShoot, "%sassets/audio/shoot.wav", SDL_GetBasePath());
-        MIX_Audio *audioShoot = MIX_LoadAudio(mixer, pathShoot, false);
+        SDL_asprintf(&pathShoot, "assets/PlayerShoot.wav", SDL_GetBasePath());
+        audioShoot = MIX_LoadAudio(mixer, pathShoot, false);
         SDL_free(pathShoot);
-
         if (audioShoot) {
-            trackSFX = MIX_CreateTrack(mixer);
-            MIX_SetTrackAudio(trackSFX, audioShoot);
+            trackShoot = MIX_CreateTrack(mixer);
+            MIX_SetTrackAudio(trackShoot, audioShoot);
+        } else {
+            SDL_LogWarn(0, "Echec chargement son de tir: %s", SDL_GetError());
         }
-*/
+
 
 
         //Pour Le Logo
@@ -1378,6 +1383,7 @@ private:
         player->currentWeapon->texture = textureBulletNormal;
         player->texturePlayerShip = texturePlayerShip;
         entities.push_back(player);
+        player->onShoot = [this]() { PlayShootSound(); };//appel de la fonction{PlayShootSound quand on tire
 
         //Les etoiles dans game
         for (int i = 0; i < 25; ++i) {
@@ -5342,7 +5348,7 @@ public:
         player->currentWeapon->texture = textureBulletNormal;
         player->texturePlayerShip = texturePlayerShip;
         entities.push_back(player);
-
+        player->onShoot = [this]() { PlayShootSound(); };
         // Reset waves
         currentWave = 0;
         waveInProgress = false;
@@ -5472,6 +5478,13 @@ public:
         if (trackSFX && audioClick) {
             MIX_SetTrackAudio(trackSFX, audioClick);
             MIX_PlayTrack(trackSFX, 0);
+        }
+    }
+    //Audio quand tire
+    void PlayShootSound() {
+        if (trackShoot && audioShoot) {
+            MIX_SetTrackAudio(trackShoot, audioShoot);
+            MIX_PlayTrack(trackShoot, 0);
         }
     }
 

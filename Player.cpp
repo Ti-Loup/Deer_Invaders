@@ -132,6 +132,9 @@ void Player::UpdatePhysics(float deltaTime) {
 
 //Pour tirer BULLETS
 void Player::Shoot(std::vector<Entity *> &entity, SDL_FPoint dir) {
+
+    // Son de tir
+    if (onShoot) onShoot();
     SDL_Color BulletColor = currentWeapon->GetColor(); //Prend la couleur de l'arme actuel
     SDL_Texture* bulletTexture = currentWeapon->GetTexture();
     float centerX = transform.position.x + (transform.size.x / 2.0f) - 20.0f; // centre la balle fix avec texture
