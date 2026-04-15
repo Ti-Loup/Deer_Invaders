@@ -115,8 +115,13 @@ public:
     TTF_Font *MenuSpecialFont = nullptr;
     TTF_Text *MenuSpecialDraw = nullptr;
     //Audio Menu
+    MIX_Mixer *mixer = nullptr;
+    MIX_Track *trackMusique = nullptr;
+    MIX_Track *trackGame = nullptr;
+    MIX_Track *trackSFX = nullptr;
+    //son pour les boutons
+    MIX_Audio *audioClick = nullptr;
     
-
     //creation des boutons pour le menu
     SDL_FRect BoutonPlay = {760, 600, 400, 80};
     bool bClickedOnPlay = false;
@@ -549,7 +554,7 @@ private:
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "0");
         //SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "0");
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_JOYSTICK) == false) {
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) == false) {
             SDL_LogCritical(1, "SDL failed to initialize! %s", SDL_GetError());
             abort();
         }
@@ -579,7 +584,49 @@ private:
         if (TTF_Init() == false) {
             SDL_LogCritical(1, "SDL_ttf failed to initialize! %s", SDL_GetError());
             abort();
-        }//Pour Le Logo
+        }
+        if (!MIX_Init()) {
+            SDL_LogCritical(1, "SDL_mixer failed to initialize! %s", SDL_GetError());
+            abort();
+        }
+
+        mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
+        if (!mixer) {
+            SDL_LogWarn(0, "Couldn't create mixer: %s", SDL_GetError());
+        }
+
+        // Musique Menu
+        char *pathMenu = nullptr;
+        SDL_asprintf(&pathMenu, "assets/main_menu_-_dark.mp3", SDL_GetBasePath());
+        SDL_Log("Tentative de lecture : %s", pathMenu);
+        MIX_Audio *audioMenu = MIX_LoadAudio(mixer, pathMenu, false);
+        if (audioMenu == nullptr) {
+            SDL_Log("ERREUR : Impossible de charger l'audio ! %s", SDL_GetError());
+        } else {
+            SDL_Log("SUCCÈS : Audio chargé avec succès.");
+        }
+        SDL_free(pathMenu);
+
+        if (audioMenu) {
+            trackMusique = MIX_CreateTrack(mixer);
+            MIX_SetTrackAudio(trackMusique, audioMenu);
+            MIX_PlayTrack(trackMusique, -1); //loop infini
+        }
+/*
+        // Son tir
+        char *pathShoot = nullptr;
+        SDL_asprintf(&pathShoot, "%sassets/audio/shoot.wav", SDL_GetBasePath());
+        MIX_Audio *audioShoot = MIX_LoadAudio(mixer, pathShoot, false);
+        SDL_free(pathShoot);
+
+        if (audioShoot) {
+            trackSFX = MIX_CreateTrack(mixer);
+            MIX_SetTrackAudio(trackSFX, audioShoot);
+        }
+*/
+
+
+        //Pour Le Logo
         DeerLogo = IMG_LoadTexture(renderer, "assets/Deer_Logo.png");
         if (DeerLogo == nullptr) {
             SDL_LogWarn(0, "SDL_Image failed to load DeerLogo", "assets/Deer_Logo.png", SDL_GetError());
@@ -1442,6 +1489,8 @@ private:
             delete ent;
         }
         entities.clear();
+
+        MIX_Quit();
     }
 
     void CalculateFPS(const float deltaTime) {
@@ -5443,6 +5492,9 @@ public:
         SteamAPI_RunCallbacks();
         switch (StateActuel) {
             case State::Menu:
+                if (trackMusique && !MIX_TrackPlaying(trackMusique)) {
+                    MIX_PlayTrack(trackMusique, -1);
+                }
                 Menu(deltaTime);
                 break;
 

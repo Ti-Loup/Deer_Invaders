@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(Deer_Invaders)
 
 set(CMAKE_CXX_STANDARD 17)
-
+add_subdirectory(${CMAKE_SOURCE_DIR}/vendored/SDL_mixer ${CMAKE_BINARY_DIR}/SDL_mixer)
 add_executable(Deer_Invaders
         Main.cpp
         Main.h
@@ -20,6 +20,9 @@ add_executable(Deer_Invaders
         Database.h
         ObjectPool.cpp
         ObjectPool.h)
+
+target_include_directories(Deer_Invaders PRIVATE ${CMAKE_SOURCE_DIR}/vendored/SDL_mixer/include)
+target_link_libraries(Deer_Invaders PRIVATE SDL3_mixer::SDL3_mixer)
 
 # Steamworks SDK
 set(STEAM_SDK_PATH "${CMAKE_SOURCE_DIR}/libs/steamworks")
@@ -42,4 +45,14 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_SRC_DIR} ${ASSETS_BINARY_DIR}
         COMMENT "Clearing and copying game assets into the binary directory."
 )
+
+add_custom_command(TARGET Deer_Invaders POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3_mixer::SDL3_mixer>
+        $<TARGET_FILE_DIR:Deer_Invaders>)
+
+add_custom_command(TARGET Deer_Invaders POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.dll"
+        $<TARGET_FILE_DIR:Deer_Invaders>)
 add_dependencies(${PROJECT_NAME} assets)
