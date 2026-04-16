@@ -623,7 +623,7 @@ private:
         }
         //Musique game
         char *pathGame = nullptr;
-        SDL_asprintf(&pathGame, "assets/GameMusic.ogg", SDL_GetBasePath());
+        SDL_asprintf(&pathGame, "assets/through space.ogg", SDL_GetBasePath());
         MIX_Audio *audioGame = MIX_LoadAudio(mixer, pathGame, false);
         if (audioGame == nullptr) {
             SDL_Log("Impossible de charger audio de audioGame%s", SDL_GetError());
