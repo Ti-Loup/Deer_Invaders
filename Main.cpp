@@ -124,12 +124,17 @@ public:
     MIX_Track *trackSFX = nullptr;
     //son pour les boutons
     MIX_Audio *audioClick = nullptr;
+    //Son Bouton Mouvement
+    MIX_Audio *audioBoutonMouvement = nullptr;
     //Son pour tirer
     MIX_Audio *audioShoot = nullptr;
     MIX_Track *trackShoot = nullptr;
     //Pour ennemi mort
     MIX_Audio *audioEnemyDeath = nullptr;
     MIX_Track *trackEnemyDeath = nullptr;
+    //Quand joueur ce fait toucher (damage)
+    MIX_Audio *audioPlayerHit= nullptr;
+    MIX_Track *trackPlayerHit = nullptr;
 
 
     //creation des boutons pour le menu
@@ -647,6 +652,20 @@ private:
             trackSFX = MIX_CreateTrack(mixer);
             MIX_SetTrackAudio(trackSFX, audioClick);
         }
+        //Son Mouvement Boutons
+        char *pathBoutonMouvement = nullptr;
+        SDL_asprintf(&pathBoutonMouvement, "assets/MenuMouvement.wav", SDL_GetBasePath());
+
+        audioBoutonMouvement = MIX_LoadAudio(mixer, pathBoutonMouvement, false);
+        SDL_free(pathBoutonMouvement);
+        if (audioBoutonMouvement == nullptr) {
+            SDL_LogWarn(0, "failed ot load audioBoutonMouvement", SDL_GetError());
+        }
+        else {
+            trackSFX = MIX_CreateTrack(mixer);
+            MIX_SetTrackAudio(trackSFX, audioBoutonMouvement);
+        }
+
         // Son tir
         char *pathShoot = nullptr;
         SDL_asprintf(&pathShoot, "assets/PlayerShoot.wav", SDL_GetBasePath());
@@ -670,7 +689,18 @@ private:
         } else {
             SDL_LogWarn(0, "Echec chargement son de mort ennemi: %s", SDL_GetError());
         }
-
+        //Son Joueur quand toucher/mort
+        char *pathPlayerHit = nullptr;
+        SDL_asprintf(&pathPlayerHit, "assets/PlayerHit.wav", SDL_GetBasePath());
+        audioPlayerHit = MIX_LoadAudio(mixer, pathPlayerHit, false);
+        SDL_free(pathPlayerHit);
+        if (audioPlayerHit == nullptr) {
+            SDL_LogWarn(0, "failed ot load audioPlayerHit", SDL_GetError());
+        }
+        else {
+            trackPlayerHit = MIX_CreateTrack(mixer);
+            MIX_SetTrackAudio(trackPlayerHit, audioPlayerHit);
+        }
 
         //Pour Le Logo
         DeerLogo = IMG_LoadTexture(renderer, "assets/Deer_Logo.png");
@@ -4118,6 +4148,7 @@ survivalTimer += deltaTime;
                         }
                         // si Fraise
                         else if (entity->entityType == EntityType::EnemyBullet) {
+                            app.PlayPlayerHitSound();
                             int damage = 50;
                             // Si le shield a des HP restants, il absorbe en premier
                             if (player->currentShieldHP > 0) {
@@ -4143,6 +4174,7 @@ survivalTimer += deltaTime;
                         }
                         //Si toucher avec Enemy (Cerf ou Meteorite)
                         else if (entity->entityType == EntityType::Enemy) {
+                            app.PlayPlayerHitSound();
                             int damage = 100;
                             if (player->currentShieldHP > 0) {
                                 player->currentShieldHP -= damage;
@@ -4806,7 +4838,7 @@ survivalTimer += deltaTime;
         TTF_DrawRendererText(fpsText, 1800, 10);
 
 
-        //TOUT CE QUI EST DEVANT CERA TOUCHER PAR LE FONDU 
+        //TOUT CE QUI EST DEVANT CERA TOUCHER PAR LE FONDU
         // LE FONDU PROGRESSIF
         if (app.deathFadeAlpha < 300.0f) {
             app.deathFadeAlpha += (150.0f * deltaTime);
@@ -5507,6 +5539,13 @@ public:
             MIX_PlayTrack(trackSFX, 0);
         }
     }
+    //Audio quand mouvement boutons
+    void PlayMouvementBoutonSound() {
+        if (trackSFX && audioBoutonMouvement) {
+            MIX_SetTrackAudio(trackSFX, audioBoutonMouvement);
+            MIX_PlayTrack(trackSFX, 0);
+        }
+    }
     //Audio quand tire
     void PlayShootSound() {
         if (trackShoot && audioShoot) {
@@ -5519,6 +5558,13 @@ public:
         if (trackEnemyDeath && audioEnemyDeath) {
             MIX_SetTrackAudio(trackEnemyDeath, audioEnemyDeath);
             MIX_PlayTrack(trackEnemyDeath, 0);
+        }
+    }
+    //Audio Quand joueur est touch/er
+    void PlayPlayerHitSound() {
+        if (trackPlayerHit && audioPlayerHit) {
+            MIX_SetTrackAudio(trackPlayerHit, audioPlayerHit);
+            MIX_PlayTrack(trackPlayerHit, 0);
         }
     }
 
@@ -5777,6 +5823,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //GERER SELECTION MENU AVEC GAMEPAD
         else if (app.StateActuel == State::Menu) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN) {
+                app.PlayMouvementBoutonSound();
                 //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
                 app.selectedButtonMenu++;
                 //Dessend 0 vers 4~
@@ -5787,6 +5834,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             //Monte ~
                 if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
                 //Monte
+                app.PlayMouvementBoutonSound();
                 app.selectedButtonMenu--;
                 if (app.selectedButtonMenu < 0) {
                     app.selectedButtonMenu = 4;
@@ -5828,6 +5876,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //GERER LES BOUTONS CHOIXNIVEAU
         else if (app.StateActuel == State::ChoixNiveau) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT) {
+                app.PlayMouvementBoutonSound();
                 //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
                 app.selectedButtonChoixNiveau++;
                 //Dessend 0 vers 2~ 3 choix
@@ -5837,6 +5886,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             //Monte ~
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
+                app.PlayMouvementBoutonSound();
                 //Monte
                 app.selectedButtonChoixNiveau--;
                 if (app.selectedButtonChoixNiveau < 0) {
@@ -5907,6 +5957,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 //Les niveaux bonus
         else if (app.StateActuel == State::ChoixBonus) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT) {
+                app.PlayMouvementBoutonSound();
                 //Par en bas on augmente le num du menu (passe de 0 a 1 -> de Play a Score)
                 app.selectedButtonChoixBonus++;
                 //Dessend 0 vers 2~ 3 choix
@@ -5916,6 +5967,7 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
             }
             //Monte ~
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
+                app.PlayMouvementBoutonSound();
                 //Monte
                 app.selectedButtonChoixBonus--;
                 if (app.selectedButtonChoixBonus < 0) {
@@ -5960,12 +6012,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
 
        else if (app.StateActuel == State::Pause) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_DOWN){
+                app.PlayMouvementBoutonSound();
                 app.selectedButtonPause++;
                 if (app.selectedButtonPause > 2) {
                     app.selectedButtonPause = 0;//Retourne au premier
                 }
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_UP) {
+                app.PlayMouvementBoutonSound();
                 app.selectedButtonPause--;
                 if (app.selectedButtonPause < 0) {
                     app.selectedButtonPause = 2;//retourne au dernier
@@ -6109,12 +6163,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //GERER SELECTION SHOP AVEC GAMEPAD
         else if (app.StateActuel == State::UpgradePopup) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT){
+                app.PlayMouvementBoutonSound();
             app.selectedButtonPopUp++;
                 if (app.selectedButtonPopUp > 4) {
                     app.selectedButtonPopUp = 0;//Retourne au premier
                 }
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
+                app.PlayMouvementBoutonSound();
                 app.selectedButtonPopUp--;
                 if (app.selectedButtonPopUp < 0) {
                     app.selectedButtonPopUp = 4;//retourne au dernier
@@ -6276,12 +6332,14 @@ SDL_AppEvent(void *appstate, SDL_Event *event) {
         //GERER SELECTION SHOP AVEC GAMEPAD
         else if (app.StateActuel == State::Shop) {
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_RIGHT){
+                app.PlayMouvementBoutonSound();
             app.selectedButtonShop++;
                 if (app.selectedButtonShop > 4) {
                     app.selectedButtonShop = 0;//Retourne au premier
                 }
             }
             if (event->gbutton.button == SDL_GAMEPAD_BUTTON_DPAD_LEFT) {
+                app.PlayMouvementBoutonSound();
                 app.selectedButtonShop--;
                 if (app.selectedButtonShop < 0) {
                     app.selectedButtonShop = 4;//retourne au dernier
