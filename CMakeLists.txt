@@ -2,67 +2,52 @@ cmake_minimum_required(VERSION 3.12)
 project(Deer_Invaders)
 
 set(CMAKE_CXX_STANDARD 17)
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendored/SDL_mixer ${CMAKE_BINARY_DIR}/SDL_mixer)
-add_executable(Deer_Invaders
-        Main.cpp
-        Main.h
-        State.cpp
-        State.h
-        Player.cpp
-        Player.h
-        Components.cpp
-        Components.h
-        Personnages.cpp
-        Personnages.h
-        Entity.cpp
-        Entity.h
-        Database.cpp
-        Database.h
-        ObjectPool.cpp
-        ObjectPool.h)
 
-target_include_directories(Deer_Invaders PRIVATE ${CMAKE_SOURCE_DIR}/vendored/SDL_mixer/include)
-target_link_libraries(Deer_Invaders PRIVATE SDL3_mixer::SDL3_mixer)
-
-# Steamworks SDK
 set(STEAM_SDK_PATH "${CMAKE_SOURCE_DIR}/libs/steamworks")
-target_include_directories(Deer_Invaders PRIVATE ${STEAM_SDK_PATH}/public)
-target_link_libraries(Deer_Invaders PRIVATE
-        SDL3 SDL3_image SDL3_ttf sqlite3 SDL3_mixer
-        ${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.lib)
+set(MIXER_PATH "${CMAKE_SOURCE_DIR}/libs/SDL3_mixer-3.2.0/x86_64-w64-mingw32")
 
-# Copy steam_api64.dll next to the .exe automatically
-add_custom_command(TARGET Deer_Invaders POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.dll"
-        $<TARGET_FILE_DIR:Deer_Invaders>)
+add_executable(Deer_Invaders
+        Main.cpp Main.h
+        State.cpp State.h
+        Player.cpp Player.h
+        Components.cpp Components.h
+        Personnages.cpp Personnages.h
+        Entity.cpp Entity.h
+        Database.cpp Database.h
+        ObjectPool.cpp ObjectPool.h
+)
+
+target_include_directories(Deer_Invaders PRIVATE
+        ${STEAM_SDK_PATH}/public
+        ${MIXER_PATH}/include
+)
+
+find_library(MIXER_LIBRARY NAMES SDL3_mixer PATHS "${MIXER_PATH}/lib" NO_DEFAULT_PATH)
+
+target_link_libraries(Deer_Invaders PRIVATE
+        SDL3
+        SDL3_image
+        SDL3_ttf
+        sqlite3
+        ${MIXER_LIBRARY}
+        "${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.lib"
+)
 
 set(ASSETS_SRC_DIR ${CMAKE_SOURCE_DIR}/assets)
 set(ASSETS_BINARY_DIR ${CMAKE_BINARY_DIR}/assets)
-add_custom_target(
-        assets ALL
+
+add_custom_target(assets ALL
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${ASSETS_BINARY_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_SRC_DIR} ${ASSETS_BINARY_DIR}
-        COMMENT "Clearing and copying game assets into the binary directory."
+        COMMENT "Copie des assets vers le dossier de build..."
 )
-
-add_custom_command(TARGET Deer_Invaders POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:SDL3_mixer::SDL3_mixer>
-        $<TARGET_FILE_DIR:Deer_Invaders>)
-
-add_custom_command(TARGET Deer_Invaders POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.dll"
-        $<TARGET_FILE_DIR:Deer_Invaders>)
-
-# Dossier où se trouve ton .exe
+add_dependencies(Deer_Invaders assets)
 set(BIN_DIR $<TARGET_FILE_DIR:Deer_Invaders>)
 
-# Copie automatique de TOUTES les DLL nécessaires
 add_custom_command(TARGET Deer_Invaders POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SDL3_mixer::SDL3_mixer> ${BIN_DIR}
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.dll" ${BIN_DIR}
-        COMMENT "Copie des DLL pour l'execution autonome..."
+        # Copie Steam API
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${STEAM_SDK_PATH}/redistributable_bin/win64/steam_api64.dll" "${BIN_DIR}"
+        # Copie SDL3 Mixer
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${MIXER_PATH}/bin/SDL3_mixer.dll" "${BIN_DIR}"
+        COMMENT "Copie des DLL necessaires pour l'execution..."
 )
-add_dependencies(${PROJECT_NAME} assets)
