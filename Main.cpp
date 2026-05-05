@@ -581,14 +581,13 @@ private:
         }
         //Mon renderer
         renderer = SDL_CreateRenderer(window, nullptr);
+        SDL_SetRenderVSync(renderer, 1);
         if (renderer == nullptr) {
             SDL_LogCritical(1, "SDL failed to create renderer! %s", SDL_GetError());
             abort();
         }
-
         //Le fullscreen renderer qui s'adapte entre WindowMode et FullScreen
         SDL_SetRenderLogicalPresentation(renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_LETTERBOX); //4 parameters
-
 
         spritesheet = IMG_LoadTexture(renderer, "assets/spritesheet.png");
         if (spritesheet == nullptr) {
@@ -5574,6 +5573,7 @@ public:
         const uint64_t currentTime = SDL_GetTicks();
         deltaTime = static_cast<float>(currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
+
         if (gameController == nullptr) {
             int padCount = 0;
             SDL_JoystickID* pads = SDL_GetGamepads(&padCount);
