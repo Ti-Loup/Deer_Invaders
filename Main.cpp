@@ -581,7 +581,7 @@ private:
         }
         //Mon renderer
         renderer = SDL_CreateRenderer(window, nullptr);
-        SDL_SetRenderVSync(renderer, 1);
+        //SDL_SetRenderVSync(renderer, 1);
         if (renderer == nullptr) {
             SDL_LogCritical(1, "SDL failed to create renderer! %s", SDL_GetError());
             abort();
